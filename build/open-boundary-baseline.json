@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "generatedBy": "scripts/compute-cli-closure.mjs",
+  "sourceClosure": "build/cli-runtime-closure.json",
+  "edges": [
+    {
+      "from": "server/index.ts",
+      "to": "server/routes/mobile-workbench.ts",
+      "provenance": "server-bootstrap:import-statement",
+      "classification": "evidence-needed",
+      "note": "Superseded by the mobile-workspace route in ongoing development; this edge is expected to retire with that replacement rather than be re-cut here, so it stays recorded as evidence rather than acted on."
+    }
+  ],
+  "evidenceNeeded": [
+    {
+      "path": "server/routes/mobile-workbench.ts",
+      "note": "Superseded by the mobile-workspace route in ongoing development; this edge is expected to retire with that replacement rather than be re-cut here, so it stays recorded as evidence rather than acted on."
+    }
+  ],
+  "provisional": [],
+  "staleClassificationReferences": [
+    {
+      "path": "core/card-archive-store.ts",
+      "note": "Named as closed-product by an earlier classification pass; no such file exists in core/ today."
+    },
+    {
+      "path": "core/card-face-store.ts",
+      "note": "Named as closed-product by an earlier classification pass; no such file exists in core/ today."
+    },
+    {
+      "path": "core/client-layout-profile-store.ts",
+      "note": "Named as closed-product by an earlier classification pass; no such file exists in core/ today."
+    },
+    {
+      "path": "core/card-document-ticket-service.ts",
+      "note": "Named as an open spec-facing file by an earlier classification pass; no such file exists in core/ today."
+    },
+    {
+      "path": "core/card-host-grant-store.ts",
+      "note": "Named as an open spec-facing file by an earlier classification pass; no such file exists in core/ today."
+    },
+    {
+      "path": "server/routes/suggestion-blocks.ts",
+      "note": "An earlier classification pass named 'suggestion-blocks'; the real file is server/suggestion-blocks.ts (no routes/ prefix)."
+    }
+  ],
+  "stats": {
+    "totalEdges": 1,
+    "byClassification": {
+      "evidence-needed": 1
+    },
+    "uniqueCoupledFiles": 1
+  }
+}

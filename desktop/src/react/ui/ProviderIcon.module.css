@@ -1,0 +1,27 @@
+/* 分组标题：provider 图标 + 名字。聊天页与设置页的模型选择器共用，保证一致。
+   缩进对齐基准见 SelectWidget.module.css 的 .providerInset。 */
+.groupHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 6px 0.65rem 2px;
+  font-size: var(--fs-hint);
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  user-select: none;
+}
+
+.icon {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex-shrink: 0;
+}
+
+.label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

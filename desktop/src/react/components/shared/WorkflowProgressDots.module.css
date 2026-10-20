@@ -1,0 +1,79 @@
+.dots {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 3px;
+  overflow: hidden;
+  align-items: center;
+}
+
+.dot {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 步骤图标按类型着色（低饱和度，文艺气质） */
+.dot[data-step-kind="parallel"] { color: #8da4b8; }
+.dot[data-step-kind="pipeline"] { color: #c4a87d; }
+.dot[data-step-kind="log"] { color: #8baa8b; }
+
+/* 步骤 running 时呼吸脉动（保持类型色，不换 accent） */
+.dot[data-step-kind][data-status="running"] {
+  animation: wfDotPulse 1.4s ease-in-out infinite;
+}
+
+/* Agent 头像按状态着色 */
+.avatarWrap {
+  border-radius: 50%;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.avatarWrap[data-status="running"] {
+  box-shadow: 0 0 0 1px var(--accent);
+  animation: wfDotPulse 1.4s ease-in-out infinite;
+}
+
+.avatarWrap[data-status="done"] {
+  box-shadow: 0 0 0 1px #5aa07a;
+}
+
+.avatarWrap[data-status="failed"] {
+  box-shadow: 0 0 0 1px #c46a6a;
+}
+
+.avatarWrap[data-status="pending"] {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+
+.avatarSm {
+  width: 12px;
+  height: 12px;
+  min-width: 12px;
+  min-height: 12px;
+}
+
+.avatarSm[data-status] {
+  box-shadow: none;
+}
+
+.avatarMd {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+}
+
+.avatarSm img, .avatarMd img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@keyframes wfDotPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}

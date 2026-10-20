@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' file:;">
+    <title>Browser</title>
+    <link rel="stylesheet" id="themeSheet" href="themes/warm-paper.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--bg);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+        .toolbar {
+            height: 44px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            gap: 6px;
+            position: relative;
+        }
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            flex-shrink: 0;
+        }
+        .tb-btn {
+            width: 28px; height: 28px;
+            border: none; background: transparent;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: default; color: var(--text-muted);
+            transition: background 0.12s, color 0.12s;
+            padding: 0;
+        }
+        .tb-btn:hover { background: var(--accent-light); color: var(--text); }
+        .tb-btn:active { background: var(--border); }
+        .tb-btn.disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+        .tb-btn svg { width: 14px; height: 14px; }
+        .close-btn:hover { background: rgba(255, 59, 48, 0.12); color: #FF3B30; }
+        .close-btn:active { background: rgba(255, 59, 48, 0.2); color: #FF3B30; }
+        .nav-sep { width: 1px; height: 16px; background: var(--border); margin: 0 4px; }
+        .browser-tab-strip {
+            flex: 1 1 auto;
+            min-width: 0;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            -webkit-app-region: drag;
+        }
+        /* 会话标识：说明这个 viewer 正在看哪个会话的浏览器 */
+        .browser-session-label {
+            flex: 0 1 auto;
+            min-width: 0;
+            max-width: 132px;
+            margin-right: 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 12px;
+            line-height: 1;
+            color: var(--text-light);
+            -webkit-app-region: drag;
+        }
+        .browser-tab-list {
+            flex: 0 1 auto;
+            min-width: 0;
+            max-width: calc(100% - 34px);
+            height: 36px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: none;
+            -webkit-app-region: no-drag;
+        }
+        .browser-tab-list::-webkit-scrollbar { display: none; }
+        .browser-tab {
+            width: 148px;
+            max-width: 148px;
+            min-width: 88px;
+            height: 31px;
+            padding: 0 7px 0 12px;
+            border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+            background: color-mix(in srgb, var(--bg-card) 86%, transparent);
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.035);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex: 0 0 auto;
+            cursor: default;
+            transition: background 0.12s, border-color 0.12s, color 0.12s, box-shadow 0.12s;
+            -webkit-app-region: no-drag;
+        }
+        .browser-tab:hover {
+            color: var(--text);
+            background: var(--bg-card);
+            border-color: color-mix(in srgb, var(--border) 88%, var(--text-muted));
+        }
+        .browser-tab.active {
+            color: var(--text);
+            background: var(--bg-card);
+            border-color: color-mix(in srgb, var(--border) 82%, var(--text));
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.055);
+        }
+        .browser-tab-title {
+            flex: 1 1 auto;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 12.5px;
+            line-height: 1;
+            text-align: left;
+        }
+        .browser-tab-close {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            color: var(--text-light);
+            opacity: 0.72;
+        }
+        .browser-tab-close:hover {
+            opacity: 1;
+            color: var(--text);
+            background: var(--accent-light);
+        }
+        .browser-tab-close svg {
+            width: 12px;
+            height: 12px;
+        }
+        .new-tab-btn {
+            flex: 0 0 auto;
+            margin-left: 2px;
+            -webkit-app-region: no-drag;
+        }
+        .toolbar-drag {
+            flex: 0 1 160px; min-width: 28px; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            -webkit-app-region: drag;
+        }
+        .stop-btn {
+            width: 28px; height: 28px;
+            border: none; background: transparent;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: default; color: var(--coral);
+            transition: background 0.12s, color 0.12s;
+            padding: 0;
+            -webkit-app-region: no-drag;
+        }
+        .stop-btn svg { width: 13px; height: 13px; }
+        .stop-btn:hover { background: rgba(196, 100, 100, 0.12); color: #b05555; }
+        .stop-btn:active { background: rgba(196, 100, 100, 0.2); color: #a04040; }
+        .card-frame {
+            position: absolute;
+            top: 48px; left: 8px; right: 8px; bottom: 8px;
+            background: var(--bg-card);
+            border-radius: 10px;
+            box-shadow: 0 0 0 0.5px var(--border), 0 4px 16px var(--shadow), 0 1px 3px var(--shadow);
+            pointer-events: none;
+        }
+        /* 空标签组：浏览器仍活着，只是没有打开的标签页 */
+        .browser-empty-state {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            pointer-events: auto;
+        }
+        .browser-empty-text {
+            font-size: 13px;
+            line-height: 1;
+            color: var(--text-light);
+        }
+        .browser-empty-action {
+            padding: 6px 16px;
+            border: 1px solid var(--border);
+            background: transparent;
+            border-radius: 2px;
+            font-size: 12.5px;
+            line-height: 1;
+            color: var(--text-muted);
+            cursor: default;
+            transition: background 0.12s, color 0.12s, border-color 0.12s;
+        }
+        .browser-empty-action:hover {
+            color: var(--text);
+            background: var(--accent-light);
+            border-color: color-mix(in srgb, var(--border) 88%, var(--text-muted));
+        }
+    </style>
+</head>
+<body>
+    <div id="react-root"></div>
+    <script src="lib/i18n.js"></script>
+    <script src="lib/theme.js"></script>
+    <script src="modules/platform.js"></script>
+    <script type="module" src="./browser-viewer-main.tsx"></script>
+</body>
+</html>

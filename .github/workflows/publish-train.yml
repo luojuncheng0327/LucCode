@@ -1,0 +1,76 @@
+name: Publish Train
+
+# Manual escape hatch for scripts/publish-train.mjs — the SAME script the
+# automatic `publish-train` job in build.yml calls after every `vX.Y.Z` tag.
+# Use this to retry a failed automatic publish, to publish a single channel
+# on its own, or to rehearse a publish with --dry-run before doing it for
+# real. See the script's file header for the resumable-publish contract.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Installer release tag whose archives to publish (e.g. v1.0.0)"
+        required: true
+      channel:
+        description: "Update channel"
+        required: true
+        type: choice
+        options:
+          - stable
+          - beta
+        default: stable
+      allow_prerelease_stable:
+        description: "Explicitly allow a prerelease source to advance stable (stable channel only)"
+        required: false
+        type: boolean
+        default: false
+      dry_run:
+        description: "Dry run — compute and print the plan, make no remote writes"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  publish-train:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.15.0"
+
+      - name: Materialize train signing key
+        shell: bash
+        env:
+          LUC_SIGN_KEY_PEM: ${{ secrets.LUC_SIGN_KEY }}
+        run: |
+          if [ -z "$LUC_SIGN_KEY_PEM" ]; then
+            echo "::error::LUC_SIGN_KEY secret is missing; the train manifest MUST be signed"
+            exit 1
+          fi
+          printf '%s\n' "$LUC_SIGN_KEY_PEM" > "$RUNNER_TEMP/luc-train-sign-key.pem"
+          echo "LUC_SIGN_KEY=$RUNNER_TEMP/luc-train-sign-key.pem" >> "$GITHUB_ENV"
+
+      - name: Publish train
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PUBLISH_TAG: ${{ inputs.tag }}
+          PUBLISH_CHANNEL: ${{ inputs.channel }}
+          ALLOW_PRERELEASE_STABLE: ${{ inputs.allow_prerelease_stable }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          args=(--tag "$PUBLISH_TAG" --channel "$PUBLISH_CHANNEL")
+          if [[ "$ALLOW_PRERELEASE_STABLE" == "true" ]]; then
+            args+=(--allow-prerelease-stable)
+          fi
+          if [[ "$DRY_RUN" == "true" ]]; then
+            args+=(--dry-run)
+          fi
+          node scripts/publish-train.mjs "${args[@]}"

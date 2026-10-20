@@ -1,0 +1,112 @@
+.card {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-8) var(--space-16);
+    gap: 4px;
+    transition: gap 0.25s var(--ease-out);
+}
+
+.card[data-collapsed] {
+    gap: 0;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.headerToggle {
+    min-width: 0;
+    flex: 1 1 auto;
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: default;
+    color: inherit;
+    text-align: left;
+}
+
+.headerActions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.iconButton {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-light);
+    padding: 0;
+    cursor: default;
+    transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+}
+
+.iconButton:hover:not(:disabled) {
+    background: rgba(90, 118, 139, 0.09);
+    color: var(--text);
+}
+
+.iconButton:disabled {
+    opacity: 0.45;
+}
+
+.folderIcon {
+    width: 14px;
+    height: 14px;
+}
+
+.title {
+    font-family: "Songti SC", "Noto Serif CJK SC", serif;
+    font-size: var(--fs-body);
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.chevron {
+    color: var(--text-light);
+    transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.chevron[data-open="false"] {
+    transform: rotate(-90deg);
+}
+
+.body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin: 2px 0 0;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 10px;
+    align-items: baseline;
+}
+
+.label {
+    font-size: var(--fs-hint);
+    color: var(--text-light);
+    white-space: nowrap;
+}
+
+.value {
+    margin: 0;
+    font-size: var(--fs-caption);
+    color: var(--text);
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

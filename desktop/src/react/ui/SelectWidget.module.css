@@ -1,0 +1,169 @@
+.root {
+  position: relative;
+  max-width: 240px;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-family: inherit;
+  font-size: var(--fs-ui);
+  line-height: 1.5;
+  color: var(--text);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input, 6px);
+  padding: 0.45rem 0.65rem;
+  cursor: default;
+  text-align: left;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.trigger:hover,
+.trigger:focus {
+  border-color: var(--accent);
+}
+
+.trigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.placeholder {
+  color: var(--text-muted);
+}
+
+.arrow {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted);
+  margin-left: var(--space-8);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.open .arrow {
+  transform: rotate(180deg);
+}
+
+.popup {
+  display: flex;
+  position: fixed;
+  top: auto;
+  left: auto;
+  width: max-content;
+  max-height: 260px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 16px var(--shadow, rgba(0, 0, 0, 0.08)),
+              0 1px 3px rgba(0, 0, 0, 0.04);
+  z-index: 9999;
+  margin-top: 0;
+  overflow: hidden auto;
+  flex-direction: column;
+  animation: luc-popout var(--duration-fast) var(--ease-out);
+  transform-origin: top right;
+  padding: 0;
+  -webkit-app-region: no-drag;
+}
+
+.popup[data-direction="up"][data-align="end"]   { transform-origin: bottom right; }
+.popup[data-direction="up"][data-align="start"] { transform-origin: bottom left; }
+.popup[data-direction="down"][data-align="end"]   { transform-origin: top right; }
+.popup[data-direction="down"][data-align="start"] { transform-origin: top left; }
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.4rem 0.65rem;
+  font-family: inherit;
+  font-size: var(--fs-caption);
+  color: var(--text);
+  background: none;
+  border: none;
+  border-radius: 0;
+  cursor: default;
+  text-align: left;
+  transition: all var(--duration-fast);
+}
+
+.option:hover {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.selected {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.selected:hover {
+  background: var(--accent-light);
+}
+
+.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.disabled:hover {
+  background: none;
+}
+
+.comfortable .option {
+  padding: 0.5rem 0.65rem;
+}
+
+/* 分组带 provider 图标时，选项左缩进，使选项文字与分组标题文字对齐（图标凸出在左侧）。
+   缩进量 = 标题 padding-left(0.65) + 图标(0.9) + gap(0.4)，见 ProviderIcon.module.css */
+.providerInset .option {
+  padding-left: 1.95rem;
+}
+
+.optionDesc {
+  font-size: var(--fs-hint);
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.option:hover .optionDesc {
+  color: var(--accent);
+  opacity: 0.6;
+}
+
+.groupHeader {
+  padding: 0.45rem 0.55rem 0.15rem;
+  font-size: var(--fs-hint);
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.groupHeader:not(:first-child) {
+  margin-top: 4px;
+  border-top: 1px solid var(--border-light, var(--border));
+  padding-top: 0.55rem;
+}
+
+:global(body.paper-texture) .trigger,
+:global(body.paper-texture) .popup {
+  background-image: url(../../assets/textures/rice-paper.png);
+  background-repeat: repeat;
+  background-size: 160px;
+  background-attachment: var(--paper-texture-attachment, fixed);
+  background-blend-mode: var(--paper-texture-card-blend-mode);
+}

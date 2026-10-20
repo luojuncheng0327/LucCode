@@ -1,0 +1,114 @@
+name: Stale Issues
+
+# 自动标记并关闭长期不活跃的 issue（两阶段：先标 stale，再关闭）。
+# Automatically marks and later closes long-inactive issues (two-phase).
+#
+# 工作方式 / How it works
+#   阶段 1 / Phase 1: issue 30 天无任何活动 → 打上 `stale` 标签并留言提醒。
+#                     After 30 days with no activity, add the `stale` label + a comment.
+#   阶段 2 / Phase 2: 打上 `stale` 后再 14 天仍无活动 → 以 "not planned" 关闭。
+#                     If still inactive 14 days AFTER being labeled stale, close as "not planned".
+#   任何新评论/更新都会自动移除 `stale` 标签并重新计时（remove-stale-when-updated）。
+#   Any comment/update removes the `stale` label and resets the clock.
+#
+# 首次运行不会"一键全关" / The first run does NOT mass-close anything:
+#   关闭只会发生在 stale 标签已存在满 14 天之后，所以上线后至少 14 天内没有任何
+#   issue 会被关闭。operations-per-run 也做了限流，冷 issue 会被分批、逐日标记
+#   （从最旧的开始），避免一次性刷屏通知。
+#   Closing only happens once an issue has carried the stale label for 14 days,
+#   so nothing can be closed during the first 14 days after this lands. The
+#   operations-per-run cap also spreads the initial labeling over several days
+#   (oldest first) instead of flooding notifications in one run.
+#
+# 只处理 issue，不处理 PR：本仓库的 PR 已由 close-prs.yml 在打开时自动关闭。
+# Issues only — PRs are already auto-closed on open by close-prs.yml.
+#
+# 预演 / Dry run: 手动触发 (Actions → Stale Issues → Run workflow) 并勾选
+# dry_run，只在日志里打印会被处理的 issue，不做任何修改。
+# Trigger manually with dry_run=true to log what would happen without changing anything.
+
+on:
+  schedule:
+    # 每天 01:30 UTC（新加坡/北京时间 09:30）/ daily at 01:30 UTC
+    - cron: "30 1 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run — only log what would be marked/closed, make no changes"
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  issues: write
+  # actions/stale 用 Actions 缓存保存跨运行的处理进度（分批续跑需要）
+  # actions/stale persists its progress in the Actions cache between runs
+  actions: write
+
+concurrency:
+  group: stale-issues
+  cancel-in-progress: false
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v10
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+          # ---- 时间阈值 / Thresholds ----
+          days-before-issue-stale: 30
+          days-before-issue-close: 14
+          # 不处理 PR / never touch PRs
+          days-before-pr-stale: -1
+          days-before-pr-close: -1
+
+          # ---- 标签与关闭方式 / Labels & close reason ----
+          stale-issue-label: stale
+          close-issue-reason: not_planned
+          remove-stale-when-updated: true
+
+          # ---- 豁免 / Exemptions ----
+          # 带以下任一标签的 issue 永不标记（不存在的标签会被安全忽略）
+          # Issues with any of these labels are never marked (missing labels are ignored)
+          exempt-issue-labels: "pinned,security,good first issue,help wanted,starred"
+          # 已分配负责人或已挂里程碑的 issue 视为在跟进中
+          # Assigned or milestoned issues are considered actively tracked
+          exempt-all-issue-assignees: true
+          exempt-all-issue-milestones: true
+
+          # ---- 限流 / Rate limiting ----
+          # 每次运行最多 100 次 API 操作；~1100 个 open issue 会在数天内分批处理，
+          # 从最旧的开始。/ Cap API operations per run; backlog is processed in
+          # batches over several days, oldest first.
+          operations-per-run: 100
+          ascending: true
+
+          # 定时运行为正式模式；手动触发默认 dry run
+          # Scheduled runs are live; manual runs default to dry run
+          debug-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+
+          # ---- 留言模板 / Comment templates ----
+          stale-issue-message: |
+            这个 issue 已经 30 天没有任何动态，已被自动标记为 `stale`。
+            如果 14 天内仍没有新的活动，它将被自动关闭。
+
+            **想让它保持打开？** 只需在下面留一条评论（例如补充最新情况、确认问题仍存在），或移除 `stale` 标签即可，计时会重新开始。
+            即使被关闭，也随时可以重新打开或新开 issue 并引用本条。感谢你的反馈！
+
+            ---
+
+            This issue has had no activity for 30 days and has been automatically marked as `stale`.
+            It will be closed automatically if there is no further activity within 14 days.
+
+            **Want to keep it open?** Just leave a comment below (e.g. an update, or confirming it still applies), or remove the `stale` label — the timer will reset.
+            Even if it gets closed, you can always reopen it or open a new issue referencing this one. Thanks for the feedback!
+          close-issue-message: |
+            由于标记为 `stale` 后 14 天内没有新的活动，这个 issue 已被自动关闭（not planned）。
+            如果问题仍然存在或需求仍然有意义，欢迎留言后重新打开，或新开 issue 并引用本条。
+
+            ---
+
+            This issue has been automatically closed (not planned) because there was no activity for 14 days after it was marked `stale`.
+            If it is still relevant, feel free to comment and reopen it, or open a new issue referencing this one.

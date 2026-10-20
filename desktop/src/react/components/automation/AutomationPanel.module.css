@@ -1,0 +1,559 @@
+.toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: var(--space-8);
+}
+
+.agentTabsFrame {
+    margin: 0 calc(var(--space-24) * -1) var(--space-16);
+    padding: var(--space-8) var(--space-24) 10px;
+    display: grid;
+    grid-template-columns: 26px minmax(0, 1fr) 26px;
+    align-items: start;
+    gap: 7px;
+}
+
+.agentTabsShell {
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: visible;
+    padding-top: var(--space-8);
+    margin-top: calc(var(--space-8) * -1);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-behavior: smooth;
+}
+
+.agentTabsShell::-webkit-scrollbar {
+    display: none;
+}
+
+.agentTabsArrow {
+    width: 26px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.055);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.52);
+    color: var(--text-muted);
+    cursor: default;
+    transition: color var(--duration-fast), background var(--duration-fast), border-color var(--duration-fast), opacity var(--duration-fast);
+}
+
+.agentTabsArrow:hover:not(:disabled) {
+    color: var(--accent);
+    border-color: rgba(var(--accent-rgb), 0.24);
+    background: rgba(var(--accent-rgb), 0.055);
+}
+
+.agentTabsArrow:disabled {
+    opacity: 0.34;
+}
+
+.agentTabs {
+    width: max-content;
+    min-width: max-content;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 14px;
+}
+
+.agentTab {
+    width: 64px;
+    flex: 0 0 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 0 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: default;
+}
+
+.agentTabAvatarWrap {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid var(--bg-card, var(--bg));
+    background: var(--bg-card, var(--bg));
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.11), 0 1px 4px rgba(0, 0, 0, 0.07);
+    transition: transform var(--duration-fast) var(--ease-out),
+                border-color var(--duration-fast) var(--ease-out),
+                box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.agentTab:hover .agentTabAvatarWrap,
+.agentTab[data-active="true"] .agentTabAvatarWrap {
+    transform: translateY(-2px) scale(1.04);
+    border-color: rgba(var(--accent-rgb), 0.32);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.13), 0 1px 5px rgba(0, 0, 0, 0.08);
+}
+
+.agentTabAvatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+.agentTabName {
+    width: 64px;
+    max-width: 64px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: var(--fs-hint);
+    line-height: 1.25;
+}
+
+.agentTab[data-active="true"] .agentTabName {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.categoryTabs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 var(--space-8);
+    padding: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.categoryTabs::-webkit-scrollbar {
+    display: none;
+}
+
+.categoryTab {
+    min-height: 26px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex: 0 0 auto;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    font: inherit;
+    font-size: var(--fs-hint);
+    padding: 4px 8px;
+    cursor: default;
+    transition: color var(--duration-fast), background var(--duration-fast), border-color var(--duration-fast);
+}
+
+.categoryTab:hover {
+    color: var(--text);
+    background: rgba(0, 0, 0, 0.025);
+}
+
+.categoryTab[data-active="true"] {
+    color: var(--text);
+    border-color: rgba(var(--accent-rgb), 0.18);
+    background: rgba(var(--accent-rgb), 0.055);
+}
+
+.categoryTabCount {
+    min-width: 1.2em;
+    color: var(--text-light);
+    font-size: var(--fs-hint);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+
+.iconButton {
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--overlay-light);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text-muted);
+    cursor: default;
+    transition: color var(--duration-fast), background var(--duration-fast), border-color var(--duration-fast);
+}
+
+.iconButton:hover {
+    color: var(--accent);
+    border-color: rgba(var(--accent-rgb), 0.28);
+    background: rgba(var(--accent-rgb), 0.05);
+}
+
+.group {
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.32);
+    overflow: hidden;
+}
+
+.groupHeader {
+    width: 100%;
+    min-height: 38px;
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr) auto 14px;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 9px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    font: inherit;
+    cursor: default;
+}
+
+.groupHeader:hover {
+    background: rgba(0, 0, 0, 0.025);
+}
+
+.groupAvatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.groupName {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--fs-ui);
+    font-weight: 600;
+    color: var(--text);
+}
+
+.groupCount,
+.meta {
+    font-size: var(--fs-hint);
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.chevron {
+    color: var(--text-light);
+    transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.chevron[data-open="false"] {
+    transform: rotate(-90deg);
+}
+
+.groupList {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 0 7px 7px;
+}
+
+.card {
+    border: 1px solid rgba(0, 0, 0, 0.055);
+    border-radius: 6px;
+    background: var(--bg-card, var(--bg));
+    overflow: hidden;
+}
+
+.row {
+    width: 100%;
+    min-height: 40px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto 14px;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 8px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    font: inherit;
+    cursor: default;
+}
+
+.row:hover {
+    background: rgba(0, 0, 0, 0.022);
+}
+
+.rowMain {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--fs-caption);
+    color: var(--text);
+}
+
+.subline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+}
+
+.badge {
+    font-size: 0.58rem;
+    line-height: 1;
+    color: var(--accent);
+    border: 1px solid rgba(var(--accent-rgb), 0.24);
+    border-radius: var(--radius-sm);
+    padding: 2px 4px;
+    white-space: nowrap;
+}
+
+.details {
+    border-top: 1px solid rgba(0, 0, 0, 0.045);
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.fieldGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(132px, 0.42fr);
+    gap: 8px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+    color: var(--text-muted);
+    font-size: var(--fs-hint);
+}
+
+.field input,
+.field textarea,
+.field select {
+    width: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+    font-size: var(--fs-hint);
+    outline: none;
+}
+
+.field input,
+.field select {
+    height: 1.65rem;
+    padding: 0 7px;
+}
+
+.field textarea {
+    min-height: 5.6rem;
+    max-height: 12rem;
+    resize: vertical;
+    padding: 6px 7px;
+    line-height: 1.45;
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+    border-color: rgba(var(--accent-rgb), 0.35);
+    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.08);
+}
+
+.scheduleSelect {
+    width: 100%;
+    max-width: none;
+}
+
+.scheduleSelectTrigger {
+    width: 100%;
+    min-width: 0;
+    height: 1.65rem;
+    padding: 0 7px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+    font-size: var(--fs-hint);
+    line-height: 1;
+    transition: background var(--duration-fast), border-color var(--duration-fast), box-shadow var(--duration-fast);
+}
+
+.scheduleSelectTrigger:hover {
+    border-color: rgba(var(--accent-rgb), 0.2);
+    background: rgba(var(--accent-rgb), 0.025);
+}
+
+.scheduleSelectTrigger:focus-visible {
+    outline: none;
+    border-color: rgba(var(--accent-rgb), 0.35);
+    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.08);
+}
+
+.timePicker {
+    position: relative;
+    min-width: 0;
+}
+
+.timePickerButton {
+    width: 100%;
+    min-width: 0;
+    height: 1.65rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 6px;
+    padding: 0 7px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+    font-size: var(--fs-hint);
+    line-height: 1;
+    text-align: left;
+    cursor: default;
+    transition: background var(--duration-fast), border-color var(--duration-fast), box-shadow var(--duration-fast);
+}
+
+.timePickerButton:hover {
+    border-color: rgba(var(--accent-rgb), 0.2);
+    background: rgba(var(--accent-rgb), 0.025);
+}
+
+.timePickerButton:focus-visible {
+    outline: none;
+    border-color: rgba(var(--accent-rgb), 0.35);
+    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.08);
+}
+
+.timePickerButton svg {
+    color: var(--text-muted);
+}
+
+.timePickerPopover {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 6px);
+    z-index: 50;
+    width: 184px;
+    max-height: 190px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
+    padding: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius-md);
+    background: var(--bg-card, var(--bg));
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.13), 0 2px 8px rgba(0, 0, 0, 0.06);
+    animation: luc-popout var(--duration-fast) var(--ease-out);
+    transform-origin: top left;
+}
+
+.timePickerColumn {
+    max-height: 178px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    scrollbar-width: thin;
+}
+
+.timePickerDivider {
+    margin: 2px 5px;
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.timePickerOption {
+    height: 28px;
+    flex: 0 0 28px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    font: inherit;
+    font-size: var(--fs-caption);
+    cursor: default;
+    transition: background var(--duration-fast), color var(--duration-fast);
+}
+
+.timePickerOption:hover {
+    background: rgba(0, 0, 0, 0.035);
+    color: var(--text);
+}
+
+.timePickerOption[data-selected="true"] {
+    background: rgba(var(--accent-rgb), 0.12);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.scheduleEditor {
+    display: grid;
+    grid-template-columns: minmax(120px, 0.48fr) minmax(0, 1fr);
+    gap: 8px;
+    align-items: end;
+}
+
+.scheduleInline {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(96px, 0.72fr);
+    gap: 8px;
+    align-items: end;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.textButton {
+    border: 1px solid rgba(var(--accent-rgb), 0.22);
+    border-radius: var(--radius-sm);
+    background: rgba(var(--accent-rgb), 0.05);
+    color: var(--accent);
+    font: inherit;
+    font-size: var(--fs-hint);
+    padding: 4px 9px;
+    cursor: default;
+}
+
+.textButton:disabled {
+    opacity: 0.45;
+}
+
+.dangerButton {
+    color: var(--danger, #d9534f);
+    border-color: rgba(217, 83, 79, 0.22);
+    background: rgba(217, 83, 79, 0.04);
+}
+
+@media (max-width: 560px) {
+    .fieldGrid,
+    .scheduleEditor,
+    .scheduleInline {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .agentTabs {
+        justify-content: flex-start;
+    }
+}

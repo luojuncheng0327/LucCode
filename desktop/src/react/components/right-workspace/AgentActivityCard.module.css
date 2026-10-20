@@ -1,0 +1,159 @@
+.card {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: var(--space-8) var(--space-16);
+    gap: 6px;
+    transition: gap 0.25s var(--ease-out);
+}
+
+.card[data-collapsed] {
+    gap: 0;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: default;
+    color: inherit;
+}
+
+.title {
+    flex: 1;
+    text-align: left;
+    font-family: "Songti SC", "Noto Serif CJK SC", serif;
+    font-size: var(--fs-body);
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.count {
+    font-size: var(--fs-hint);
+    color: var(--text-muted);
+}
+
+.chevron {
+    flex: 0 0 auto;
+    color: var(--text-light);
+    transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.chevron[data-open="false"] {
+    transform: rotate(-90deg);
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-height: 0;
+}
+
+/* 每个子助手 — 复刻群聊 Agent 动态行（channels/Channels.module.css .agentActivity*） */
+.item {
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.34);
+    overflow: hidden;
+}
+
+.activityRow {
+    width: 100%;
+    min-height: 34px;
+    padding: 6px 8px;
+    display: grid;
+    grid-template-columns: 20px minmax(48px, max-content) minmax(0, 1fr);
+    gap: 7px;
+    align-items: center;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: default;
+}
+
+.activityRow:hover {
+    background: rgba(0, 0, 0, 0.025);
+}
+
+.avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--overlay-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 0.58rem;
+    font-weight: 600;
+}
+
+.avatarImg {
+    width: 20px;
+    height: 20px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+/* 名字 + 复用后缀同处 grid 第 2 单元：后缀作名字的延长，摘要回到第 3 列 → 单行不换行 */
+.nameGroup {
+    display: flex;
+    align-items: baseline;
+    min-width: 0;
+}
+
+.name {
+    font-size: var(--fs-caption);
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 复用实例后缀（如 ·探索）：与名字同色同号、紧贴，读作名字的延长后缀（非独立灰块） */
+.instance {
+    flex-shrink: 0;
+    font-size: var(--fs-caption);
+    color: var(--text);
+    margin-left: 1px;
+    white-space: nowrap;
+}
+
+.summary {
+    min-width: 0;
+    font-size: var(--fs-caption);
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 运行中的子助手：动态文字用强调色，呼应「正在干活」 */
+.activityRow[data-status="running"] .summary {
+    color: var(--accent);
+}
+
+.details {
+    border-top: 1px solid rgba(0, 0, 0, 0.045);
+}
+
+.scroll {
+    max-height: 11.5rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 6px 7px 7px;
+    font-size: var(--fs-caption);
+}
+
+.scroll :global(.message) {
+    max-width: 100%;
+}

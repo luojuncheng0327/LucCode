@@ -1,0 +1,14 @@
+{
+  "id": "office",
+  "name": "Office",
+  "version": "0.1.0",
+  "description": "Default Office document tools for reading supported documents and exporting HTML to PDF through the desktop Chromium print engine.",
+  "trust": "restricted",
+  "hidden": true,
+  "capabilities": [
+    "office.read",
+    "office.html_to_pdf",
+    "resource.read",
+    "resource.materialize"
+  ]
+}

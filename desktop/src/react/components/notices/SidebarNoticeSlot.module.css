@@ -1,0 +1,114 @@
+.slot {
+    flex-shrink: 0;
+    padding: var(--space-8) 6px;
+    -webkit-app-region: no-drag;
+}
+
+.card {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    /* 卡片 token 直接用全局 --bg-card，任何主题/纹理组合下都与其它卡片同质感——
+       故意不叠加宣纸纹理覆盖规则（贴纸曾经是唯一的分歧点）。 */
+    background: var(--bg-card);
+    border: 1px solid var(--overlay-light);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    animation: luc-fade-up var(--duration-fast) var(--ease-out);
+    overflow: hidden;
+    transition: background var(--duration-fast) var(--ease-out);
+}
+
+.card:hover {
+    background: color-mix(in srgb, var(--bg-card) 88%, var(--accent) 6%);
+}
+
+/* 整张贴纸 = 一颗按钮：点击即触发对应更新动作，没有独立的
+   内层动作按钮。 */
+.cardButton {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    min-width: 0;
+    gap: var(--space-8);
+    padding: var(--space-8) var(--space-6) var(--space-8) var(--space-12);
+    color: inherit;
+    text-align: left;
+    background: transparent;
+    border: none;
+    cursor: default;
+    font: inherit;
+}
+
+.textBlock {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
+    /* 给右上角的叉留出空间，不被标题行挤到 */
+    padding-right: var(--space-16);
+}
+
+.title {
+    min-width: 0;
+    color: var(--text);
+    font-size: var(--fs-body);
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.subtitle {
+    min-width: 0;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: var(--fs-caption);
+    font-variant-numeric: tabular-nums;
+}
+
+.refreshIcon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    width: 22px;
+    height: 22px;
+    color: var(--accent);
+}
+
+.closeButton {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    color: var(--text-muted);
+    background: transparent;
+    border: none;
+    border-radius: 3px;
+    cursor: default;
+    /* 保留关闭入口，但默认淡出；hover/focus 卡片时浮现。 */
+    opacity: 0;
+    transition: opacity var(--duration-fast) var(--ease-out),
+                color var(--duration-fast) var(--ease-out),
+                background var(--duration-fast) var(--ease-out);
+}
+
+.card:hover .closeButton,
+.card:focus-within .closeButton {
+    opacity: 0.66;
+}
+
+.closeButton:hover,
+.closeButton:focus-visible {
+    color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.08);
+    opacity: 1;
+    outline: none;
+}

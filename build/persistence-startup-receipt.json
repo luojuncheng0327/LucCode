@@ -1,0 +1,696 @@
+{
+  "version": 2,
+  "generatedBy": "scripts/scan-persistent-stores.mjs",
+  "canonicalPhases": [
+    "desktop_bootstrap",
+    "home_guard",
+    "epoch_read_preflight",
+    "epoch_transition",
+    "post_epoch_pre_bind",
+    "transport_bind",
+    "first_run_seed",
+    "identity_seed",
+    "engine_construct",
+    "engine_init_legacy_migrations",
+    "runtime_ready"
+  ],
+  "futureCoordinatorPhase": "epoch_transition",
+  "stores": [
+    {
+      "id": "agent-authored-records",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "agent-facts-sqlite",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "agent-memory",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "agent-phone",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "agent-profile",
+      "firstPossibleOpenPhase": "first_run_seed",
+      "firstPossibleWritePhase": "first_run_seed",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "channels",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "character-card-staging",
+      "firstPossibleOpenPhase": "runtime_ready",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "cron-automation",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "data-epoch-checkpoints",
+      "firstPossibleOpenPhase": "epoch_transition",
+      "firstPossibleWritePhase": "epoch_transition",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "data-epoch-restore-quarantine",
+      "firstPossibleOpenPhase": "epoch_transition",
+      "firstPossibleWritePhase": "epoch_transition",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "data-epoch-stamp",
+      "firstPossibleOpenPhase": "epoch_read_preflight",
+      "firstPossibleWritePhase": "epoch_transition",
+      "opensBeforeFutureCoordinator": true,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": {
+        "compatibility": "epoch-independent",
+        "reason": "The epoch stamp is coordinator metadata and is never interpreted as an epoch-managed business store.",
+        "unstampedHomeSafePaths": []
+      },
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "data-epoch-transition-journal",
+      "firstPossibleOpenPhase": "epoch_read_preflight",
+      "firstPossibleWritePhase": "epoch_transition",
+      "opensBeforeFutureCoordinator": true,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "deferred-result-state",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "engine_construct",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "desk-activity",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "desk-cover-upload-staging",
+      "firstPossibleOpenPhase": "runtime_ready",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "desktop-diagnostics",
+      "firstPossibleOpenPhase": "desktop_bootstrap",
+      "firstPossibleWritePhase": "desktop_bootstrap",
+      "opensBeforeFutureCoordinator": true,
+      "writesBeforeFutureCoordinator": true,
+      "bootstrapSafety": {
+        "compatibility": "epoch-independent",
+        "reason": "Desktop diagnostics are append/replace troubleshooting evidence whose reader does not depend on the application data epoch.",
+        "unstampedHomeSafePaths": [
+          {
+            "relativePath": "diagnostics/desktop-launch",
+            "kind": "tree"
+          },
+          {
+            "relativePath": "crash.log",
+            "kind": "file"
+          },
+          {
+            "relativePath": "browser-cmd.log",
+            "kind": "file"
+          }
+        ]
+      },
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "desktop-gpu-startup-state",
+      "firstPossibleOpenPhase": "desktop_bootstrap",
+      "firstPossibleWritePhase": "desktop_bootstrap",
+      "opensBeforeFutureCoordinator": true,
+      "writesBeforeFutureCoordinator": true,
+      "bootstrapSafety": {
+        "compatibility": "epoch-independent",
+        "reason": "GPU launch recovery is interpreted entirely by the versioned desktop policy before the server exists.",
+        "unstampedHomeSafePaths": [
+          {
+            "relativePath": "user/gpu-startup.json",
+            "kind": "file"
+          }
+        ]
+      },
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "desktop-update-channel",
+      "firstPossibleOpenPhase": "runtime_ready",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "desktop-win32-install-acl-heal-state",
+      "firstPossibleOpenPhase": "desktop_bootstrap",
+      "firstPossibleWritePhase": "desktop_bootstrap",
+      "opensBeforeFutureCoordinator": true,
+      "writesBeforeFutureCoordinator": true,
+      "bootstrapSafety": {
+        "compatibility": "epoch-independent",
+        "reason": "Install-directory ACL repair runs before the server exists and is interpreted entirely by the versioned desktop module.",
+        "unstampedHomeSafePaths": [
+          {
+            "relativePath": "user/win32-install-acl-heal.json",
+            "kind": "file"
+          }
+        ]
+      },
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "desktop-window-version-state",
+      "firstPossibleOpenPhase": "runtime_ready",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "device-access-registries",
+      "firstPossibleOpenPhase": "identity_seed",
+      "firstPossibleWritePhase": "identity_seed",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "execution-leases",
+      "firstPossibleOpenPhase": "identity_seed",
+      "firstPossibleWritePhase": "identity_seed",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "file-history-sqlite",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "engine_construct",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "installed-plugins",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "legacy-pi-search-cache",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "legacy-upload-cache",
+      "firstPossibleOpenPhase": "runtime_ready",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "local-user-auth",
+      "firstPossibleOpenPhase": "identity_seed",
+      "firstPossibleWritePhase": "identity_seed",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "loop-state",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "engine_construct",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "managed-runtime-caches",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "mcp-config",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "office-render-jobs",
+      "firstPossibleOpenPhase": "runtime_ready",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "operational-checkpoints",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "plugin-development-state",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "plugin-download-cache",
+      "firstPossibleOpenPhase": "runtime_ready",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "plugin-runtime-data",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "plugin-task-registry",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "engine_construct",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "provider-state",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "engine_construct",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "runtime-diagnostics",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "security-audit-log",
+      "firstPossibleOpenPhase": "runtime_ready",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "security-grants",
+      "firstPossibleOpenPhase": "identity_seed",
+      "firstPossibleWritePhase": "identity_seed",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "security-key-material",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "engine_construct",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "server-network-config",
+      "firstPossibleOpenPhase": "post_epoch_pre_bind",
+      "firstPossibleWritePhase": "post_epoch_pre_bind",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "server-node-identity",
+      "firstPossibleOpenPhase": "identity_seed",
+      "firstPossibleWritePhase": "identity_seed",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "server-runtime-info",
+      "firstPossibleOpenPhase": "home_guard",
+      "firstPossibleWritePhase": "home_guard",
+      "opensBeforeFutureCoordinator": true,
+      "writesBeforeFutureCoordinator": true,
+      "bootstrapSafety": {
+        "compatibility": "regenerable",
+        "reason": "Server discovery state is deleted or regenerated from the live bound process and carries no durable user data.",
+        "unstampedHomeSafePaths": []
+      },
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "session-drafts-and-projects",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "engine_construct",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "session-files",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "session-jsonl",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "session-manifest-sqlite",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "engine_construct",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "session-sidecars",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "signed-artifacts",
+      "firstPossibleOpenPhase": "desktop_bootstrap",
+      "firstPossibleWritePhase": "desktop_bootstrap",
+      "opensBeforeFutureCoordinator": true,
+      "writesBeforeFutureCoordinator": true,
+      "bootstrapSafety": {
+        "compatibility": "epoch-independent",
+        "reason": "Signed component activation is verified by artifact manifests and pointers before application data is opened.",
+        "unstampedHomeSafePaths": [
+          {
+            "relativePath": "artifacts",
+            "kind": "tree"
+          }
+        ]
+      },
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "skill-state",
+      "firstPossibleOpenPhase": "first_run_seed",
+      "firstPossibleWritePhase": "first_run_seed",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "skill-translation-cache",
+      "firstPossibleOpenPhase": "runtime_ready",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "studio-mount-registry",
+      "firstPossibleOpenPhase": "identity_seed",
+      "firstPossibleWritePhase": "identity_seed",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "subagent-state",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "terminal-session-state",
+      "firstPossibleOpenPhase": "runtime_ready",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "usage-ledger",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "user-preferences",
+      "firstPossibleOpenPhase": "desktop_bootstrap",
+      "firstPossibleWritePhase": "first_run_seed",
+      "opensBeforeFutureCoordinator": true,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": {
+        "compatibility": "additive-only",
+        "fields": [
+          "auto_check_updates",
+          "hardware_acceleration",
+          "keep_awake",
+          "locale",
+          "network_proxy",
+          "primaryAgent",
+          "quick_chat",
+          "setupComplete",
+          "update_channel"
+        ],
+        "reason": "Desktop startup reads only these named optional fields before the epoch transition; removal or semantic reinterpretation requires moving the read behind the coordinator."
+      },
+      "breakingMigrationRequiresAccessMove": true
+    },
+    {
+      "id": "user-studio-registries",
+      "firstPossibleOpenPhase": "identity_seed",
+      "firstPossibleWritePhase": "identity_seed",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "web-session-registry",
+      "firstPossibleOpenPhase": "identity_seed",
+      "firstPossibleWritePhase": "identity_seed",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "windows-sandbox-migration-state",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
+      "id": "workflow-state",
+      "firstPossibleOpenPhase": "engine_construct",
+      "firstPossibleWritePhase": "runtime_ready",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+# 源码统一 LF 检出。背景：GitHub Windows runner 的 git 默认 autocrlf=true，
+# 没有本文件时源码会被检出成 CRLF；CRLF 与个别语法构造（如脚本 shebang 行）
+# 叠加会破坏测试工具链的代码转换，且只在 Windows 上爆发。text=auto 让 git
+# 自动识别二进制文件，eol=lf 只作用于文本文件。
+* text=auto eol=lf
+
+# 显式标记常见二进制，避免启发式误判
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.icns binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.gz binary
+*.tar binary
+*.zip binary
+*.node binary
+*.exe binary
+*.dll binary
+*.dylib binary
+*.so binary
+*.p12 binary
+*.pdf binary

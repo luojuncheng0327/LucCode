@@ -1,0 +1,48 @@
+/* ── Interactive Card (show_card) ──
+ *
+ * 聊天流中的 iframe 交互卡片。
+ * 视觉参考 imageOutputCard（暖白卡底 + 发丝边 + 淡投影），但有两点不同：
+ *  1. 宽度：imageOutputCard 是 inline-flex（内容宽度），这里是 block（撑满 .message 92%）
+ *  2. 层次：imageOutputCard 用 padding + 内层小圆角做相框式衬边；这里无 padding，
+ *     frame/iframe 圆角统一为 --radius-chat-card 与外框同心，呈现为干净的单层卡。
+ *     外框由宿主提供，卡片内容（show_card 片段）不再自带外框。
+ */
+
+.interactiveCard {
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin: var(--space-8) 0;
+    background: var(--bg-card, var(--bg));
+    border: 0.5px solid var(--border, rgba(0,0,0,0.08));
+    border-radius: var(--radius-chat-card);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    transition: border-color var(--duration-fast);
+}
+
+.interactiveCard:hover {
+    border-color: var(--text-muted, rgba(0,0,0,0.2));
+}
+
+/* iframe 容器：高度完全由内容上报决定，900px 封顶 */
+.interactiveCardFrame {
+    position: relative;
+    width: 100%;
+    min-height: 48px;
+    border-radius: var(--radius-chat-card);
+    overflow: hidden;
+}
+
+.interactiveCardFrame > iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: var(--radius-chat-card);
+}
+
+/* 高度超过 cap 时 iframe 本体滚动 */
+.interactiveCardFrameScrollable > iframe {
+    overflow-y: auto;
+}

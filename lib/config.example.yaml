@@ -1,0 +1,84 @@
+# ═══════════════════════════════════════════
+# 系统配置（唯一配置源）
+# 复制本文件为 config.yaml 并填入你的信息
+# ═══════════════════════════════════════════
+
+# 身份信息
+agent:
+  name: Luc                           # 你的助手叫什么
+  yuan: luc                           # 源模板：luc / butter / ming
+# 你的名字存在全局设置里（所有助手共用一个），这里留空即可。
+# 只有想让某个助手用不一样的称呼叫你时，才在它自己的配置里填这一项。
+user:
+  name: ""
+
+# API 配置（主通道）
+# 凭证从全局 ~/.luccode/added-models.yaml 或当前 agent 的 providers 块读取
+api:
+  provider: ""                     # dashscope / volcengine / openai / ...
+
+# Embedding 专用 API（可选）
+# 如果 embedding 模型和主模型不在同一个 provider，在这里单独配
+embedding_api:
+  provider: ""                     # embedding 走哪个 provider
+
+# 模型配置
+models:
+  chat: ""                         # 主对话模型
+  utility: ""                      # 工具模型（对话摘要等轻量任务）
+  utility_large: ""                # 大工具模型（记忆编译、深度分析等需要理解力的任务）
+  embedding: ""                    # 向量模型
+  embedding_dimensions: 1024       # 向量维度
+
+# 记忆系统配置
+# 高斯衰减：score = score × e^(-λ × t²)，t = days since last access
+# 前几天慢、中间加速、尾部趋零，约两周自然归零。
+# decay_per_day 就是 λ，控制衰减陡度：
+#   λ = 0.01 → 约 19 天归零（慢，记忆广）
+#   λ = 0.02 → 约 14 天归零（默认）
+#   λ = 0.04 → 约 10 天归零（快，聚焦近期）
+# 被 hit 过的记忆会重置衰减起点，常提起的记忆不会消失。
+# token_budget 控制 memory.md 能装多少内容。
+memory:
+  enabled: true                   # 记忆总开关：默认开启，用户需要时可在设置中关闭
+  token_budget: 2500               # memory.md 的目标 token 预算
+  decay_per_day: 0.02              # 高斯衰减系数 λ（越大遗忘越快）
+  hit_bonus: 5                     # 每次命中加多少分
+  base_importance: 10              # 新记忆的默认初始分
+  compile_threshold: 4.5           # 分数低于此值的记忆不进入 memory.md
+  forget_speed: 1.0                # 遗忘倍率（1.0 = 正常，2.0 = 忘得快一倍）
+
+# 经验库（默认关闭）：开启后助手会总结工作经验并在后续任务中参考，
+# 但经验可能污染上下文，建议明确需要时再打开。
+experience:
+  enabled: false
+
+# 网页搜索（可选）
+# auto 会优先使用已配置的付费 API provider，再回退到 AnySearch 免费搜索和浏览器搜索。
+# API provider：anysearch / tavily / brave / serper。免费 API provider：anysearch_free。浏览器 provider：bing_browser / google_browser / duckduckgo_browser。
+search:
+  provider: "auto"                       # 也可显式填 anysearch / anysearch_free / bing_browser / google_browser / duckduckgo_browser / tavily / brave / serper
+  api_keys:                              # auto 下可同时配置多个；没有 key 时先走 AnySearch 免费搜索，再走浏览器搜索
+    anysearch: ""
+    tavily: ""
+    brave: ""
+    serper: ""
+  api_key: ""                            # 旧单 provider 兼容字段；新配置优先用 api_keys
+
+# Skills（per-agent 技能开关）
+skills:
+  enabled: ["skill-creator"]                             # 启用的 skill 名称，如 ["pdf", "literary-craft"]
+
+# 工作书桌
+desk:
+  heartbeat_enabled: false           # 巡检默认关闭，用户明确开启后才会自动巡检
+  heartbeat_interval: 31             # 巡检间隔（分钟）
+
+# 工作区上下文（per-agent）
+workspace_context:
+  discover_project_skills: true             # 加载当前项目 .agents/skills
+  discover_compatible_project_skills: false # 加载项目内其他工具的技能目录
+
+# 频道系统（agent 间协作通信）
+channels:
+  enabled: false                     # 是否参与频道轮转

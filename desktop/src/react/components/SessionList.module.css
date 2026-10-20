@@ -1,0 +1,881 @@
+/* ========================================
+   Session 列表 — CSS Module
+   ======================================== */
+
+.sessionList {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 var(--space-8);
+    -webkit-app-region: no-drag;
+}
+
+.sessionListScroller {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-app-region: no-drag;
+}
+
+.sessionSearchBox {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 30px;
+    margin: 15px var(--space-8) 6px;
+    padding: 0 8px;
+    background: color-mix(in srgb, var(--sidebar-bg, var(--bg)) 97%, var(--text) 3%);
+    border: none;
+    border-radius: var(--radius-sm);
+    -webkit-app-region: no-drag;
+}
+
+.sessionSearchBox::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -10px;
+    width: 72%;
+    height: 1px;
+    transform: translateX(-50%);
+    background: color-mix(in srgb, var(--text-muted) 18%, transparent);
+    pointer-events: none;
+}
+
+.sessionSearchIcon {
+    flex-shrink: 0;
+    color: var(--text-muted);
+    opacity: 0.62;
+}
+
+.sessionSearchInput {
+    flex: 1;
+    min-width: 0;
+    height: 24px;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text);
+    font-family: inherit;
+    font-size: var(--fs-caption);
+    line-height: 24px;
+}
+
+.sessionSearchInput::placeholder {
+    color: var(--text-muted);
+    opacity: 0.64;
+}
+
+:global(.mobile-desktop-root) .sessionSearchInput {
+    font-size: 16px;
+}
+
+.sessionSearchClear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: none;
+    border-radius: 3px;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: default;
+}
+
+.sessionSearchClear:hover,
+.sessionSearchClear:focus-visible {
+    color: var(--accent);
+    background: var(--accent-light);
+    outline: none;
+}
+
+.sessionSearchSection {
+    margin: 0;
+    padding: 0;
+}
+
+.sessionSearchSectionTitle {
+    font-size: var(--fs-hint);
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0;
+    padding: var(--space-8) var(--space-8) 2px;
+    opacity: 0.72;
+    user-select: none;
+}
+
+.sessionSearchItem {
+    display: flex;
+    flex-direction: column;
+    padding: 6px var(--space-8);
+    margin-bottom: 1px;
+    border-radius: var(--radius-sm);
+    cursor: default;
+    transition: background var(--duration-fast), color var(--duration-fast);
+    -webkit-app-region: no-drag;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    overflow: hidden;
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+    .sessionSearchItem:hover {
+        background: var(--accent-light);
+    }
+}
+
+.sessionSearchItemActive {
+    background: var(--accent-light);
+}
+
+.sessionSearchItemActive .sessionItemTitle {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.sessionSearchSnippet {
+    margin-top: 4px;
+    color: var(--text-muted);
+    font-size: var(--fs-hint);
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.sessionSearchStatus,
+.sessionSearchEmpty {
+    padding: 10px var(--space-8);
+    color: var(--text-muted);
+    font-size: var(--fs-hint);
+    line-height: 1.5;
+}
+
+.sessionItem {
+    display: flex;
+    flex-direction: column;
+    padding: 6px var(--space-8);
+    margin-bottom: 1px;
+    border-radius: var(--radius-sm);
+    cursor: default;
+    transition: background var(--duration-fast), color var(--duration-fast);
+    -webkit-app-region: no-drag;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    overflow: hidden;
+    position: relative;
+}
+
+.sessionItemSingleLine {
+    --session-single-line-track-height: 20px;
+
+    min-height: 30px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.sessionItemSingleLine .sessionItemHeader {
+    height: var(--session-single-line-track-height);
+}
+
+.sessionItemSingleLine .sessionItemTitle,
+.sessionItemSingleLine .sessionRenameInput {
+    height: var(--session-single-line-track-height);
+    line-height: var(--session-single-line-track-height);
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+    .sessionItem:hover {
+        background: var(--accent-light);
+    }
+}
+
+.sessionItemActive {
+    background: var(--accent-light);
+}
+
+.sessionItemTitle {
+    font-size: var(--fs-ui);
+    color: var(--text);
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.sessionItemActive .sessionItemTitle {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.sessionItemMeta {
+    font-size: var(--fs-hint);
+    color: var(--text-muted);
+    margin-top: 1px;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: padding-right var(--duration-fast);
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+    .sessionItem:not(.sessionItemSingleLine):hover .sessionItemMeta {
+        padding-right: 52px;
+    }
+}
+
+.sessionRcBadge {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    margin-top: 0.35rem;
+    padding: 0.18rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(var(--accent-rgb), 0.12);
+    color: var(--accent);
+    font-size: var(--fs-hint);
+    line-height: 1.2;
+    font-weight: 600;
+    max-width: calc(100% - 28px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sessionRcBadgeInline {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 1 auto;
+    max-width: 72px;
+    min-width: 0;
+    padding: 0.12rem 0.34rem;
+    border-radius: 999px;
+    background: rgba(var(--accent-rgb), 0.12);
+    color: var(--accent);
+    font-size: var(--fs-hint);
+    line-height: 1.2;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 行内操作按钮 */
+.sessionItemActions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-shrink: 0;
+    gap: var(--space-4);
+    z-index: 1;
+}
+
+.sessionItem:not(.sessionItemSingleLine) .sessionItemActions {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+}
+
+.sessionItemSingleLine .sessionItemActions {
+    width: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: width var(--duration-fast) var(--ease-out), opacity var(--duration-fast), color var(--duration-fast), background var(--duration-fast);
+}
+
+.sessionPinBtn,
+.sessionArchiveBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: none;
+    border: none;
+    border-radius: 3px;
+    color: var(--text-muted);
+    cursor: default;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--duration-fast), color var(--duration-fast), background var(--duration-fast);
+}
+
+.sessionArchiveBtn {
+    color: var(--danger);
+}
+
+.sessionPinBtn svg,
+.sessionArchiveBtn svg {
+    pointer-events: none;
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+    .sessionItem:not(.sessionItemSingleLine):hover .sessionPinBtn,
+    .sessionItem:not(.sessionItemSingleLine):hover .sessionArchiveBtn {
+        opacity: 0.5;
+        pointer-events: auto;
+    }
+
+    .sessionItemSingleLine:hover .sessionItemActions {
+        width: calc(40px + var(--space-4));
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .sessionItemSingleLine:hover .sessionPinBtn,
+    .sessionItemSingleLine:hover .sessionArchiveBtn {
+        opacity: 0.62;
+        pointer-events: auto;
+    }
+
+    .sessionPinBtn:hover,
+    .sessionItemSingleLine .sessionPinBtn:hover {
+        opacity: 1 !important;
+        background: var(--accent-light);
+        color: var(--accent);
+    }
+
+    .sessionArchiveBtn:hover,
+    .sessionItemSingleLine .sessionArchiveBtn:hover {
+        opacity: 1 !important;
+        background: rgba(var(--danger-rgb), 0.08);
+    }
+}
+
+.sessionItemSingleLine:focus-within .sessionItemActions {
+    width: calc(40px + var(--space-4));
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.sessionItemSingleLine:focus-within .sessionPinBtn,
+.sessionItemSingleLine:focus-within .sessionArchiveBtn {
+    opacity: 0.62;
+    pointer-events: auto;
+}
+
+/* 重命名输入框 */
+.sessionRenameInput {
+    font-size: var(--fs-ui);
+    color: var(--accent);
+    line-height: 1.4;
+    background: var(--accent-light);
+    border: none;
+    border-radius: 2px;
+    padding: 0 4px;
+    outline: none;
+    width: calc(100% - 24px);
+    min-width: 0;
+    font-family: inherit;
+}
+
+:global(.mobile-desktop-root) .sessionItemTitle,
+:global(.mobile-desktop-root) .sessionRenameInput {
+    font-size: var(--fs-body);
+}
+
+:global(.mobile-desktop-root) .sessionItemMeta {
+    font-size: var(--fs-hint);
+}
+
+.sessionItemReadOnly .sessionItemTitle {
+    color: color-mix(in srgb, var(--text) 76%, var(--text-muted));
+}
+
+.sessionItemReadOnly .sessionItemMeta,
+.sessionItemReadOnly:hover .sessionItemMeta,
+.sessionItemReadOnly:focus-visible .sessionItemMeta {
+    padding-right: 0;
+}
+
+.sessionStreamingDot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent, #b89a7a);
+    flex-shrink: 0;
+}
+
+/* Static state cue only — continuous opacity animation kept the compositor
+   busy under software rendering (esp. WARP). Do not restore infinite pulse. */
+.sessionStreamingDot[data-state="running"] {
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sessionStreamingDot {
+        animation: none;
+    }
+}
+
+/* 浏览器标记 */
+.sessionBrowserBadge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
+    color: var(--text-muted);
+    opacity: 0.72;
+    cursor: default;
+    pointer-events: auto;
+    border-radius: 3px;
+    transition: color var(--duration-fast), background var(--duration-fast), opacity var(--duration-fast);
+}
+
+.sessionBrowserBadge svg {
+    pointer-events: none;
+}
+
+.sessionBrowserBadge:hover,
+.sessionBrowserBadge:focus-visible {
+    opacity: 1;
+    color: var(--danger);
+    background: rgba(var(--danger-rgb), 0.08);
+    outline: none;
+}
+
+/* Agent badge */
+.sessionAgentBadge {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    pointer-events: none;
+}
+
+.sessionAgentBadgeText {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 0.55rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sessionItemHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.sessionItemHeader > .sessionItemTitle,
+.sessionItemHeader > .sessionRenameInput {
+    flex: 1 1 auto;
+}
+
+.sessionItemHeader > .sessionRenameInput {
+    width: auto;
+}
+
+.sessionStatusSlot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-8);
+    min-width: max-content;
+    flex-shrink: 0;
+}
+
+/* 分组标题 */
+.sessionSectionTitle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-8);
+    min-height: 28px;
+    font-size: var(--fs-ui);
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0;
+    padding: var(--space-8) var(--space-8) 3px;
+    opacity: 0.72;
+    user-select: none;
+}
+
+.sessionSectionTitleMain {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    gap: var(--space-4);
+}
+
+.sectionTitleActions {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity var(--duration-fast);
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+    .sessionListScroller:hover .sectionTitleActions,
+    .sessionSectionTitle:hover .sectionTitleActions {
+        opacity: 1;
+    }
+}
+
+.sessionSectionTitle:focus-within .sectionTitleActions {
+    opacity: 1;
+}
+
+.sectionIconButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: default;
+    transition: color var(--duration-fast), background var(--duration-fast), opacity var(--duration-fast);
+}
+
+.sectionIconButton:hover,
+.sectionIconButton:focus-visible {
+    color: var(--accent);
+    background: var(--accent-light);
+    outline: none;
+}
+
+.sessionSectionTitle:first-child {
+    padding-top: var(--space-4);
+}
+
+.pinnedSection {
+    margin: 0;
+    padding: 0;
+}
+
+.pinnedSection .sessionSectionTitle {
+    padding: var(--space-4) var(--space-8) 2px;
+}
+
+.pinnedSectionTitle {
+    justify-content: flex-start;
+}
+
+.pinnedTitleIcon {
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+/* 置顶区可拖拽重排的行容器。插入指示线用 inset 阴影而非 border，
+   避免拖动经过时行高抖 2px。 */
+.pinnedRow {
+    position: relative;
+    border-radius: var(--radius-sm);
+}
+
+.pinnedDropIndicatorBefore {
+    box-shadow: inset 0 2px 0 0 var(--accent);
+}
+
+.pinnedDropIndicatorAfter {
+    box-shadow: inset 0 -2px 0 0 var(--accent);
+}
+
+.projectRootDrop {
+    padding: 0;
+}
+
+.projectRow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    min-height: 31px;
+    padding: 4px var(--space-8);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: var(--fs-ui);
+    line-height: 1.35;
+    cursor: default;
+    transition: background var(--duration-fast), color var(--duration-fast);
+    position: relative;
+}
+
+.projectRow:hover,
+.projectRow:focus-visible,
+.dropTarget {
+    color: var(--accent);
+    background: var(--accent-light);
+    outline: none;
+}
+
+.projectIcon {
+    flex-shrink: 0;
+    opacity: 0.9;
+}
+
+.projectName {
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.projectNewSessionButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin-left: auto;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: default;
+    opacity: 0;
+    pointer-events: none;
+    flex-shrink: 0;
+    transition: opacity var(--duration-fast), color var(--duration-fast), background var(--duration-fast);
+}
+
+.projectNewSessionButton:hover,
+.projectNewSessionButton:focus-visible {
+    color: var(--accent);
+    background: var(--accent-light);
+    opacity: 1;
+    pointer-events: auto;
+    outline: none;
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+    .projectRow:hover .projectNewSessionButton,
+    .projectRow:focus-within .projectNewSessionButton {
+        opacity: 0.72;
+        pointer-events: auto;
+    }
+
+    .projectNewSessionButton:hover,
+    .projectNewSessionButton:focus-visible {
+        opacity: 1;
+    }
+}
+
+.projectBlock {
+    margin: 0;
+    padding: 0;
+}
+
+.folderBlock {
+    margin: 0;
+    padding: 0;
+}
+
+.folderProjectList {
+    padding-left: 0;
+}
+
+.projectSessionList {
+    padding-left: 0;
+}
+
+.projectSessionList:not(:empty) {
+    padding-top: 1px;
+}
+
+.projectShowMoreButton {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 30px;
+    padding: 4px var(--space-8);
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    font: inherit;
+    font-size: var(--fs-ui);
+    line-height: 1.35;
+    text-align: left;
+    cursor: default;
+    opacity: 0.72;
+    transition: background var(--duration-fast), color var(--duration-fast), opacity var(--duration-fast);
+}
+
+.projectShowMoreButton:hover,
+.projectShowMoreButton:focus-visible {
+    color: var(--accent);
+    background: var(--accent-light);
+    opacity: 1;
+    outline: none;
+}
+
+.projectNameDialogBackdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 18vh;
+    background: rgba(40, 36, 34, 0.08);
+}
+
+.projectNameDialog {
+    width: min(280px, calc(100vw - 32px));
+    padding: var(--space-12);
+    border: 1px solid var(--overlay-light);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card, var(--bg));
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.14), 0 2px 8px rgba(0, 0, 0, 0.07);
+}
+
+.projectNameDialogTitle {
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+    font-size: var(--fs-caption);
+    font-weight: 600;
+}
+
+.projectNameInput {
+    width: 100%;
+    height: 32px;
+    padding: 0 9px;
+    border: 1px solid var(--overlay-light);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text-primary);
+    font: inherit;
+    font-size: var(--fs-caption);
+    outline: none;
+}
+
+.projectNameInput:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-light);
+}
+
+.projectNameDialogActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-4);
+    margin-top: 10px;
+}
+
+.projectNameDialogActions button {
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid var(--overlay-light);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: var(--fs-hint);
+    cursor: default;
+}
+
+.projectNameDialogActions button[type="submit"] {
+    border-color: transparent;
+    background: var(--accent-light);
+    color: var(--accent);
+}
+
+.projectNameDialogActions button:disabled {
+    opacity: 0.45;
+}
+
+.sessionSummaryCard {
+    position: fixed;
+    z-index: 9998;
+    width: min(320px, calc(100vw - 12px));
+    max-height: min(340px, calc(100vh - 12px));
+    padding: 10px var(--space-12);
+    background: var(--bg-card, var(--bg));
+    border: 1px solid var(--overlay-light);
+    border-radius: var(--radius-md);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.07);
+    font-family: inherit;
+}
+
+.sessionSummaryTitle {
+    font-size: var(--fs-hint);
+    line-height: 1.35;
+    color: var(--text-muted);
+    opacity: 0.78;
+    margin-bottom: 5px;
+    user-select: none;
+}
+
+.sessionSummaryBody {
+    max-height: 280px;
+    overflow-y: auto;
+    padding-right: 3px;
+    font-size: var(--fs-hint);
+    line-height: 1.55;
+    color: var(--text-muted);
+}
+
+.sessionSummaryBody h3 {
+    margin: 0 0 4px;
+    font-size: var(--fs-hint);
+    line-height: 1.35;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.sessionSummaryBody ul {
+    margin: 0 0 7px;
+    padding-left: var(--space-16);
+}
+
+.sessionSummaryBody li {
+    margin: 0;
+}
+
+.sessionSummaryBody li + li {
+    margin-top: 3px;
+}
+
+.sessionSummaryBody p {
+    margin: 0 0 6px;
+}
+
+.sessionSummaryBody > div > :last-child {
+    margin-bottom: 0;
+}
+
+.sessionSummaryPlaceholder {
+    color: var(--text-faint, rgba(0, 0, 0, 0.38));
+}
+
+/* 空状态 */
+.sessionEmpty {
+    text-align: center;
+    padding: var(--space-24) var(--space-8);
+    color: var(--text-muted);
+    font-size: var(--fs-caption);
+}

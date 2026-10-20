@@ -1,0 +1,306 @@
+/* 文件历史弹窗：三栏（文件列表 / 版本时间线 / diff 与还原）。
+   取值惯例对齐 ArchivedSessionsModal.module.css，颜色一律走主题 token。 */
+
+.modal {
+  background: color-mix(in srgb, var(--bg, #fcfaf5) 94%, white 6%);
+  color: var(--text, #3b3d3f);
+  border: 1px solid var(--overlay-light, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-lg, 12px);
+  width: min(1040px, 92vw);
+  height: min(680px, 86vh);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: var(--font-ui, system-ui, -apple-system, "Segoe UI", sans-serif);
+  box-shadow: 0 16px 48px var(--shadow, rgba(0, 0, 0, 0.12));
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-16) var(--space-24) var(--space-8);
+  border-bottom: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: var(--fs-title);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  margin: 0;
+}
+
+.closeBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: color-mix(in srgb, var(--bg-card, #fff) 72%, transparent);
+  border: 1px solid transparent;
+  border-radius: 50%;
+  cursor: default;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--text-muted, rgba(0, 0, 0, 0.55));
+  transition: all var(--duration-fast) ease;
+}
+.closeBtn:hover {
+  color: var(--text, rgba(0, 0, 0, 0.85));
+  border-color: var(--overlay-light, rgba(0, 0, 0, 0.08));
+  background: var(--bg-card, #fff);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 240px 220px 1fr;
+  gap: var(--space-8);
+  padding: var(--space-8) var(--space-16) var(--space-16);
+  overflow: hidden;
+}
+
+/* ── 左栏：文件列表 ───────────────────────────── */
+
+.fileList {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-8);
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-card, 8px);
+  overflow-y: auto;
+}
+
+.search {
+  width: 100%;
+  min-height: 30px;
+  padding: 0 var(--space-8);
+  margin-bottom: var(--space-4);
+  background: color-mix(in srgb, var(--bg, #fcfaf5) 60%, transparent);
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.12));
+  border-radius: var(--radius-input, 6px);
+  color: var(--text, inherit);
+  font-family: inherit;
+  font-size: var(--fs-caption);
+  flex-shrink: 0;
+}
+.search:focus {
+  outline: none;
+  border-color: var(--accent, rgba(0, 0, 0, 0.35));
+}
+
+.fileRow {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: var(--space-4) var(--space-8);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-input, 6px);
+  cursor: default;
+  color: var(--text, #3b3d3f);
+  font-family: inherit;
+  font-size: var(--fs-caption);
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background var(--duration-fast) ease, border-color var(--duration-fast) ease;
+}
+.fileRow:hover {
+  background: var(--overlay-light, rgba(0, 0, 0, 0.05));
+}
+
+.fileRowActive,
+.fileRowActive:hover {
+  background: var(--overlay-medium, rgba(0, 0, 0, 0.08));
+  border-color: var(--overlay-light, rgba(0, 0, 0, 0.08));
+}
+
+.fileRowDeleted {
+  color: var(--text-muted, rgba(0, 0, 0, 0.5));
+  text-decoration: line-through;
+  text-decoration-color: var(--overlay-strong, rgba(0, 0, 0, 0.25));
+}
+
+.deletedGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  flex-shrink: 0;
+}
+
+.groupLabel {
+  padding: 0 var(--space-8);
+  font-size: var(--fs-hint);
+  letter-spacing: 0.06em;
+  color: var(--text-muted, rgba(0, 0, 0, 0.45));
+  flex-shrink: 0;
+}
+
+/* ── 中栏：版本时间线 ─────────────────────────── */
+
+.timeline {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-8);
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-card, 8px);
+  overflow-y: auto;
+}
+
+.versionRow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  width: 100%;
+  text-align: left;
+  padding: var(--space-8);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-input, 6px);
+  cursor: default;
+  font-family: inherit;
+  flex-shrink: 0;
+  transition: background var(--duration-fast) ease, border-color var(--duration-fast) ease;
+}
+.versionRow:hover {
+  background: var(--overlay-light, rgba(0, 0, 0, 0.05));
+}
+
+.versionRowActive,
+.versionRowActive:hover {
+  background: var(--overlay-medium, rgba(0, 0, 0, 0.08));
+  border-color: var(--overlay-light, rgba(0, 0, 0, 0.08));
+}
+
+.versionTime {
+  font-size: var(--fs-caption);
+  color: var(--text, #3b3d3f);
+  line-height: 1.4;
+}
+
+.versionOrigin {
+  font-size: var(--fs-hint);
+  color: var(--text-muted, rgba(0, 0, 0, 0.5));
+  line-height: 1.4;
+}
+
+/* ── 右栏：diff 与还原 ────────────────────────── */
+
+.diffPane {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-card, 8px);
+  overflow: hidden;
+}
+
+.diff {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: var(--space-8) 0;
+  overflow: auto;
+  font-family: var(--font-mono, "SF Mono", "Consolas", monospace);
+  font-size: var(--fs-hint);
+  line-height: 1.65;
+  tab-size: 2;
+}
+
+.lineSame,
+.lineAdded,
+.lineRemoved {
+  padding: 0 var(--space-12);
+  white-space: pre;
+}
+
+.lineSame {
+  color: var(--text-muted, rgba(0, 0, 0, 0.6));
+}
+
+.lineAdded {
+  background: color-mix(in srgb, var(--green, #7BAE7F) 14%, transparent);
+  color: var(--text, #3b3d3f);
+}
+
+.lineRemoved {
+  background: color-mix(in srgb, var(--danger, #8B3A3A) 12%, transparent);
+  color: var(--text, #3b3d3f);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-12);
+  flex-shrink: 0;
+  padding: var(--space-8) var(--space-12);
+  border-top: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+}
+
+.restoredNote {
+  font-size: var(--fs-hint);
+  color: var(--text-muted, rgba(0, 0, 0, 0.55));
+}
+
+.errorNote {
+  font-size: var(--fs-hint);
+  color: var(--danger, #8b3a3a);
+}
+
+.restoreBtn {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--bg-card, #fff) 92%, white 8%), var(--bg-card, #fff));
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.15));
+  border-radius: var(--radius-input, 6px);
+  min-height: 32px;
+  padding: 0 var(--space-16);
+  cursor: default;
+  font-size: var(--fs-caption);
+  color: var(--text, inherit);
+  font-family: inherit;
+  transition: background var(--duration-fast) ease, border-color var(--duration-fast) ease;
+}
+.restoreBtn:hover:not(:disabled) {
+  background: var(--bg-hover, color-mix(in srgb, var(--bg-card, #fff) 92%, transparent));
+  border-color: var(--overlay-light, rgba(0, 0, 0, 0.18));
+}
+.restoreBtn:disabled {
+  opacity: 0.45;
+}
+
+.empty {
+  padding: var(--space-24) var(--space-16);
+  text-align: center;
+  color: var(--text-muted, rgba(0, 0, 0, 0.5));
+  font-size: var(--fs-caption);
+  line-height: 1.6;
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .modal {
+    width: min(100vw - 32px, 100%);
+    height: min(88vh, 680px);
+  }
+
+  .body {
+    grid-template-columns: 180px 170px 1fr;
+    padding: var(--space-8) var(--space-8) var(--space-12);
+  }
+}

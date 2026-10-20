@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
+    "useUnknownInCatchVariables": false,
+    "baseUrl": "."
+  },
+  "include": [
+    "core/**/*.ts",
+    "lib/**/*.ts",
+    "server/**/*.ts",
+    "shared/**/*.ts",
+    "hub/**/*.ts",
+    "cli/**/*.ts",
+    "plugins/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

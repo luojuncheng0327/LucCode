@@ -1,0 +1,191 @@
+.timelineNav {
+    position: absolute;
+    top: 76px;
+    right: 0;
+    height: 50%;
+    width: 64px;
+    z-index: 4;
+    overflow: visible;
+    pointer-events: none;
+    --timeline-card-width: min(176px, calc(100vw - 96px));
+    --timeline-marker-right: 8px;
+    --timeline-row-height: 28px;
+    --timeline-card-pad-y: 0.375rem;
+    --timeline-marker-pad-left: 0.75rem;
+    --timeline-marker-pad-right: 0.375rem;
+    --timeline-marker-gap: 0.375rem;
+    --timeline-card-surface-outset-right: 0.25rem;
+}
+
+.timelineNavLeft {
+    left: 0;
+    right: auto;
+}
+
+.timelineCard {
+    position: absolute;
+    top: 50%;
+    right: var(--timeline-marker-right);
+    width: var(--timeline-card-width);
+    height: calc(var(--timeline-visible-rows) * var(--timeline-row-height) + 2 * var(--timeline-card-pad-y));
+    max-height: calc(10 * var(--timeline-row-height) + 2 * var(--timeline-card-pad-y));
+    transform: translateY(-50%);
+    border-radius: var(--radius-chat-card);
+    pointer-events: none;
+    overflow: visible;
+}
+
+.timelineNavLeft .timelineCard {
+    left: var(--timeline-marker-right);
+    right: auto;
+}
+
+.timelineCard::before {
+    content: "";
+    position: absolute;
+    inset: 0 calc(-1 * var(--timeline-card-surface-outset-right)) 0 0;
+    border: 1px solid var(--border);
+    border-radius: inherit;
+    background: var(--bg-card, var(--bg));
+    box-shadow: 0 10px 28px var(--shadow);
+    opacity: 0;
+    transform: scale(0.985);
+    transform-origin: center;
+    transition: opacity var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
+    pointer-events: none;
+}
+
+.timelineNavLeft .timelineCard::before {
+    inset: 0 0 0 calc(-1 * var(--timeline-card-surface-outset-right));
+}
+
+.timelineList {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    padding-block: var(--timeline-card-pad-y);
+    box-sizing: border-box;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+}
+
+.timelineList::-webkit-scrollbar {
+    display: none;
+}
+
+.timelineMarker {
+    position: relative;
+    width: 100%;
+    height: var(--timeline-row-height);
+    border: none;
+    background: transparent;
+    color: rgba(var(--accent-rgb), 0.52);
+    cursor: default;
+    padding: 0 var(--timeline-marker-pad-right) 0 var(--timeline-marker-pad-left);
+    opacity: 0;
+    pointer-events: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 24px;
+    align-items: center;
+    gap: var(--timeline-marker-gap);
+    transition: opacity var(--duration-fast) var(--ease-out), color var(--duration-instant) var(--ease-out);
+    --timeline-label-indent: 0rem;
+    --timeline-marker-max-width: 1em;
+    --timeline-marker-width: 0.5em;
+}
+
+.timelineNavLeft .timelineMarker {
+    grid-template-columns: 24px minmax(0, 1fr);
+    padding: 0 var(--timeline-marker-pad-left) 0 var(--timeline-marker-pad-right);
+}
+
+.timelineNavVisible .timelineMarker,
+.timelineNav:focus-within .timelineMarker {
+    opacity: 1;
+}
+
+.timelineNavExpanded .timelineLabel {
+    pointer-events: auto;
+}
+
+.timelineNavExpanded .timelineCard {
+    pointer-events: auto;
+}
+
+.timelineNavExpanded .timelineLabel {
+    opacity: 1;
+}
+
+.timelineNavExpanded .timelineCard::before {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.timelineLine {
+    position: relative;
+    justify-self: end;
+    width: var(--timeline-marker-width);
+    min-width: 0.5em;
+    max-width: var(--timeline-marker-max-width);
+    height: 4px;
+    border-radius: 999px;
+    background: currentColor;
+    opacity: 0.74;
+    pointer-events: auto;
+    transition: opacity var(--duration-instant) var(--ease-out);
+}
+
+.timelineNavLeft .timelineLine {
+    grid-column: 1;
+    justify-self: start;
+}
+
+.timelineLine::before {
+    content: "";
+    position: absolute;
+    inset: -12px -4px;
+}
+
+.timelineMarker:hover .timelineLine,
+.timelineMarker:focus-visible .timelineLine,
+.timelineMarkerActive .timelineLine {
+    opacity: 1;
+}
+
+.timelineMarkerActive {
+    color: var(--accent);
+}
+
+.timelineMarker:focus-visible {
+    outline: none;
+}
+
+.timelineLabel {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+    opacity: 0;
+    pointer-events: none;
+    color: var(--text-light);
+    font-family: var(--font-ui);
+    font-size: var(--fs-hint);
+    line-height: 1.4;
+    padding-inline-start: var(--timeline-label-indent);
+    box-sizing: border-box;
+    transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.timelineNavLeft .timelineLabel {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.timelineMarkerActive .timelineLabel {
+    color: var(--accent);
+}

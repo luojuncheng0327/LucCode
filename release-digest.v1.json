@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "tag": "v1.0.0-beta",
+  "version": "1.0.0-beta",
+  "previousTag": "v0.0.0",
+  "generatedAt": "2026-10-20T00:00:00.000Z",
+  "noUserFacingChanges": false,
+  "summary": {
+    "zh": "LucCode 1.0.0 beta 首个版本：一个有记忆、有性格、能操作电脑的私人 AI 助理。",
+    "en": "The first LucCode release, 1.0.0 beta: a personal AI assistant with memory, personality, and the ability to work on your computer."
+  },
+  "counts": {
+    "feature": 4,
+    "fix": 0,
+    "improvement": 0,
+    "migration": 0
+  },
+  "source": {
+    "owner": "LuoJunCheng",
+    "repo": "luccode",
+    "commitRange": "v1.0.0-beta",
+    "releaseUrl": "https://github.com/LuoJunCheng/luccode/releases/tag/v1.0.0-beta",
+    "releaseNotes": ""
+  },
+  "items": [
+    {
+      "id": "memory-and-persona",
+      "kind": "feature",
+      "importance": "high",
+      "title": {
+        "zh": "记忆与人格",
+        "en": "Memory and persona"
+      },
+      "summary": {
+        "zh": "每个 Agent 拥有独立的记忆和人格文件。近期对话记得牢，长期记忆、事实库和置顶记忆分层沉淀；人格模板决定它的说话方式和行为逻辑，Agent 之间彼此隔离。",
+        "en": "Every agent keeps its own memory and persona files. Recent conversations stay memorable while long-term memory, a fact store, and pinned memory settle in layers; persona templates shape how it talks and behaves, and agents stay isolated from one another."
+      },
+      "details": [],
+      "sources": [
+        {
+          "type": "release-notes",
+          "ref": "v1.0.0-beta",
+          "title": "LucCode 1.0.0 beta"
+        }
+      ]
+    },
+    {
+      "id": "tools-and-sandbox",
+      "kind": "feature",
+      "importance": "high",
+      "title": {
+        "zh": "工具与安全沙盒",
+        "en": "Tools and sandbox"
+      },
+      "summary": {
+        "zh": "读写文件、执行命令与持续终端会话、浏览网页、联网搜索、截图与分段长截图、媒体预览与文档读取。应用层 PathGuard 加操作系统沙盒（macOS Seatbelt / Linux Bubblewrap / Windows restricted token）双层隔离，权限级别可在设置里调整。",
+        "en": "Read and write files, run commands and persistent terminal sessions, browse the web, search online, capture screenshots and segmented long screenshots, preview media, and read documents. A PathGuard layer plus an OS sandbox (macOS Seatbelt / Linux Bubblewrap / Windows restricted token) provides two-layer isolation, with the level adjustable in settings."
+      },
+      "details": [],
+      "sources": [
+        {
+          "type": "release-notes",
+          "ref": "v1.0.0-beta",
+          "title": "LucCode 1.0.0 beta"
+        }
+      ]
+    },
+    {
+      "id": "plugins-and-agents",
+      "kind": "feature",
+      "importance": "medium",
+      "title": {
+        "zh": "插件体系与多 Agent",
+        "en": "Plugins and multiple agents"
+      },
+      "summary": {
+        "zh": "约定优先的插件架构可以贡献工具、技能、命令、Agent 模板、HTTP 路由、页面、侧栏组件和模型 Provider，分 restricted / full-access 两级权限。多个 Agent 各有记忆、人格与定时任务，可以通过频道群聊协作，也可以互相委派任务。",
+        "en": "A convention-first plugin architecture contributes tools, skills, commands, agent templates, HTTP routes, pages, sidebar widgets, and model providers, under a two-tier restricted / full-access permission model. Multiple agents keep separate memory, personas, and schedules, and can collaborate in channels or delegate tasks to one another."
+      },
+      "details": [],
+      "sources": [
+        {
+          "type": "release-notes",
+          "ref": "v1.0.0-beta",
+          "title": "LucCode 1.0.0 beta"
+        }
+      ]
+    },
+    {
+      "id": "platforms-and-clients",
+      "kind": "feature",
+      "importance": "medium",
+      "title": {
+        "zh": "多平台接入与远程前端",
+        "en": "Messaging platforms and remote frontends"
+      },
+      "summary": {
+        "zh": "同一个 Agent 可以同时接入 Telegram、飞书、QQ 和微信；Server 还能托管移动端 PWA 与局域网前端，在手机或另一台电脑上继续同一套会话。界面提供中文、英文、日文、韩文和繁体中文。",
+        "en": "One agent can be reached through Telegram, Feishu, QQ, and WeChat at the same time. The server also hosts a mobile PWA and a LAN frontend so you can continue the same sessions from a phone or another computer. The interface ships in Chinese, English, Japanese, Korean, and Traditional Chinese."
+      },
+      "details": [],
+      "sources": [
+        {
+          "type": "release-notes",
+          "ref": "v1.0.0-beta",
+          "title": "LucCode 1.0.0 beta"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+/* ── Overlay 底座 ── */
+
+.backdrop {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-app-region: no-drag;
+}
+
+.contained-backdrop {
+    position: absolute;
+}
+
+/* ── backdrop 视觉变体 ── */
+
+.backdrop-dim {
+    background: var(--scrim-35);
+}
+
+.backdrop-blur {
+    background: var(--scrim-30);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+/* ── 进出动画 ── */
+
+.enter {
+    animation: luc-fade-in var(--duration-slow) var(--ease-out);
+}
+
+.exit {
+    animation: luc-fade-out var(--duration-fast) var(--ease-in) forwards;
+}
+
+/* ── 内容容器（纯结构，不带视觉样式）── */
+
+.container {
+    position: relative;
+    max-height: calc(100vh - var(--space-24) - var(--space-24));
+    max-width: calc(100vw - var(--space-24) - var(--space-24));
+}
+
+.contained-container {
+    max-width: 100%;
+    max-height: 100%;
+    min-height: 0;
+}
+
+.container-enter {
+    animation: luc-scale-in var(--duration-slow) var(--ease-out);
+}
+
+.container-exit {
+    animation: luc-fade-down var(--duration-fast) var(--ease-in) forwards;
+}
+
+/* ── 默认卡片外观（消费者不提供 className 时使用）── */
+
+.card {
+    background: var(--bg-card, var(--bg));
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+}

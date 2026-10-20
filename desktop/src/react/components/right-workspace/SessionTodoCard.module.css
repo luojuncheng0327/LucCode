@@ -1,0 +1,112 @@
+.card {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-8) var(--space-16);
+    gap: 5px;
+    max-height: 32%;
+    overflow: hidden;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 0 0 auto;
+}
+
+.title {
+    font-family: "Songti SC", "Noto Serif CJK SC", serif;
+    font-size: var(--fs-body);
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.count {
+    font-size: var(--fs-hint);
+    color: var(--text-muted);
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 15px minmax(0, 1fr);
+    gap: 7px;
+    align-items: baseline;
+    font-size: var(--fs-caption);
+    line-height: 1.5;
+}
+
+.icon {
+    text-align: center;
+    color: var(--text-light);
+    font-size: var(--fs-hint);
+}
+
+.text {
+    color: var(--text);
+    overflow-wrap: anywhere;
+}
+
+.row[data-status="in_progress"] .icon {
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+}
+
+.inProgressIcon {
+    flex: 0 0 auto;
+}
+
+.row[data-status="in_progress"] .text {
+    color: var(--text);
+    font-weight: 500;
+}
+
+.row[data-status="completed"] .icon {
+    color: #5aa07a;
+}
+
+.row[data-status="completed"] .text {
+    color: var(--text-light);
+    text-decoration: line-through;
+}
+
+.completeButton {
+    display: inline-flex;
+    align-items: center;
+    align-self: stretch;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+    padding: var(--space-4) 0 0;
+    font: inherit;
+    font-size: var(--fs-caption);
+    line-height: 1.5;
+    color: var(--accent);
+    text-align: left;
+    background: transparent;
+    border: 0;
+    border-top: 1px solid var(--overlay-light);
+    cursor: default;
+    -webkit-app-region: no-drag;
+}
+
+.completeButton:hover:not(:disabled) {
+    color: var(--accent-hover);
+}
+
+.completeButton:disabled {
+    color: var(--text-light);
+    opacity: 0.58;
+}
+
+.actionIcon {
+    flex: 0 0 auto;
+}

@@ -1,0 +1,531 @@
+.luc-plugin-theme {
+  --luc-plugin-bg: var(--bg, #F8F5ED);
+  --luc-plugin-bg-card: var(--bg-card, #FCFAF5);
+  --luc-plugin-accent: var(--accent, #537D96);
+  --luc-plugin-accent-hover: var(--accent-hover, #456A80);
+  --luc-plugin-accent-light: var(--accent-light, rgba(83, 125, 150, 0.08));
+  --luc-plugin-text: var(--text, #3B3D3F);
+  --luc-plugin-text-light: var(--text-light, #6B6F73);
+  --luc-plugin-text-muted: var(--text-muted, #8E9196);
+  --luc-plugin-border: var(--border, rgba(83, 125, 150, 0.22));
+  --luc-plugin-danger: var(--danger, #8B3A3A);
+  --luc-plugin-radius-input: var(--radius-input, 4px);
+  --luc-plugin-radius-card: var(--radius-card, 8px);
+  --luc-plugin-font-ui: var(--font-ui, Inter, -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif);
+  --luc-plugin-font-serif: var(--font-serif, "Songti SC", "STSong", serif);
+  --luc-plugin-font-mono: var(--font-mono, "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace);
+  display: block;
+  min-width: 0;
+  box-sizing: border-box;
+  background: var(--luc-plugin-bg);
+  color: var(--luc-plugin-text);
+  font-family: var(--luc-plugin-font-ui);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.luc-plugin-theme *,
+.luc-plugin-theme *::before,
+.luc-plugin-theme *::after {
+  box-sizing: border-box;
+}
+
+.luc-plugin-button,
+.luc-plugin-icon-button,
+.luc-plugin-select-trigger,
+.luc-plugin-select-option,
+.luc-plugin-switch {
+  font-family: inherit;
+  -webkit-app-region: no-drag;
+}
+
+.luc-plugin-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs, 0.25rem);
+  min-width: 0;
+  border: 1px solid transparent;
+  border-radius: var(--luc-plugin-radius-input);
+  cursor: pointer;
+  user-select: none;
+  line-height: 1;
+  transition:
+    background var(--duration-fast, 0.15s) var(--ease-out, ease),
+    color var(--duration-fast, 0.15s) var(--ease-out, ease),
+    border-color var(--duration-fast, 0.15s) var(--ease-out, ease),
+    opacity var(--duration-fast, 0.15s) var(--ease-out, ease);
+}
+
+.luc-plugin-button:focus-visible,
+.luc-plugin-icon-button:focus-visible,
+.luc-plugin-select-trigger:focus-visible,
+.luc-plugin-select-option:focus-visible,
+.luc-plugin-switch:focus-visible,
+.luc-plugin-input:focus-visible,
+.luc-plugin-textarea:focus-visible {
+  outline: 2px solid var(--luc-plugin-accent);
+  outline-offset: 2px;
+}
+
+.luc-plugin-button:disabled,
+.luc-plugin-icon-button:disabled,
+.luc-plugin-select-trigger:disabled,
+.luc-plugin-select-option:disabled,
+.luc-plugin-switch:disabled,
+.luc-plugin-input:disabled,
+.luc-plugin-textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.luc-plugin-button-sm {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.7rem;
+}
+
+.luc-plugin-button-md {
+  padding: 0.45rem 0.9rem;
+  font-size: 0.9rem;
+}
+
+.luc-plugin-button-lg {
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+}
+
+.luc-plugin-button-primary {
+  background: var(--luc-plugin-accent);
+  color: #fff;
+  border-color: var(--luc-plugin-accent);
+}
+
+.luc-plugin-button-primary:hover:not(:disabled) {
+  background: var(--luc-plugin-accent-hover);
+  border-color: var(--luc-plugin-accent-hover);
+}
+
+.luc-plugin-button-secondary {
+  background: var(--overlay-subtle, rgba(0, 0, 0, 0.03));
+  color: var(--luc-plugin-text);
+}
+
+.luc-plugin-button-secondary:hover:not(:disabled) {
+  background: var(--overlay-medium, rgba(0, 0, 0, 0.08));
+}
+
+.luc-plugin-button-ghost {
+  background: transparent;
+  color: var(--luc-plugin-text-muted);
+}
+
+.luc-plugin-button-ghost:hover:not(:disabled) {
+  background: var(--overlay-subtle, rgba(0, 0, 0, 0.03));
+  color: var(--luc-plugin-text);
+}
+
+.luc-plugin-button-danger {
+  background: var(--luc-plugin-danger);
+  color: #fff;
+  border-color: var(--luc-plugin-danger);
+}
+
+.luc-plugin-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: var(--luc-plugin-radius-input);
+  background: transparent;
+  color: var(--luc-plugin-text-muted);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast, 0.15s) var(--ease-out, ease),
+    color var(--duration-fast, 0.15s) var(--ease-out, ease),
+    border-color var(--duration-fast, 0.15s) var(--ease-out, ease);
+}
+
+.luc-plugin-icon-button-sm {
+  width: 28px;
+  height: 28px;
+}
+
+.luc-plugin-icon-button-md {
+  width: 34px;
+  height: 34px;
+}
+
+.luc-plugin-icon-button-lg {
+  width: 40px;
+  height: 40px;
+}
+
+.luc-plugin-icon-button:hover:not(:disabled) {
+  background: var(--overlay-subtle, rgba(0, 0, 0, 0.03));
+  color: var(--luc-plugin-text);
+}
+
+.luc-plugin-spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: luc-plugin-spin 0.8s linear infinite;
+}
+
+.luc-plugin-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.luc-plugin-field-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--luc-plugin-text);
+}
+
+.luc-plugin-field-hint,
+.luc-plugin-field-error {
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.luc-plugin-field-hint {
+  color: var(--luc-plugin-text-muted);
+}
+
+.luc-plugin-field-error {
+  color: var(--luc-plugin-danger);
+}
+
+.luc-plugin-input,
+.luc-plugin-textarea,
+.luc-plugin-select-trigger {
+  width: 100%;
+  min-width: 0;
+  color: var(--luc-plugin-text);
+  background: var(--luc-plugin-bg-card);
+  border: 1px solid var(--luc-plugin-border);
+  border-radius: var(--luc-plugin-radius-input);
+  font-family: inherit;
+  font-size: 0.9rem;
+  transition:
+    border-color var(--duration-fast, 0.15s) var(--ease-out, ease),
+    background var(--duration-fast, 0.15s) var(--ease-out, ease);
+}
+
+.luc-plugin-input {
+  height: 34px;
+  padding: 0 var(--space-sm, 0.5rem);
+}
+
+.luc-plugin-textarea {
+  resize: vertical;
+  min-height: 92px;
+  padding: var(--space-sm, 0.5rem);
+  line-height: 1.5;
+}
+
+.luc-plugin-input:hover:not(:disabled),
+.luc-plugin-textarea:hover:not(:disabled),
+.luc-plugin-select-trigger:hover:not(:disabled) {
+  border-color: var(--luc-plugin-accent);
+}
+
+.luc-plugin-select {
+  position: relative;
+  width: 100%;
+}
+
+.luc-plugin-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 34px;
+  padding: 0 var(--space-sm, 0.5rem);
+  cursor: pointer;
+  text-align: left;
+}
+
+.luc-plugin-select-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.luc-plugin-select-placeholder {
+  color: var(--luc-plugin-text-muted);
+}
+
+.luc-plugin-select-arrow {
+  color: var(--luc-plugin-text-muted);
+  margin-left: var(--space-sm, 0.5rem);
+}
+
+.luc-plugin-select-popover {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: var(--space-xs, 0.25rem) 0;
+  background: var(--luc-plugin-bg-card);
+  border: 1px solid var(--luc-plugin-border);
+  border-radius: var(--luc-plugin-radius-input);
+  animation: luc-plugin-fade-up var(--duration-fast, 0.15s) var(--ease-out, ease);
+}
+
+.luc-plugin-select-option {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.45rem var(--space-sm, 0.5rem);
+  border: 0;
+  background: transparent;
+  color: var(--luc-plugin-text-light);
+  cursor: pointer;
+  text-align: left;
+}
+
+.luc-plugin-select-option:hover:not(:disabled) {
+  background: var(--luc-plugin-accent-light);
+}
+
+.luc-plugin-select-option-selected {
+  color: var(--luc-plugin-accent);
+  background: var(--luc-plugin-accent-light);
+  font-weight: 600;
+}
+
+.luc-plugin-switch-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm, 0.5rem);
+}
+
+.luc-plugin-switch {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--luc-plugin-border);
+  border-radius: var(--luc-plugin-radius-input);
+  background: var(--luc-plugin-bg-card);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast, 0.15s) var(--ease-out, ease),
+    border-color var(--duration-fast, 0.15s) var(--ease-out, ease);
+}
+
+.luc-plugin-switch-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--luc-plugin-text-muted);
+  transition:
+    transform var(--duration-fast, 0.15s) var(--ease-out, ease),
+    background var(--duration-fast, 0.15s) var(--ease-out, ease);
+}
+
+.luc-plugin-switch-on {
+  background: var(--luc-plugin-accent);
+  border-color: var(--luc-plugin-accent);
+}
+
+.luc-plugin-switch-on .luc-plugin-switch-thumb {
+  transform: translateX(14px);
+  background: #fff;
+}
+
+.luc-plugin-switch-label {
+  font-size: 0.9rem;
+  color: var(--luc-plugin-text-muted);
+}
+
+.luc-plugin-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--luc-plugin-bg-card);
+  border: 1px solid var(--luc-plugin-border);
+  border-radius: var(--luc-plugin-radius-card);
+}
+
+.luc-plugin-card-header,
+.luc-plugin-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md, 1rem);
+  padding: var(--space-sm, 0.5rem) var(--space-md, 1rem);
+}
+
+.luc-plugin-card-header {
+  border-bottom: 1px solid var(--luc-plugin-border);
+}
+
+.luc-plugin-card-heading {
+  min-width: 0;
+}
+
+.luc-plugin-card-title {
+  margin: 0;
+  color: var(--luc-plugin-text);
+  font-family: var(--luc-plugin-font-serif);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.luc-plugin-card-description {
+  margin: 2px 0 0;
+  color: var(--luc-plugin-text-muted);
+  font-size: 0.7rem;
+}
+
+.luc-plugin-card-actions {
+  flex-shrink: 0;
+}
+
+.luc-plugin-card-body {
+  padding: var(--space-md, 1rem);
+}
+
+.luc-plugin-card-footer {
+  justify-content: flex-end;
+  border-top: 1px solid var(--luc-plugin-border);
+}
+
+.luc-plugin-setting-row {
+  display: flex;
+  gap: var(--space-md, 1rem);
+  padding: var(--space-sm, 0.5rem) 0;
+}
+
+.luc-plugin-setting-row-inline {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.luc-plugin-setting-row-stacked {
+  flex-direction: column;
+}
+
+.luc-plugin-setting-text {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.luc-plugin-setting-label {
+  color: var(--luc-plugin-text);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.luc-plugin-setting-hint {
+  color: var(--luc-plugin-text-muted);
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.luc-plugin-setting-control {
+  flex-shrink: 0;
+}
+
+.luc-plugin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.luc-plugin-list-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm, 0.5rem);
+  min-width: 0;
+  padding: var(--space-sm, 0.5rem) 0;
+}
+
+.luc-plugin-list-item + .luc-plugin-list-item {
+  border-top: 1px solid var(--luc-plugin-border);
+}
+
+.luc-plugin-list-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.luc-plugin-list-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm, 0.5rem);
+}
+
+.luc-plugin-list-title {
+  color: var(--luc-plugin-text);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.luc-plugin-list-meta,
+.luc-plugin-list-description {
+  color: var(--luc-plugin-text-muted);
+  font-size: 0.7rem;
+}
+
+.luc-plugin-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs, 0.25rem);
+  padding: var(--space-lg, 1.5rem) var(--space-md, 1rem);
+  color: var(--luc-plugin-text-muted);
+  text-align: center;
+}
+
+.luc-plugin-empty-title {
+  color: var(--luc-plugin-text);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.luc-plugin-empty-description {
+  max-width: 32rem;
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+@keyframes luc-plugin-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes luc-plugin-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

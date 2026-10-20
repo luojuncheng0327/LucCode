@@ -1,0 +1,1131 @@
+/* ========================================
+   PreviewItem 预览面板 — CSS Module
+   ======================================== */
+
+.previewPanel {
+    position: relative;
+    width: var(--preview-panel-width);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    border-left: 1px solid var(--overlay-light);
+    overflow: hidden;
+    transition: width var(--duration-slow) var(--ease-out),
+                border-color var(--duration-slow) var(--ease-out);
+    z-index: 10;
+}
+
+.previewPanelCollapsed {
+    width: 0;
+    border-left: none;
+}
+
+.previewPanelInner {
+    display: flex;
+    flex-direction: column;
+    width: var(--preview-panel-width);
+    min-width: var(--preview-panel-width);
+    height: 100%;
+    min-height: 0;
+    opacity: 1;
+    transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.previewPanelCollapsed .previewPanelInner {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.previewBodyShell {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    margin: var(--panel-edge-gap);
+    container-type: inline-size;
+}
+
+.previewPanelBody {
+    --preview-markdown-bottom-space: calc(var(--space-40) + var(--space-40) + var(--space-24) + var(--space-24));
+    height: 100%;
+    overflow: auto;
+    position: relative;
+    border-radius: var(--panel-card-radius);
+    background: var(--panel-card-bg);
+    border: var(--panel-card-border);
+    box-shadow: var(--panel-card-shadow);
+}
+
+.markdownPreviewDocument {
+    min-height: 100%;
+    box-sizing: border-box;
+    padding-bottom: var(--preview-markdown-bottom-space);
+}
+
+.previewUnavailable {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    min-height: 100%;
+    padding: var(--space-24);
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.previewUnavailable p {
+    margin: 0;
+    font-size: var(--fs-body);
+    color: var(--text);
+}
+
+.previewUnavailable span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--fs-caption);
+}
+
+/* HTML 文件预览：外部网页访问交给内置浏览器，右侧面板只承载本地预览文档。 */
+.previewPanelBody :global(.preview-html-frame) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    border: 0;
+    border-radius: inherit;
+    background: #fff;
+}
+
+/* Markdown 预览 */
+.previewPanelBody :global(.preview-markdown) {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+    padding: var(--space-24) var(--editor-markdown-content-padding-x) var(--space-16);
+    font-size: var(--editor-markdown-font-size);
+    font-weight: 400;
+    line-height: var(--editor-markdown-line-height);
+    font-family: var(--editor-markdown-font-family, var(--font-serif-text));
+    /* 基线网格节奏单位：随用户排版设置伸缩 */
+    --md-rhythm: calc(var(--editor-markdown-font-size) * var(--editor-markdown-line-height));
+}
+
+.previewPanelBody :global(.preview-markdown > *) {
+    box-sizing: border-box;
+    max-width: var(--editor-markdown-content-width);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.previewPanelBody :global(.preview-markdown > .markdown-table-scroll) {
+    width: 100%;
+    max-width: var(--editor-markdown-content-width);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.previewPanelBody :global(.markdown-cover-drop-host .preview-markdown) {
+    padding-top: calc(var(--space-40) + var(--space-24));
+}
+
+.previewPanelBody :global(.markdown-cover) {
+    position: relative;
+    width: 100%;
+    min-height: 160px;
+    max-height: 720px;
+    overflow: hidden;
+    background: var(--bg-card);
+    user-select: none;
+    touch-action: none;
+}
+
+.previewPanelBody :global(.markdown-cover::after) {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border: 1px solid color-mix(in srgb, var(--accent) 58%, transparent);
+    box-shadow:
+        inset 0 0 0 999px color-mix(in srgb, var(--accent) 8%, transparent),
+        inset 0 -2px 0 color-mix(in srgb, var(--accent) 72%, transparent);
+    opacity: 0;
+    transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.previewPanelBody :global(.markdown-cover.markdown-cover-drop-active::after) {
+    opacity: 1;
+}
+
+.previewPanelBody :global(.markdown-cover img) {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    cursor: grab;
+}
+
+.previewPanelBody :global(.markdown-cover img:active) {
+    cursor: grabbing;
+}
+
+.previewPanelBody :global(.markdown-cover-resize) {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 10px;
+    cursor: ns-resize;
+}
+
+.previewPanelBody :global(.markdown-cover-resize::after) {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 3px;
+    width: 56px;
+    height: 2px;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: var(--overlay-medium, rgba(0, 0, 0, 0.16));
+    opacity: 0;
+    transition: opacity var(--duration-fast);
+}
+
+.previewPanelBody :global(.markdown-cover:hover .markdown-cover-resize::after) {
+    opacity: 0.8;
+}
+
+.previewPanelBody :global(.markdown-cover-drop-host) {
+    position: relative;
+    min-height: 100%;
+}
+
+.previewPanelBody :global(.markdown-cover-drop-rail) {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    z-index: 2;
+    height: 0;
+    pointer-events: none;
+}
+
+.previewPanelBody :global(.markdown-cover-drop-rail::before) {
+    content: "";
+    position: absolute;
+    left: var(--space-24);
+    right: var(--space-24);
+    top: 10px;
+    height: 2px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 72%, transparent);
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 8%, transparent);
+    opacity: 0;
+    transform: scaleX(0.96);
+    transition:
+        opacity var(--duration-fast) var(--ease-out),
+        transform var(--duration-fast) var(--ease-out);
+}
+
+.previewPanelBody :global(.markdown-cover-drop-rail.markdown-cover-drop-rail-active::before) {
+    opacity: 1;
+    transform: scaleX(1);
+}
+
+.previewPanelBody :global(.markdown-cover-menu) {
+    position: fixed;
+    z-index: 1000;
+    min-width: 176px;
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--overlay-light);
+    background: var(--bg-card);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+}
+
+.previewPanelBody :global(.markdown-cover-menu button) {
+    display: block;
+    width: 100%;
+    padding: 7px 9px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text);
+    font-size: var(--fs-caption);
+    text-align: left;
+    cursor: default;
+}
+
+.previewPanelBody :global(.markdown-cover-menu button:hover) {
+    background: var(--overlay-light);
+}
+
+.previewPanelBody :global(.markdown-cover-menu button.markdown-cover-menu-danger) {
+    margin-top: 4px;
+    border-top: 1px solid var(--overlay-light);
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    color: var(--danger, #b45a5a);
+}
+
+/* ── 网格标题：margin 整格 / 半格呼吸放 padding（不参与 collapse），
+      content 总高凑整格；全部 longhand，勿动左右 auto ── */
+.previewPanelBody :global(.preview-markdown) h1 {
+    font-size: var(--editor-markdown-h1-font-size);
+    font-weight: 400;
+    text-align: left;
+    line-height: calc(var(--md-rhythm) * 1.5);
+    margin-top: calc(var(--md-rhythm) * 2);
+    margin-bottom: calc(var(--md-rhythm) * 0.5);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: calc(var(--md-rhythm) - 1px);
+    /* content 1.5r + (1r−1px) + 1px = 2.5r；+mb 0.5r = 3r 落格。
+       题→线远衬、线→正文近贴，比例随 newsprint 原版 */
+}
+/* 首 h1 = 文档题名：居中（手账身份）；后续 h1 = 章标题：左对齐 + 底线 */
+.previewPanelBody :global(.preview-markdown) > h1:first-child {
+    margin-top: 0;
+    text-align: center;
+}
+.previewPanelBody :global(.preview-markdown.markdown-has-cover) h1 {
+    text-align: left;
+}
+.previewPanelBody :global(.preview-markdown) h2,
+.previewPanelBody :global(.preview-markdown) h3,
+.previewPanelBody :global(.preview-markdown) h4,
+.previewPanelBody :global(.preview-markdown) h5,
+.previewPanelBody :global(.preview-markdown) h6 {
+    line-height: var(--md-rhythm);
+    margin-top: var(--md-rhythm);
+    margin-bottom: 0;
+    padding-top: calc(var(--md-rhythm) * 0.5);
+    padding-bottom: calc(var(--md-rhythm) * 0.5);
+    /* content 0.5r+1r+0.5r = 2r；视觉上方 1.5 行、下方 0.5 行 */
+}
+.previewPanelBody :global(.preview-markdown) h1 + h2,
+.previewPanelBody :global(.preview-markdown) h1 + h3 {
+    margin-top: calc(var(--md-rhythm) * 0.5); /* h1 mb 0.5r 与之 collapse 后仍 3r 累计落格 */
+}
+.previewPanelBody :global(.preview-markdown) h2 { font-size: var(--editor-markdown-h2-font-size); font-weight: 500; }
+.previewPanelBody :global(.preview-markdown) h3 { font-size: var(--editor-markdown-h3-font-size); font-weight: 500; }
+.previewPanelBody :global(.preview-markdown) h4 { font-size: var(--editor-markdown-h4-font-size); font-weight: 600; }
+.previewPanelBody :global(.preview-markdown) h5 { font-size: var(--editor-markdown-h5-font-size); font-weight: 600; }
+.previewPanelBody :global(.preview-markdown) h6 { font-size: var(--editor-markdown-h6-font-size); font-weight: 600; }
+
+.previewPanelBody :global(.preview-markdown) strong {
+    font-weight: 700;
+}
+
+/* ── 网格节奏：块级下边距一律整格 ── */
+.previewPanelBody :global(.preview-markdown) p { margin-top: 0; margin-bottom: var(--md-rhythm); }
+.previewPanelBody :global(.preview-markdown) li p { margin-bottom: 0; }
+.previewPanelBody :global(.preview-markdown) blockquote {
+    margin-top: 0; margin-bottom: var(--md-rhythm); padding-left: 1.25em;
+}
+.previewPanelBody :global(.preview-markdown) ul,
+.previewPanelBody :global(.preview-markdown) ol { margin-top: 0; margin-bottom: var(--md-rhythm); }
+.previewPanelBody :global(.preview-markdown) li { margin-top: 0; margin-bottom: 0; }
+.previewPanelBody :global(.preview-markdown) li ul,
+.previewPanelBody :global(.preview-markdown) li ol { margin-bottom: 0; }
+/* hr 占满一行高，细线画在行中央：1px 边框不挤破网格 */
+.previewPanelBody :global(.preview-markdown) hr {
+    border: none;
+    height: var(--md-rhythm);
+    margin-top: 0; margin-bottom: 0;
+    background: linear-gradient(var(--border), var(--border)) center / 100% 1px no-repeat;
+}
+/* ── 报纸表格：全无线，行的区分靠 thead 灰底 + 斑马纹；
+      collapse 下 radius 不生效，单元格已无边框 → separate 视觉零差异 ── */
+.previewPanelBody :global(.preview-markdown .markdown-table-scroll) { margin-top: 0; margin-bottom: var(--md-rhythm); }
+.previewPanelBody :global(.preview-markdown) table {
+    width: fit-content;
+    max-width: 100%;
+    table-layout: auto;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: var(--radius-xs);
+    overflow: hidden;
+}
+.previewPanelBody :global(.preview-markdown) th,
+.previewPanelBody :global(.preview-markdown) td {
+    border: none;
+    padding: 0.35em 0.8em;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+.previewPanelBody :global(.preview-markdown) thead th {
+    background: color-mix(in srgb, var(--text) 9%, transparent);
+    font-weight: 600;
+    font-size: 0.85em;
+    letter-spacing: 0.08em;
+}
+.previewPanelBody :global(.preview-markdown) tbody tr:nth-child(even) td {
+    background: color-mix(in srgb, var(--text) 4.5%, transparent);
+}
+/* ── 代码块：无框平铺灰块 + 微圆角；rhythm 边距挂在最外层块上 ── */
+.previewPanelBody :global(.preview-markdown) pre {
+    background: color-mix(in srgb, var(--text) 9%, transparent);
+    border: none;
+    border-radius: var(--radius-xs);
+    padding: 0.75em 1em;
+    margin-top: 0; margin-bottom: var(--md-rhythm);
+}
+.previewPanelBody :global(.preview-markdown .code-block-wrap) { margin-top: 0; margin-bottom: var(--md-rhythm); }
+.previewPanelBody :global(.preview-markdown .code-block-wrap > pre) { margin-bottom: 0; }
+.previewPanelBody :global(.preview-markdown) code {
+    background: color-mix(in srgb, var(--text) 9%, transparent);
+    border-radius: var(--radius-xs);
+}
+.previewPanelBody :global(.preview-markdown) pre code { background: none; }
+
+/* 代码预览 */
+.previewPanelBody :global(.preview-code) {
+    padding: var(--space-16);
+    font-family: var(--font-mono);
+    font-size: var(--fs-ui);
+    line-height: 1.6;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--text);
+    margin: 0;
+}
+
+/* docx 预览 */
+.previewPanelBody :global(.preview-docx) {
+    padding: var(--space-16) var(--space-24);
+    line-height: 1.8;
+    overflow-y: auto;
+}
+
+.previewPanelBody :global(.preview-docx) table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0.8em 0;
+}
+
+.previewPanelBody :global(.preview-docx) th,
+.previewPanelBody :global(.preview-docx) td {
+    border: 1px solid var(--overlay-light);
+    padding: 6px 10px;
+}
+
+/* 图片预览 */
+.previewPanelBody :global(.preview-image) {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+    margin: auto;
+}
+
+/* PDF 预览：略微放大让查看器深色背景被圆角裁切掉 */
+.previewPanelBody :global(.preview-pdf) {
+    width: calc(100% + 8px);
+    height: calc(100% + 8px);
+    margin: -4px;
+    border: none;
+    border-radius: inherit;
+    overflow: hidden;
+}
+
+/* CSV 表格预览 */
+.previewPanelBody :global(.preview-csv) {
+    padding: var(--space-8);
+    overflow: auto;
+    height: 100%;
+}
+
+.previewPanelBody :global(.preview-csv) table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-ui);
+    font-family: var(--font-mono);
+}
+
+.previewPanelBody :global(.preview-csv) th,
+.previewPanelBody :global(.preview-csv) td {
+    padding: 6px 10px;
+    border: 1px solid var(--overlay-light);
+    text-align: left;
+    white-space: nowrap;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.previewPanelBody :global(.preview-csv) thead th {
+    position: sticky;
+    top: 0;
+    background: var(--overlay-subtle);
+    font-weight: 600;
+    z-index: 1;
+}
+
+.previewPanelBody :global(.preview-csv) tbody tr:hover {
+    background: var(--overlay-subtle);
+}
+
+/* 文件信息卡 */
+.previewPanelBody :global(.preview-file-info) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: var(--space-16);
+    padding: var(--space-40);
+    text-align: center;
+}
+
+.previewPanelBody :global(.preview-file-icon) {
+    width: 56px;
+    height: 56px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.previewPanelBody :global(.preview-file-icon) svg {
+    width: 48px;
+    height: 48px;
+}
+
+.previewPanelBody :global(.preview-file-name) {
+    font-size: var(--fs-title);
+    font-weight: 600;
+    color: var(--text);
+    word-break: break-all;
+}
+
+.previewPanelBody :global(.preview-file-ext) {
+    font-size: var(--fs-ui);
+    color: var(--text-muted);
+}
+
+.previewPanelBody :global(.preview-file-open-btn) {
+    margin-top: var(--space-8);
+    padding: var(--space-8) var(--space-24);
+    border: none;
+    border-radius: var(--radius-md);
+    background: var(--accent);
+    color: #fff;
+    font-size: var(--fs-body);
+    cursor: default;
+    transition: opacity var(--duration-fast);
+}
+
+.previewPanelBody :global(.preview-file-open-btn):hover {
+    opacity: 0.85;
+}
+
+/* ── Preview 编辑器（CodeMirror 6）── */
+
+:global(.preview-editor) {
+    height: 100%;
+    overflow: hidden;
+}
+
+:global(.preview-editor.mode-markdown) {
+    --preview-markdown-editor-bottom-space: var(--preview-markdown-bottom-space, calc(var(--space-40) + var(--space-40) + var(--space-24) + var(--space-24)));
+    --editor-markdown-block-rail-space: 36px;
+}
+
+:global(.preview-editor .cm-editor) {
+    height: 100%;
+    background: transparent;
+    position: relative;
+}
+
+:global(.preview-editor .cm-editor.cm-focused) {
+    outline: none;
+}
+
+:global(.preview-editor.mode-markdown .cm-markdown-block-rail) {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+:global(.preview-editor.mode-markdown .cm-markdown-block-rail-item) {
+    position: absolute;
+    width: 28px;
+    pointer-events: auto;
+}
+
+:global(.preview-editor.mode-markdown .cm-markdown-block-handle) {
+    position: absolute;
+    left: -2px;
+    width: 20px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: grab;
+    opacity: 0.55;
+    touch-action: none;
+    transition: opacity var(--duration-instant), background var(--duration-instant), color var(--duration-instant);
+}
+
+:global(.preview-editor.mode-markdown .cm-markdown-block-drag-preview) {
+    position: absolute;
+    z-index: 12;
+    overflow: visible;
+    pointer-events: none;
+    user-select: none;
+    opacity: 0.55;
+    will-change: transform;
+}
+
+:global(.preview-editor.mode-markdown .cm-markdown-block-drag-preview .cm-line) {
+    background: transparent;
+    box-shadow: none;
+}
+
+:global(.preview-editor.mode-markdown .cm-markdown-block-drag-count) {
+    position: absolute;
+    right: 0;
+    top: 0;
+    min-width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 0 var(--space-4);
+    border: 1px solid var(--overlay-medium);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    color: var(--text-muted);
+    font-family: var(--font-ui);
+    font-size: var(--fs-hint);
+    line-height: 1;
+    transform: translate(50%, -50%);
+}
+
+:global(.preview-editor.mode-markdown .cm-markdown-block-selection-layer) {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+:global(.preview-editor.mode-markdown .cm-markdown-block-selection-surface) {
+    position: absolute;
+    box-sizing: border-box;
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--text) 7%, transparent);
+    pointer-events: none;
+}
+
+:global(.preview-editor.mode-markdown .cm-markdown-block-marquee) {
+    position: absolute;
+    box-sizing: border-box;
+    border: 1px solid color-mix(in srgb, var(--text) 20%, transparent);
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--text) 3%, transparent);
+    pointer-events: none;
+}
+
+:global(.preview-editor.mode-markdown .cm-markdown-block-selection-surface.is-clipped-top) {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+:global(.preview-editor.mode-markdown .cm-markdown-block-selection-surface.is-clipped-bottom) {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+:global(.preview-editor.mode-markdown .cm-editor.cm-markdown-block-marquee-zone .cm-content),
+:global(.preview-editor.mode-markdown .cm-editor.cm-markdown-block-marquee-zone .cm-content *) {
+    cursor: default !important;
+}
+
+:global(.preview-editor.mode-markdown .cm-markdown-block-handle:hover),
+:global(.preview-editor.mode-markdown .cm-markdown-block-handle:focus-visible) {
+    background: var(--overlay-subtle);
+    color: var(--text);
+    opacity: 1;
+    outline: none;
+}
+
+:global(.preview-editor.mode-markdown .cm-markdown-block-handle.is-dragging) {
+    cursor: grabbing;
+    background: var(--overlay-medium);
+    color: var(--text);
+    opacity: 1;
+}
+
+:global(.preview-editor.mode-markdown .cm-markdown-block-handle svg) {
+    width: 14px;
+    height: 14px;
+}
+
+:global(.preview-editor.mode-markdown .cm-markdown-block-drop-indicator) {
+    position: relative;
+    display: block;
+    z-index: 11;
+    width: 100%;
+    max-width: var(--editor-markdown-content-width);
+    height: 0;
+    margin: 0 auto;
+    box-sizing: border-box;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+        opacity var(--duration-instant) var(--ease-out),
+        visibility 0s linear var(--duration-instant);
+}
+
+:global(.preview-editor.mode-markdown .cm-markdown-block-drop-indicator)::after {
+    content: '';
+    position: absolute;
+    left: var(--space-8);
+    right: var(--space-8);
+    top: -1px;
+    height: 2px;
+    border-radius: 999px;
+    background: var(--accent);
+}
+
+:global(.preview-editor.mode-markdown .cm-markdown-block-drop-indicator.is-visible) {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    :global(.preview-editor.mode-markdown .cm-markdown-block-handle) {
+        opacity: 0;
+    }
+
+    :global(.preview-editor.mode-markdown .cm-markdown-block-rail-item:hover .cm-markdown-block-handle),
+    :global(.preview-editor.mode-markdown .cm-markdown-block-handle:focus-visible),
+    :global(.preview-editor.mode-markdown .cm-markdown-block-handle.is-dragging) {
+        opacity: 1;
+    }
+}
+
+/* 触控端没有 hover，不让整条 block rail 退化成常驻按钮列。CodeMirror
+   selection 的 focus 端由插件标记为 is-caret-block；编辑器失焦后即使选区仍
+   保留，也不显示旧位置的 Grabber。隐藏项同时退出命中与可访问树，避免透明
+   按钮拦截正文旁的触控。 */
+@media (hover: none) and (pointer: coarse) {
+    :global(.preview-editor.mode-markdown .cm-markdown-block-rail-item) {
+        pointer-events: none;
+    }
+
+    :global(.preview-editor.mode-markdown .cm-markdown-block-handle) {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    :global(.preview-editor.mode-markdown .cm-editor.cm-focused .cm-markdown-block-rail-item.is-caret-block) {
+        pointer-events: auto;
+    }
+
+    :global(.preview-editor.mode-markdown .cm-editor.cm-focused .cm-markdown-block-rail-item.is-caret-block .cm-markdown-block-handle) {
+        opacity: 0.55;
+        visibility: visible;
+        pointer-events: auto;
+    }
+}
+
+:global(.preview-editor.mode-markdown .cm-editor.cm-markdown-cover-rail-active::before) {
+    content: "";
+    position: absolute;
+    left: var(--editor-markdown-content-inset-x);
+    right: var(--editor-markdown-content-inset-x);
+    top: var(--space-8);
+    height: 2px;
+    z-index: 12;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 72%, transparent);
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 8%, transparent);
+    pointer-events: none;
+}
+
+:global(.preview-editor .cm-gutters) {
+    background: transparent;
+    border-right: 1px solid var(--overlay-light);
+    color: var(--text-muted);
+    font-size: var(--fs-caption);
+}
+
+:global(.preview-editor .cm-activeLineGutter) {
+    background: transparent;
+    color: var(--text);
+}
+
+:global(.preview-editor .cm-activeLine) {
+    background: var(--overlay-subtle);
+}
+
+:global(.preview-editor .cm-selectionBackground) {
+    background: var(--accent-light, rgba(100, 140, 200, 0.15)) !important;
+}
+
+:global(.preview-editor.mode-markdown .cm-editor) {
+    --editor-markdown-selection-bg: color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+:global(.preview-editor.mode-markdown .cm-selectionBackground) {
+    background: var(--editor-markdown-selection-bg) !important;
+}
+
+:global(.preview-editor.mode-markdown .cm-content::selection),
+:global(.preview-editor.mode-markdown .cm-content *::selection) {
+    background: var(--editor-markdown-selection-bg);
+    color: var(--text);
+    text-shadow: none;
+}
+
+:global(.preview-editor .cm-cursor) {
+    border-left-color: var(--text);
+}
+
+.markdownEditorStatus {
+    position: absolute;
+    right: var(--space-12);
+    bottom: var(--space-12);
+    z-index: 5;
+    pointer-events: none;
+    padding: 5px 9px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--overlay-light);
+    background: var(--bg-glass, rgba(255, 253, 247, 0.72));
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 14px var(--shadow, rgba(0, 0, 0, 0.08));
+    color: var(--text-muted);
+    font-family: var(--font-ui);
+    font-size: var(--fs-hint);
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+/* ── Markdown 模式 ── */
+
+:global(.cm-center-line) {
+    text-align: center;
+}
+
+:global(.cm-hr-widget) {
+    display: inline-block;
+    width: 80%;
+    vertical-align: middle;
+    border-top: 1px solid var(--border);
+}
+
+:global(.cm-list-bullet) {
+    display: inline-block;
+    width: 0.4em;
+    margin-right: 0.45em;
+}
+
+:global(.cm-list-bullet)::after {
+    content: '';
+    display: block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: currentColor;
+    opacity: 0.45;
+}
+
+:global(.cm-checkbox) {
+    cursor: default;
+    accent-color: var(--accent);
+    margin-right: 0.3em;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+}
+
+:global(.cm-blockquote-line) {
+    border-left: 3px solid var(--accent);
+    padding-left: 1em;
+    background: var(--overlay-subtle);
+}
+
+:global(.cm-blockquote-line-first) {
+    border-radius: 2px 2px 0 0;
+}
+
+:global(.cm-blockquote-line-last) {
+    border-radius: 0 0 2px 2px;
+}
+
+:global(.cm-blockquote-line-first.cm-blockquote-line-last) {
+    border-radius: 2px;
+}
+
+:global(.cm-codeblock-line) {
+    background: var(--overlay-light);
+}
+
+:global(.cm-codeblock-line-first) {
+    border-radius: 2px 2px 0 0;
+    min-height: 24px;
+    line-height: 24px;
+    cursor: default;
+}
+
+:global(.cm-codeblock-line-last) {
+    border-radius: 0 0 2px 2px;
+    min-height: var(--space-4);
+    line-height: var(--space-4);
+    cursor: default;
+}
+
+:global(.cm-codeblock-line-first.cm-codeblock-line-last) {
+    border-radius: 2px;
+    min-height: 24px;
+    line-height: 24px;
+}
+
+:global(.cm-codeblock-toolbar) {
+    float: right;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin-right: 0;
+    font-family: var(--font-ui);
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+:global(.cm-codeblock-lang) {
+    font-family: var(--font-mono);
+    font-size: var(--fs-hint);
+    color: var(--text-muted);
+    pointer-events: none;
+    user-select: none;
+}
+
+:global(.cm-codeblock-copy-btn) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    position: relative;
+    width: 2rem;
+    min-height: 24px;
+    padding: 0;
+    border: 0;
+    border-radius: 0 var(--radius-sm) 0 var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--font-ui);
+    font-size: var(--fs-hint);
+    line-height: 1;
+    cursor: default;
+    opacity: 0.45;
+    transition:
+        opacity var(--duration-fast) var(--ease-out),
+        color var(--duration-fast) var(--ease-out);
+}
+
+:global(.cm-codeblock-copy-btn:hover),
+:global(.cm-codeblock-copy-btn:focus-visible),
+:global(.cm-codeblock-copy-btn[data-copied="true"]) {
+    opacity: 1;
+    color: var(--accent);
+}
+
+:global(.cm-codeblock-copy-icon) {
+    width: 13px;
+    height: 13px;
+    flex: 0 0 auto;
+}
+
+:global(.cm-codeblock-copy-label) {
+    position: absolute;
+    top: 50%;
+    right: calc(100% + var(--space-4));
+    transform: translateY(-50%);
+    padding: 0.1rem 0.35rem;
+    border-radius: var(--radius-sm);
+    background: var(--bg-glass, var(--bg-card));
+    color: var(--accent);
+    font-size: var(--fs-hint);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+:global(.cm-codeblock-copy-btn[data-copied="true"] .cm-codeblock-copy-label) {
+    opacity: 1;
+}
+
+:global(.cm-image-widget) {
+    display: block;
+    max-width: 100%;
+    margin: var(--space-4) 0;
+}
+
+:global(.cm-image-widget img) {
+    max-width: 100%;
+    border-radius: var(--radius-sm);
+}
+
+:global(.cm-image-fallback) {
+    color: var(--text-muted);
+    font-style: italic;
+    font-size: 0.85em;
+}
+
+:global(.cm-link-text) {
+    color: var(--link);
+    text-decoration: underline;
+    text-decoration-color: rgba(var(--link-rgb), 0.55);
+    text-underline-offset: 2px;
+}
+
+:global(.cm-table-widget) {
+    max-width: var(--editor-markdown-content-width);
+    margin: var(--space-4) auto;
+}
+
+:global(.cm-table-widget table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+    font-family: var(--editor-markdown-font-family, var(--font-serif));
+    table-layout: fixed;
+}
+
+:global(.cm-table-widget th),
+:global(.cm-table-widget td) {
+    border: 1px solid var(--border);
+    padding: 0.3em 0.6em;
+    text-align: left;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+:global(.cm-table-widget th) {
+    background: var(--overlay-light);
+    font-weight: 600;
+}
+
+:global(.cm-table-widget th:focus),
+:global(.cm-table-widget td:focus) {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+    background: var(--overlay-subtle);
+}
+
+:global(.cm-table-widget th[contenteditable]),
+:global(.cm-table-widget td[contenteditable]) {
+    cursor: text;
+}
+
+:global(.cm-mermaid-widget) {
+    display: block;
+    margin: var(--space-4) 0;
+    padding: var(--space-8);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--overlay-subtle);
+    cursor: text;
+    overflow-x: auto;
+}
+
+:global(.cm-mermaid-widget:hover),
+:global(.cm-mermaid-widget:focus) {
+    background: var(--overlay-light);
+}
+
+:global(.cm-mermaid-widget .mermaid-source[hidden]) {
+    display: none;
+}
+
+:global(.cm-mermaid-widget .mermaid-rendered) {
+    overflow-x: auto;
+}
+
+:global(.cm-mermaid-widget .mermaid-rendered svg) {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+}
+
+:global(.cm-mermaid-widget.is-error .mermaid-rendered) {
+    margin-bottom: var(--space-4);
+    color: var(--coral);
+    font-size: 0.82em;
+}
+
+/* CSV 表格 widget（编辑器内渲染） */
+:global(.cm-csv-table-widget) {
+    overflow-x: auto;
+}
+
+:global(.cm-csv-table-widget table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85em;
+    font-family: var(--editor-markdown-font-family, var(--font-serif));
+}
+
+:global(.cm-csv-table-widget th),
+:global(.cm-csv-table-widget td) {
+    border: 1px solid var(--border);
+    padding: 0.35em 0.6em;
+    text-align: left;
+    white-space: nowrap;
+    max-width: 360px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+:global(.cm-csv-table-widget th) {
+    background: var(--overlay-light);
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+:global(.cm-csv-table-widget th:focus),
+:global(.cm-csv-table-widget td:focus) {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+    background: var(--overlay-subtle);
+    white-space: normal;
+    overflow: visible;
+}
+
+:global(.cm-csv-table-widget th[contenteditable]),
+:global(.cm-csv-table-widget td[contenteditable]) {
+    cursor: text;
+}
+
+:global(.cm-csv-table-widget tbody tr:hover) {
+    background: var(--overlay-subtle);
+}
+
+/* 拖拽中禁 transition */
+:global(body.resizing) .previewPanel,
+:global(body.resizing) .previewPanelInner {
+    transition: none !important;
+}

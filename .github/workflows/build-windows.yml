@@ -1,0 +1,78 @@
+name: Build Windows installer
+
+# Manual-only: builds the unsigned NSIS installer and publishes it as the
+# `v1.0.0-beta` pre-release asset. Everything happens on the runner, so the
+# 400 MB+ installer never round-trips through a developer machine.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.15.0"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # vendor/mingit is gitignored; the Windows pack needs the official MinGit
+      # (git.exe + sh.exe + coreutils) baked into resources/git/.
+      - name: Download MinGit
+        run: node scripts/download-mingit.js
+
+      # The installer seed MUST be signed: build-server.mjs hard-fails without a
+      # PKCS8 PEM private key. The secret holds the PEM body, this step writes it
+      # to a file and exports the path the build expects.
+      - name: Write artifact signing key
+        shell: bash
+        env:
+          LUC_SIGN_KEY_PEM: ${{ secrets.LUC_SIGN_KEY }}
+        run: |
+          if [ -z "$LUC_SIGN_KEY_PEM" ]; then
+            echo "::error::LUC_SIGN_KEY secret is missing; the seed archive MUST be signed"
+            exit 1
+          fi
+          key="$RUNNER_TEMP/artifact-signing.pem"
+          printf '%s\n' "$LUC_SIGN_KEY_PEM" > "$key"
+          chmod 600 "$key"
+          echo "LUC_SIGN_KEY=$key" >> "$GITHUB_ENV"
+
+      - name: Build Windows installer
+        run: npm run dist:win -- --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: dist/*.exe
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Publish to GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v1.0.0-beta
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "release $TAG exists, uploading asset"
+          else
+            gh release create "$TAG" \
+              --title "LucCode 1.0.0 beta" \
+              --prerelease \
+              --notes-file .github/release-notes-v1.0.0-beta.md
+          fi
+          gh release upload "$TAG" dist/*.exe --clobber
+          gh release view "$TAG" --json tagName,assets --jq '.tagName, (.assets[] | "\(.name) \(.size)")'

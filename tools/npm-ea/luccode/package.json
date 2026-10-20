@@ -1,0 +1,23 @@
+{
+  "name": "luccode",
+  "version": "0.0.1",
+  "description": "LucCode — a personal AI agent with memory and soul. Early access: the full CLI ships with the 1.0 release.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": {
+    "luc": "cli.mjs"
+  },
+  "files": [
+    "cli.mjs",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "assistant",
+    "cli"
+  ]
+}

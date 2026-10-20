@@ -1,0 +1,296 @@
+.host {
+  box-sizing: border-box;
+  width: 100vw;
+  height: 100vh;
+  padding: 6px;
+  color: var(--text);
+  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  background: transparent;
+  -webkit-app-region: no-drag;
+}
+
+.panel {
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow: visible;
+  background: transparent;
+}
+
+.expanded .panel {
+  height: 100%;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--overlay-light);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--bg) 92%, var(--bg-card) 8%);
+  box-shadow: none;
+  -webkit-app-region: no-drag;
+}
+
+.titleBar {
+  display: flex;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  min-height: 42px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--overlay-light);
+  background: color-mix(in srgb, var(--bg) 94%, var(--bg-card) 6%);
+  -webkit-app-region: drag;
+}
+
+.threadTitle {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.titleLeft {
+  display: inline-flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.closeButton {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--text-muted);
+  background: transparent;
+  cursor: default;
+  -webkit-app-region: no-drag;
+}
+
+.closeButton:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--text) 7%, transparent);
+}
+
+.windowBody {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  padding: 0 14px 10px;
+  overflow: hidden;
+  -webkit-app-region: no-drag;
+}
+
+.thread {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--space-8);
+  -webkit-app-region: no-drag;
+}
+
+.openSessionButton {
+  flex: 0 0 auto;
+  height: 24px;
+  padding: 0 0.55rem;
+  border: 1px solid rgba(var(--accent-rgb), 0.12);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  background: var(--bg-card);
+  font-family: inherit;
+  font-size: var(--fs-hint);
+  cursor: default;
+  -webkit-app-region: no-drag;
+}
+
+.openSessionButton:hover:not(:disabled) {
+  color: var(--accent);
+  border-color: rgba(var(--accent-rgb), 0.25);
+}
+
+.openSessionButton:disabled {
+  opacity: 0.45;
+}
+
+.messages {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 14px 2px 2px;
+  scrollbar-width: none;
+  -webkit-app-region: no-drag;
+}
+
+.messages::-webkit-scrollbar {
+  display: none;
+}
+
+.emptyTranscript {
+  color: var(--text-muted);
+  font-size: var(--fs-caption);
+  line-height: 1.6;
+}
+
+.composer {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: var(--space-8);
+  min-width: 0;
+  border-color: color-mix(in srgb, var(--overlay-light) 78%, var(--text-muted) 22%);
+  box-shadow: none;
+  -webkit-app-region: no-drag;
+}
+
+.expanded .composer {
+  margin: 0 10px 10px;
+}
+
+.composer:hover {
+  border-color: color-mix(in srgb, var(--overlay-light) 70%, var(--accent) 30%);
+  box-shadow: none;
+}
+
+.composer:focus-within {
+  border-color: color-mix(in srgb, var(--overlay-light) 68%, var(--accent) 32%);
+  box-shadow: none;
+}
+
+.textarea {
+  min-height: 3.2em;
+  max-height: none;
+  overflow-y: hidden;
+  -webkit-app-region: no-drag;
+}
+
+.expanded .textarea {
+  min-height: 1.6em;
+}
+
+.attachmentRow {
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+  padding: 0 1px;
+  scrollbar-width: none;
+  -webkit-app-region: no-drag;
+}
+
+.attachmentRow::-webkit-scrollbar {
+  display: none;
+}
+
+.rightControls {
+  gap: var(--space-4);
+}
+
+.lockedPlanMode {
+  display: inline-flex;
+  -webkit-app-region: no-drag;
+}
+
+.lockedPlanMode button:disabled {
+  opacity: 1;
+  pointer-events: none;
+}
+
+.agentIdentityPill {
+  width: auto;
+  max-width: min(150px, 34vw);
+  box-sizing: border-box;
+  height: 28px;
+  min-height: 28px;
+  padding: 0 0.55rem;
+  border: 0;
+  color: var(--text-muted);
+  background: color-mix(in srgb, var(--text-muted) 7%, var(--bg-card));
+  box-shadow: none;
+  pointer-events: none;
+  -webkit-app-region: no-drag;
+}
+
+.agentIdentityPill:hover {
+  color: var(--text-muted);
+  border: 0;
+  background: color-mix(in srgb, var(--text-muted) 7%, var(--bg-card));
+}
+
+.agentAvatarWrap {
+  position: relative;
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid rgba(var(--accent-rgb), 0.12);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent-light) 42%, var(--bg-card));
+}
+
+.agentAvatar {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.agentInitial {
+  color: var(--accent);
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.agentName {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.errorLine {
+  color: var(--danger);
+  font-size: var(--fs-hint);
+  line-height: 1.35;
+  -webkit-app-region: no-drag;
+}
+
+.fileInput {
+  display: none;
+}
+
+.dragBottomBar {
+  -webkit-app-region: drag;
+}
+
+.dragBottomBar button,
+.dragBottomBar [role="button"],
+.dragBottomBar input,
+.dragBottomBar textarea,
+.dragBottomBar select {
+  -webkit-app-region: no-drag;
+}
+
+.dragStrip {
+  display: none;
+}

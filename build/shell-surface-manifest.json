@@ -1,0 +1,231 @@
+{
+  "version": 1,
+  "generatedBy": "manual census",
+  "purpose": "Census of everything the Electron shell asar/extraResources actually ship, plus which script (if any) produces each source. build:shell (scripts/build-shell.mjs) and its guard test (tests/shell-surface-manifest.test.ts) both key off this file so an unreviewed change to package.json's electron-builder `files`/`extraResources` fails a test instead of silently drifting from what build:shell knows how to build.",
+  "electron": {
+    "version": "42.3.0",
+    "source": "package.json devDependencies.electron"
+  },
+  "nodeEngine": ">=24.12.0 <25",
+  "shellNativeDependencies": [
+    {
+      "name": "ws",
+      "declaredVersion": "^8.18.0",
+      "reason": "vite.config.main.js keeps \"ws\" external from main.bundle.cjs (comment: \"CJS native addon (bufferutil/utf-8-validate) breaks when bundled\") — the module is required at runtime from node_modules, not inlined. package.json build.files re-includes \"node_modules/ws/**\" after the blanket \"!**/node_modules/**\" exclusion so it lands in the asar."
+    }
+  ],
+  "asarFiles": [
+    {
+      "builderEntry": "desktop/main.bundle.cjs",
+      "kind": "buildOutput",
+      "producedBy": "build:main",
+      "buildConfig": "vite.config.main.js",
+      "sourceEntry": "desktop/main.cjs",
+      "sourcePaths": ["desktop/main.cjs"]
+    },
+    {
+      "builderEntry": "desktop/bootstrap.cjs",
+      "kind": "static",
+      "producedBy": "static (source-controlled, no build step)",
+      "sourcePaths": ["desktop/bootstrap.cjs"]
+    },
+    {
+      "builderEntry": "desktop/src/office-pdf-helper.cjs",
+      "kind": "static",
+      "producedBy": "static",
+      "sourcePaths": ["desktop/src/office-pdf-helper.cjs"]
+    },
+    {
+      "builderEntry": "desktop/src/office-pdf-fonts.cjs",
+      "kind": "static",
+      "producedBy": "static",
+      "sourcePaths": ["desktop/src/office-pdf-fonts.cjs"]
+    },
+    {
+      "builderEntry": "desktop/src/shared/launch-integrity.cjs",
+      "kind": "static",
+      "producedBy": "static",
+      "sourcePaths": ["desktop/src/shared/launch-integrity.cjs"]
+    },
+    {
+      "builderEntry": "desktop/src/shared/windows-system-ca.cjs",
+      "kind": "static",
+      "producedBy": "static",
+      "sourcePaths": ["desktop/src/shared/windows-system-ca.cjs"]
+    },
+    {
+      "builderEntry": "shared/luc-runtime-paths.cjs",
+      "kind": "static",
+      "producedBy": "static",
+      "sourcePaths": ["shared/luc-runtime-paths.cjs"]
+    },
+    {
+      "builderEntry": "desktop/preload.bundle.cjs",
+      "kind": "buildOutput",
+      "producedBy": "build:preload",
+      "buildConfig": "vite.config.preload.js",
+      "sourceEntry": "desktop/preload.cjs",
+      "sourcePaths": ["desktop/preload.cjs"]
+    },
+    {
+      "builderEntry": "desktop/dist-splash/**",
+      "kind": "buildOutputGlob",
+      "producedBy": "build:splash",
+      "buildConfig": "vite.config.splash.ts",
+      "note": "vite build entry desktop/src/splash.html, plus a closeBundle plugin (copySplashRuntimeAssets -> scripts/splash-assets.mjs copySplashAssets) that copies modules/platform.js, all locales/*.json, and the yuan-avatar PNGs named by shared/yuan-visuals.ts YUAN_VISUALS into dist-splash/. splash is the one shell-owned HTML surface: it must render before any LUC_HOME artifact is unpacked, so it cannot depend on dist-renderer build output.",
+      "sourcePaths": [
+        "desktop/src/splash.html",
+        "scripts/splash-assets.mjs",
+        "desktop/src/modules/platform.js",
+        "desktop/src/locales",
+        "desktop/src/assets",
+        "shared/yuan-visuals.ts"
+      ]
+    },
+    {
+      "builderEntry": "desktop/src/**/*.{html,icns,ico,png,svg,json}",
+      "kind": "staticGlob",
+      "producedBy": "static (source-controlled, no build step)",
+      "sourceGlob": "desktop/src/**/*.{html,icns,ico,png,svg,json}",
+      "note": "Recursive glob; includes desktop/src/*.html (raw source HTML, used by loadPageFromDir()'s fallback path when a dist-renderer build for that page isn't present), icon files, and theme-registry-data.json. Not a build product."
+    },
+    {
+      "builderEntry": "desktop/src/assets/**",
+      "kind": "staticGlob",
+      "producedBy": "static",
+      "sourceGlob": "desktop/src/assets/**"
+    },
+    {
+      "builderEntry": "package.json",
+      "kind": "static",
+      "producedBy": "static (root package.json)",
+      "sourcePaths": ["package.json"],
+      "note": "This is the file app.getVersion() reads inside the packaged asar (electron-builder copies it in, with extraMetadata.main overriding only the `main` field — `version` passes through unmodified). Do not confuse with a hypothetical separate shell-version file; there isn't one, and this ticket does not create one."
+    },
+    {
+      "builderEntry": "release-digest.v1.json",
+      "kind": "static",
+      "producedBy": "static (hand-authored per release, see AGENTS/CLAUDE release-digest workflow)",
+      "sourcePaths": ["release-digest.v1.json"]
+    },
+    {
+      "builderEntry": "release-digest.v2.json",
+      "kind": "static",
+      "producedBy": "static (rolling history file, see scripts/generate-release-digest.mjs --append-history)",
+      "sourcePaths": ["release-digest.v2.json"]
+    },
+    {
+      "builderEntry": "!packages/**",
+      "kind": "exclusion"
+    },
+    {
+      "builderEntry": "!**/node_modules/**",
+      "kind": "exclusion"
+    },
+    {
+      "builderEntry": "node_modules/ws/**",
+      "kind": "vendoredNativeDep",
+      "producedBy": "npm install (ws@^8.18.0, see shellNativeDependencies above)",
+      "sourcePaths": ["node_modules/ws"]
+    }
+  ],
+  "extraResources": [
+    {
+      "builderEntry": "dist-server-artifact/${os}-${arch}/ -> seed/",
+      "platform": "all",
+      "kind": "signedSeedKit",
+      "producedBy": "build:server (scripts/build-server.mjs -> scripts/build-server-artifact.mjs), signed against LUC_SIGN_KEY",
+      "consumedNotBuiltBy": "build:shell",
+      "note": "build:shell never runs build:server and never reads LUC_SIGN_KEY. It only runs scripts/verify-seed-kit.mjs (fail-closed) against whatever already exists at dist-server-artifact/{os}-{arch}/; a missing/mismatched kit is a hard build:shell failure with a message pointing at `npm run build:server` or fetching an already-signed artifact."
+    },
+    {
+      "builderEntry": "desktop/src/screenshot-themes/ -> screenshot-themes/",
+      "platform": "all",
+      "kind": "staticDir",
+      "producedBy": "static",
+      "sourcePaths": ["desktop/src/screenshot-themes"]
+    },
+    {
+      "builderEntry": "desktop/src/assets/ -> assets/",
+      "platform": "all",
+      "kind": "staticDir",
+      "producedBy": "static",
+      "sourcePaths": ["desktop/src/assets"],
+      "note": "Same source tree as the asarFiles desktop/src/assets/** entry above; electron-builder ships it both inside the asar and unpacked under Resources/assets/. Not this ticket's concern to redesign — recorded as-is."
+    },
+    {
+      "builderEntry": "dist-computer-use/mac-${arch}/ -> computer-use/macos/",
+      "platform": "mac",
+      "kind": "buildOutput",
+      "producedBy": "build:computer-use-helper",
+      "buildScript": "scripts/build-computer-use-helper.mjs",
+      "note": "Swift build, mac-only (shouldBuildComputerUseHelper() gates on process.platform === 'darwin'). build:shell runs this step conditionally, mirroring the existing pack/dist scripts.",
+      "sourcePaths": ["scripts/build-computer-use-helper.mjs"]
+    },
+    {
+      "builderEntry": "vendor/mingit -> git",
+      "platform": "win",
+      "kind": "vendoredBinary",
+      "producedBy": "scripts/download-mingit.js (Windows pack CI)",
+      "buildScript": "scripts/download-mingit.js",
+      "sourcePaths": ["scripts/download-mingit.js"],
+      "note": "vendor/mingit is gitignored and only extracted by Windows pack CI (build.yml runs download-mingit.js then smoke-mingit.mjs). The forward guard asserts the downloader script exists — never the extracted tree — so plain npm test on windows-latest does not require a provisioned MinGit checkout. scripts/smoke-mingit.mjs documents the runtime contract the extracted tree must satisfy at pack time."
+    },
+    {
+      "builderEntry": "dist-sandbox/win-${arch}/ -> sandbox/windows/",
+      "platform": "win",
+      "kind": "buildOutput",
+      "producedBy": "build:windows-sandbox-helper",
+      "buildScript": "scripts/build-windows-sandbox-helper.mjs",
+      "note": "MSVC (cl.exe) build, win32-only (shouldBuildWindowsSandboxHelper() gates on process.platform === 'win32'). Cannot run on a non-Windows host and is out of scope for the build:shell step list in this ticket (dist:win already builds it as a separate pre-build:client step); recorded here purely for manifest completeness so the guard test's reverse-coverage check passes.",
+      "sourcePaths": ["scripts/build-windows-sandbox-helper.mjs"]
+    }
+  ],
+  "buildHooks": [
+    {
+      "hook": "afterPack",
+      "script": "scripts/fix-modules.cjs",
+      "readsSignKey": false,
+      "note": "Validates the seed/ four-piece kit landed in extraResources and patches asar production deps / node_modules/.bin symlinks. Does not read LUC_SIGN_KEY."
+    },
+    {
+      "hook": "afterSign",
+      "script": "scripts/notarize.cjs",
+      "readsSignKey": false,
+      "note": "Skipped locally via SKIP_NOTARIZE=true (same convention as npm run install:local). electron-builder's --dir target does not invoke afterSign at all in practice since there is no code-signed artifact to notarize, but the hook itself is a no-op without Apple credentials regardless."
+    }
+  ],
+  "buildShellSteps": [
+    "build:computer-use-helper (conditional: darwin only)",
+    "build:main",
+    "build:preload",
+    "build:splash",
+    "verify:seed-kit (scripts/verify-seed-kit.mjs; fail-closed against an existing dist-server-artifact/{os}-{arch}/; never triggers build:server)",
+    "electron-builder --dir"
+  ],
+  "themeAttribution": {
+    "script": "build:theme",
+    "buildConfig": "vite.config.theme.js",
+    "outDir": "desktop/dist-renderer/lib",
+    "verdict": "renderer",
+    "reason": "build:theme's own outDir is literally under dist-renderer/ (desktop/dist-renderer/lib/theme.js). Its only consumers are <script src=\"lib/theme.js\"> tags in index.html, mobile.html, settings.html, quick-chat.html, onboarding.html, and browser-viewer.html — all six are vite.config.ts renderer build inputs (rollupOptions.input), none of which ship in the asar or as extraResources. desktop/src/splash.html — the one shell-owned HTML surface — has its own inline <style> block and does not reference lib/theme.js at all. Conclusion: build:theme's product belongs entirely to the renderer artifact pipeline; build:shell must not run it.",
+    "evidence": [
+      "grep 'lib/theme.js' desktop/src/*.html -> matches index.html, mobile.html, browser-viewer.html, onboarding.html, settings.html, quick-chat.html; no match in splash.html",
+      "vite.config.ts rollupOptions.input lists exactly those six HTML files as renderer entries"
+    ]
+  },
+  "excludedFromShell": [
+    {
+      "script": "build:renderer",
+      "reason": "Renderer is not shipped inside the shell asar. It's a separately versioned artifact that build:server packs into the signed seed kit (dist-server-artifact/{os}-{arch}/); the shell resolves an activated renderer directory at runtime from LUC_HOME/artifacts, never from Resources directly except via the seed archive. build:shell never invokes build:renderer."
+    },
+    {
+      "script": "build:server",
+      "reason": "Same seed-kit story as build:renderer — server ships as a signed archive inside the seed kit, not as loose files in the shell package. build:shell only verifies a pre-existing kit (scripts/verify-seed-kit.mjs); it never builds or signs one."
+    },
+    {
+      "script": "build:theme",
+      "reason": "See themeAttribution above — its product is a renderer-only asset."
+    }
+  ]
+}

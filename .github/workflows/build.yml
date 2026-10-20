@@ -1,0 +1,635 @@
+name: Build
+
+# Manual-only: Windows is the only supported platform and the installer is built
+# by build-windows.yml, so tag pushes must not kick off the multi-platform train.
+on:
+  workflow_dispatch:
+
+jobs:
+  # renderer 归档（renderer-<version>.tar.gz）是纯 web 静态资源，构建结果平台
+  # 无关。这里单点构建一次，四个平台的 build job 下载同一份字节复用——避免
+  # 各平台各自现场打包出"内容相同、字节不同、sha256 不同"的四份归档（packTree
+  # 在 tar 头里写入真实文件 mtime）。见 scripts/pack-renderer-box.mjs 与
+  # scripts/build-server-artifact.mjs 的 packDualKindSeed prebuiltRendererArchive
+  # / LUC_PREBUILT_RENDERER_BOX 入参。
+  renderer-box:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.15.0"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # 顺序不能颠倒：build:theme 的产物写进 dist-renderer/lib/theme.js，
+      # 必须在 build:renderer 的 emptyOutDir 清空该目录之后才落地
+      # （见 vite.config.theme.js 文件头注释）。
+      - name: Build renderer bundle
+        run: npm run build:renderer
+
+      - name: Build theme bundle (writes into dist-renderer/lib, must run after build:renderer)
+        run: npm run build:theme
+
+      - name: Pack renderer hot-update box
+        run: node scripts/pack-renderer-box.mjs
+
+      - name: Upload renderer box
+        uses: actions/upload-artifact@v4
+        with:
+          name: renderer-box
+          retention-days: 3
+          path: dist-renderer-artifact/renderer-*.tar.gz
+          if-no-files-found: error
+
+  build:
+    needs: renderer-box
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            target: dmg
+            arch: arm64
+          - os: macos-latest
+            target: dmg
+            arch: x64
+          - os: windows-latest
+            target: nsis
+            arch: x64
+          - os: ubuntu-latest
+            target: AppImage
+            arch: x64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.15.0"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Windows: 下载官方 MinGit（git + sh-compatible shell + coreutils，非交互运行时），打包进安装包
+      - name: Download MinGit
+        if: runner.os == 'Windows'
+        run: node scripts/download-mingit.js
+
+      # 实测 git 全流程（init/commit/clone）+ sh + coreutils 可运行；runtime 残缺时 fail fast，不出残缺包
+      - name: Smoke-test MinGit
+        if: runner.os == 'Windows'
+        run: node scripts/smoke-mingit.mjs vendor/mingit
+
+      - name: Build client bundles (main + preload + renderer)
+        run: npm run build:client
+
+      # 三平台：materialize seed 列车签名私钥。
+      # build-server.mjs 末尾的 packDualKindSeed 硬性要求 LUC_SIGN_KEY 指向
+      # PKCS8 PEM 私钥文件。secret LUC_SIGN_KEY 的内容是 PEM 文本本体（不是
+      # 路径），这里落到 $RUNNER_TEMP（绝不写进 workspace，防止被打进包），
+      # 再把文件路径导出为 LUC_SIGN_KEY 环境变量。secret 缺失 → 硬失败，
+      # 禁止静默出无签名 seed 的包（本 workflow 只在 tag push / 手动 dispatch
+      # 触发，无 fork PR 无 secrets 的场景，硬失败是安全的）。
+      - name: Materialize seed signing key
+        shell: bash
+        env:
+          LUC_SIGN_KEY_PEM: ${{ secrets.LUC_SIGN_KEY }}
+        run: |
+          if [ -z "$LUC_SIGN_KEY_PEM" ]; then
+            echo "::error::LUC_SIGN_KEY secret is missing; the seed archive MUST be signed"
+            exit 1
+          fi
+          printf '%s\n' "$LUC_SIGN_KEY_PEM" > "$RUNNER_TEMP/luc-train-sign-key.pem"
+          echo "LUC_SIGN_KEY=$RUNNER_TEMP/luc-train-sign-key.pem" >> "$GITHUB_ENV"
+          echo "Seed signing key materialized."
+
+      # macOS: 手动配置签名 keychain + partition-list
+      # electron-builder 内部也会导入证书，但不一定设 partition-list，
+      # 导致 codesign 在无头 CI 上弹 UI 确认对话框而挂起。
+      # 这里先手动搞定，再把 CSC_KEYCHAIN 传给 electron-builder 让它复用。
+      # 位置必须在 "Build server bundle" 之前：build-server.mjs 的
+      # packDualKindSeed 会在装箱前对 seed 箱内 Mach-O 做 Developer ID 签名
+      # （先签名后装箱铁律，见 scripts/build-server-artifact.mjs 文件头），
+      # 签名时 codesign 需要本 keychain 已就位。
+      - name: Setup macOS signing keychain
+        if: runner.os == 'macOS'
+        env:
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/build.keychain-db"
+          KEYCHAIN_PASSWORD="ci-$(openssl rand -hex 12)"
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          echo "$CSC_LINK" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security import "$RUNNER_TEMP/cert.p12" -P "$CSC_KEY_PASSWORD" \
+            -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          rm -f "$RUNNER_TEMP/cert.p12"
+
+          security set-key-partition-list -S apple-tool:,apple:,codesign: \
+            -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | tr -d '"')
+          security default-keychain -s "$KEYCHAIN_PATH"
+
+          # 传给 electron-builder：CSC_KEYCHAIN 让它复用这个 keychain，不再自己创建
+          echo "CSC_KEYCHAIN=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
+
+      # macOS: 把 code-signing identity 串注册为日志 mask，并导出给 seed 签名器
+      # electron-builder（macPackager 的 log.info）会打印完整的 code-signing
+      # identity 串。本仓库是 public，Actions 日志对所有人可见，而 GitHub 只会
+      # 自动遮盖已知的 secret 值（如 TeamID），不会遮盖证书 identity 串本身。
+      # 这里在所有签名步骤之前从证书读取 identity 并 ::add-mask::，之后整个 job 日志里该串都变 ***。
+      # identity 不硬编码进本 public 文件，证书是唯一来源，保证 mask 串与 electron-builder
+      # 实际打印的串一致、永不漏配；读取不到就 fail（report，不静默降级）。
+      # 同时导出 LUC_MACHO_SIGN_IDENTITY：build-server.mjs 的 seed 签名器
+      # （scripts/build-server-artifact.mjs defaultSignMachOFiles）据此从
+      # ad-hoc 切换为 Developer ID + hardened runtime + secure timestamp
+      # Apple notary 会递归验签箱内 Mach-O，ad-hoc 签名无法通过公证。
+      - name: Mask signing identity in logs
+        if: runner.os == 'macOS'
+        run: |
+          IDENTITY=$(security find-identity -v -p codesigning | grep "Developer ID Application" | head -1 | sed 's/.*"\(.*\)"/\1/')
+          if [ -z "$IDENTITY" ]; then
+            echo "::error::No 'Developer ID Application' identity in keychain; refusing to sign without masking the identity"
+            exit 1
+          fi
+          IDENTITY_NAME="${IDENTITY#Developer ID Application: }"   # 去前缀
+          IDENTITY_NAME="${IDENTITY_NAME% (*)}"                    # 去 " (TeamID)" 后缀
+          if [ -z "$IDENTITY_NAME" ] || [ "$IDENTITY_NAME" = "$IDENTITY" ]; then
+            echo "::error::Failed to parse signing identity for masking; refusing to proceed"
+            exit 1
+          fi
+          echo "::add-mask::$IDENTITY_NAME"   # 遮 identity 名称部分（TeamID 可能已被遮成 ***，名称部分不会）
+          echo "::add-mask::$IDENTITY"        # 附带：遮完整 identity 串（覆盖我们自己 echo 含真 TeamID 的整行）
+          echo "LUC_MACHO_SIGN_IDENTITY=$IDENTITY" >> "$GITHUB_ENV"
+          echo "Signing identity registered for log masking and exported for seed signing."
+
+      # 下载 renderer-box job 单点构建好的共享归档，让四个平台复用同一份字节
+      # （而不是各自现场打包出内容相同但 tar mtime 不同、sha256 不同的四份）。
+      - name: Download shared renderer box
+        uses: actions/download-artifact@v4
+        with:
+          name: renderer-box
+          path: prebuilt-renderer
+
+      # 把共享归档的绝对路径通过 LUC_PREBUILT_RENDERER_BOX 环境变量透传给
+      # scripts/build-server.mjs 末尾调用的 packDualKindSeed（该函数默认从
+      # process.env 读取这个变量，见 scripts/build-server-artifact.mjs）。
+      # 这个变量之后由 Node（fs 原生 API）读取，不是再喂给另一个 bash 命令，
+      # 所以必须写成 Windows 原生路径（D:\... / D:/...），而不是 git-bash 的
+      # /d/... 风格路径——Node 在原生 Windows 上不认识 /d/... 这种挂载点写法。
+      # `pwd` 在 Git Bash 里默认返回 /d/... 风格；`pwd -W` 是 MSYS coreutils
+      # 提供的扩展，专门用来打印 Windows 原生等价路径，这里按 RUNNER_OS 分支。
+      - name: Point seed packer at the shared renderer box
+        shell: bash
+        run: |
+          BOX=$(ls prebuilt-renderer/renderer-*.tar.gz | head -1)
+          if [ -z "$BOX" ]; then
+            echo "::error::shared renderer box missing from the renderer-box job's upload"
+            exit 1
+          fi
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            BOX_DIR=$(pwd -W)
+          else
+            BOX_DIR=$(pwd)
+          fi
+          echo "LUC_PREBUILT_RENDERER_BOX=$BOX_DIR/$BOX" >> "$GITHUB_ENV"
+          echo "Using shared renderer box: $BOX_DIR/$BOX"
+
+      - name: Build server bundle
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            node scripts/build-server.mjs darwin ${{ matrix.arch }}
+          elif [ "$RUNNER_OS" = "Linux" ]; then
+            node scripts/build-server.mjs linux ${{ matrix.arch }}
+          else
+            node scripts/build-server.mjs win32 ${{ matrix.arch }}
+          fi
+
+      - name: Build Computer Use helper
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          LUC_COMPUTER_USE_HELPER_ARCH=${{ matrix.arch }} node scripts/build-computer-use-helper.mjs ${{ matrix.arch }}
+
+      - name: Build Windows sandbox helper
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: node scripts/build-windows-sandbox-helper.mjs ${{ matrix.arch }}
+
+      # 独立 Server 下载包与桌面 seed/OTA 是两个发布边界。直接使用本次
+      # build-windows-sandbox-helper 的输出，不依赖 electron-builder、
+      # win-unpacked 或 Windows 代码签名。验证步骤从解包结果实际运行
+      # MinGit、根 luc-server.cmd 和 restricted-token sandbox 链。
+      - name: Build Windows standalone server archive
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: node scripts/build-standalone-server-artifact.mjs ${{ matrix.arch }}
+
+      - name: Verify Windows standalone server archive
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: node scripts/verify-standalone-server-artifact.mjs ${{ matrix.arch }} --smoke
+
+      # 装箱前 fail-closed 复核：electron-builder 是直调（不经过 package.json
+      # 的 pack/dist/dist:win/dist:linux 脚本链），scripts/verify-seed-kit.mjs
+      # 挂在那条脚本链里、这里不会自动生效，必须单独接线，否则一份陈旧/串
+      # 平台的 seed 四件套能被原样装进安装包（见脚本文件头列举的三类事故）。
+      # platform/arch 显式传参，不用脚本默认的 process.platform/process.arch——
+      # macOS 矩阵的 x64 job 仍跑在 arm64 宿主机上（cross-arch 打包），默认参数
+      # 会算错要校验的 dist-server-artifact/{os}-{arch}/ 目录。
+      - name: Verify seed kit (macOS)
+        if: runner.os == 'macOS'
+        run: node scripts/verify-seed-kit.mjs darwin ${{ matrix.arch }}
+
+      # macOS 打包（签名 + 公证）
+      # keychain 与 identity 已由 "Build server bundle" 之前的两个步骤就位
+      # 签名步骤已前移；旧 "Pre-sign server binaries" 步骤已删除。artifact 归档启用后，
+      # extraResources 只取 dist-server-artifact/ 的 seed 归档（箱内 Mach-O
+      # 在 build-server.mjs 装箱前已签好），dist-server/ 散装树不再进包。
+      # --publish never：所有 publish 由 release job 单点控制，避免多 job 并发上传造成
+      # latest-mac.yml 互相覆盖的时间窗口（那是过去 "检查更新失败" 的根因之一）。
+      - name: Build macOS (DMG + ZIP)
+        if: runner.os == 'macOS'
+        run: |
+          ulimit -n 65536
+          npx electron-builder --mac dmg zip --${{ matrix.arch }} --publish never
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          CSC_KEYCHAIN: ${{ env.CSC_KEYCHAIN }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
+      # 同上：Windows job 直调 electron-builder，seed kit 校验必须单独接线。
+      - name: Verify seed kit (Windows)
+        if: runner.os == 'Windows'
+        run: node scripts/verify-seed-kit.mjs win32 ${{ matrix.arch }}
+
+      # Windows 打包
+      # --publish never：和 mac 同理，由 release job 单点上传。
+      - name: Build Windows installer
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          npx electron-builder --win nsis --publish never
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+
+      # 同上：Linux job 直调 electron-builder，seed kit 校验必须单独接线。
+      - name: Verify seed kit (Linux)
+        if: runner.os == 'Linux'
+        run: node scripts/verify-seed-kit.mjs linux ${{ matrix.arch }}
+
+      # Linux Preview 打包
+      # AppImage 给下载即用体验，deb 给 Ubuntu/Debian 系安装。
+      - name: Build Linux preview packages
+        if: runner.os == 'Linux'
+        run: |
+          npx electron-builder --linux AppImage deb --${{ matrix.arch }} --publish never
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # dist-server-artifact/*/server-*.tar.gz and dist-renderer-artifact/renderer-*.tar.gz
+      # are the hot-update boxes packed by packDualKindSeed (see scripts/build-server-artifact.mjs).
+      # The renderer box here is just this platform's copy of the SAME bytes downloaded from
+      # the renderer-box job (packDualKindSeed reuses it via LUC_PREBUILT_RENDERER_BOX rather
+      # than packing dist-renderer/ on the spot) — all four uploads are byte-identical now.
+      # dist-server-artifact/*/seed-train-*.json(.sig) IS uploaded here (platform-qualified
+      # filename, see seedManifestFileName in build-server-artifact.mjs — each matrix job's
+      # manifest now names the platform-arch it describes, so four same-named-but-different-
+      # content files are no longer possible). This per-platform seed manifest is still NOT
+      # what the release job publishes as the OTA train manifest — that one is generated
+      # separately by scripts/publish-train.mjs from the merged server-*.tar.gz set, not by
+      # copying any one platform's local seed manifest.
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-${{ matrix.os }}-${{ matrix.arch }}
+          retention-days: 3
+          path: |
+            dist/*.dmg
+            dist/*.zip
+            dist/*.exe
+            dist/*.AppImage
+            dist/*.deb
+            dist/latest*.yml
+            dist-server-artifact/*/server-*.tar.gz
+            dist-server-artifact/*/seed-train-*.json
+            dist-server-artifact/*/seed-train-*.json.sig
+            dist-renderer-artifact/renderer-*.tar.gz
+            dist-standalone/LucCore-*-Windows-x64.tar.gz
+            dist-standalone/LucCore-*-Windows-x64.manifest.json
+          if-no-files-found: error
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.15.0"
+
+      # 所有 Release 默认 pre-release，手动在 GitHub 上将稳定版本标记为 latest
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      # build job 改为 --publish never 后，draft release 不再由 electron-builder 自动创建，
+      # 由 release job 显式创建，并通过 --generate-notes 从上一个 tag 的 commit 自动生成 changelog。
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "${{ github.ref_name }}" >/dev/null 2>&1; then
+            echo "Release ${{ github.ref_name }} already exists, skipping create"
+          else
+            gh release create "${{ github.ref_name }}" \
+              --draft \
+              --prerelease \
+              --title "${{ github.ref_name }}" \
+              --generate-notes
+          fi
+
+      # 合并双架构的 latest-mac.yml（本地生成，不上传；上传由下一步统一处理）
+      - name: Generate merged latest-mac.yml
+        run: |
+          node scripts/merge-latest-mac-yml.cjs artifacts latest-mac.yml
+
+      # 更新摘要必须在本地 tag 前生成并提交。CI 只校验，不调用 LLM。
+      - name: Validate committed release digest
+        run: |
+          node scripts/validate-release-digest.mjs \
+            --tag "${{ github.ref_name }}" \
+            --file release-digest.v1.json
+
+      # 单点上传所有 release assets（dmg/zip/exe/AppImage/deb/yml），blockmap 不上传
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+
+          echo "=== Uploading installers ==="
+          find artifacts \( -name '*.dmg' -o -name '*.zip' -o -name '*.exe' -o -name '*.AppImage' -o -name '*.deb' \) -print0 |
+            while IFS= read -r -d '' f; do
+              echo "  $f"
+              gh release upload "${{ github.ref_name }}" "$f" --clobber
+            done
+
+          echo "=== Uploading server hot-update archives (one per platform-arch) ==="
+          find artifacts -path '*/dist-server-artifact/*/server-*.tar.gz' -print0 |
+            while IFS= read -r -d '' f; do
+              echo "  $f"
+              gh release upload "${{ github.ref_name }}" "$f" --clobber
+            done
+
+          echo "=== Uploading self-contained Windows standalone server assets ==="
+          find artifacts -type f \( \
+              -path '*/dist-standalone/LucCore-*-Windows-x64.tar.gz' -o \
+              -path '*/dist-standalone/LucCore-*-Windows-x64.manifest.json' \
+            \) -print0 |
+            while IFS= read -r -d '' f; do
+              echo "  $f"
+              gh release upload "${{ github.ref_name }}" "$f" --clobber
+            done
+
+          # Renderer archive is platform-independent AND now byte-identical across all four
+          # matrix jobs: it is built once by the renderer-box job and downloaded/reused by
+          # every platform (see scripts/pack-renderer-box.mjs and packDualKindSeed's
+          # prebuiltRendererArchive / LUC_PREBUILT_RENDERER_BOX). Which platform's copy we
+          # publish here no longer matters for correctness — macOS arm64 is kept only to
+          # avoid widening this step's diff.
+          echo "=== Uploading renderer hot-update archive (macOS arm64 build only) ==="
+          RENDERER_TGZ=$(find artifacts -path '*installer-macos-latest-arm64*/dist-renderer-artifact/renderer-*.tar.gz' | head -1)
+          if [ -n "$RENDERER_TGZ" ]; then
+            echo "  $RENDERER_TGZ"
+            gh release upload "${{ github.ref_name }}" "$RENDERER_TGZ" --clobber
+          else
+            echo "::error::renderer hot-update archive not found from the macOS arm64 build"
+            exit 1
+          fi
+
+          echo "=== Uploading latest.yml (Windows) ==="
+          WIN_YML=$(find artifacts -name 'latest.yml' | head -1)
+          if [ -n "$WIN_YML" ]; then
+            echo "  $WIN_YML"
+            gh release upload "${{ github.ref_name }}" "$WIN_YML" --clobber
+          else
+            echo "::warning::latest.yml not found (Windows build may have failed)"
+          fi
+
+          echo "=== Uploading latest-mac.yml (merged) ==="
+          gh release upload "${{ github.ref_name }}" latest-mac.yml --clobber
+
+          echo "=== Uploading release digest ==="
+          gh release upload "${{ github.ref_name }}" release-digest.v1.json --clobber
+
+          echo "=== Uploading latest-linux.yml ==="
+          LINUX_YML=$(find artifacts -name 'latest-linux.yml' | head -1)
+          if [ -n "$LINUX_YML" ]; then
+            echo "  $LINUX_YML"
+            gh release upload "${{ github.ref_name }}" "$LINUX_YML" --clobber
+          else
+            echo "::warning::latest-linux.yml not found (Linux build may have failed)"
+          fi
+
+      # 硬约束：release 必须包含所有必需产物，缺一个 CI 就 fail，draft 状态留给人手动检查。
+      # 防止以后再有 shell 写漏 / electron-builder 配置改坏 / 单架构构建挂掉 造成的 yml 缺失。
+      - name: Verify release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          ASSETS=$(gh release view "${{ github.ref_name }}" --json assets --jq '.assets[].name')
+          echo "=== Release assets ==="
+          echo "$ASSETS"
+          echo ""
+
+          MISSING=()
+          echo "$ASSETS" | grep -qx 'latest-mac.yml' || MISSING+=("latest-mac.yml")
+          echo "$ASSETS" | grep -qx 'latest.yml' || MISSING+=("latest.yml")
+          echo "$ASSETS" | grep -qx 'latest-linux.yml' || MISSING+=("latest-linux.yml")
+          echo "$ASSETS" | grep -qx 'release-digest.v1.json' || MISSING+=("release-digest.v1.json")
+          echo "$ASSETS" | grep -qE '^LucCode-.*-macOS-arm64\.dmg$' || MISSING+=("macOS-arm64.dmg")
+          echo "$ASSETS" | grep -qE '^LucCode-.*-macOS-arm64\.zip$' || MISSING+=("macOS-arm64.zip")
+          echo "$ASSETS" | grep -qE '^LucCode-.*-macOS-x64\.dmg$' || MISSING+=("macOS-x64.dmg")
+          echo "$ASSETS" | grep -qE '^LucCode-.*-macOS-x64\.zip$' || MISSING+=("macOS-x64.zip")
+          echo "$ASSETS" | grep -qE '^LucCode-.*-Windows-x64\.exe$' || MISSING+=("Windows-x64.exe")
+          echo "$ASSETS" | grep -qE '^LucCode-.*-Linux-(x64|x86_64)\.AppImage$' || MISSING+=("Linux AppImage")
+          echo "$ASSETS" | grep -qE '^LucCode-.*-Linux-(x64|amd64)\.deb$' || MISSING+=("Linux deb")
+          echo "$ASSETS" | grep -qE '^server-.*-darwin-arm64\.tar\.gz$' || MISSING+=("server darwin-arm64 hot-update archive")
+          echo "$ASSETS" | grep -qE '^server-.*-darwin-x64\.tar\.gz$' || MISSING+=("server darwin-x64 hot-update archive")
+          echo "$ASSETS" | grep -qE '^server-.*-win32-x64\.tar\.gz$' || MISSING+=("server win32-x64 hot-update archive")
+          echo "$ASSETS" | grep -qE '^server-.*-linux-x64\.tar\.gz$' || MISSING+=("server linux-x64 hot-update archive")
+          echo "$ASSETS" | grep -qE '^renderer-.*\.tar\.gz$' || MISSING+=("renderer hot-update archive")
+          echo "$ASSETS" | grep -qE '^LucCore-.*-Windows-x64\.tar\.gz$' || MISSING+=("Windows x64 standalone server archive")
+          echo "$ASSETS" | grep -qE '^LucCore-.*-Windows-x64\.manifest\.json$' || MISSING+=("Windows x64 standalone server manifest")
+
+          if echo "$ASSETS" | grep -qE '^LucCore-.*-Windows-x64\.manifest\.json\.sig$'; then
+            echo "::error::Obsolete standalone manifest signature leaked into the release"
+            exit 1
+          fi
+
+          # 清洁性检查：不应该有 blockmap 漏进来
+          if echo "$ASSETS" | grep -qE '\.blockmap$'; then
+            echo "::warning::blockmap files leaked into release (should be excluded by design):"
+            echo "$ASSETS" | grep -E '\.blockmap$'
+          fi
+
+          if [ ${#MISSING[@]} -gt 0 ]; then
+            echo ""
+            echo "::error::Missing required assets: ${MISSING[*]}"
+            echo "Release will remain as draft for manual inspection."
+            exit 1
+          fi
+          echo ""
+          echo "✓ All required assets present"
+
+      - name: Publish release (un-draft, pre-release)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release edit "${{ github.ref_name }}" --prerelease --draft=false
+
+  # Publishes the hot-update train that already-installed clients pull automatically —
+  # separate from (and downstream of) the installer release above, so a failure here never
+  # touches the already-published installer assets. scripts/publish-train.mjs is resumable:
+  # rerunning this job after a partial failure is always safe (see the script's file header).
+  publish-train:
+    needs: release
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.15.0"
+
+      # Same materialization as the build job's "Materialize seed signing key" step:
+      # LUC_SIGN_KEY secret content is the PEM text itself, written to a runner-temp
+      # file and exported as a path (never written into the workspace).
+      - name: Materialize train signing key
+        shell: bash
+        env:
+          LUC_SIGN_KEY_PEM: ${{ secrets.LUC_SIGN_KEY }}
+        run: |
+          if [ -z "$LUC_SIGN_KEY_PEM" ]; then
+            echo "::error::LUC_SIGN_KEY secret is missing; the train manifest MUST be signed"
+            exit 1
+          fi
+          printf '%s\n' "$LUC_SIGN_KEY_PEM" > "$RUNNER_TEMP/luc-train-sign-key.pem"
+          echo "LUC_SIGN_KEY=$RUNNER_TEMP/luc-train-sign-key.pem" >> "$GITHUB_ENV"
+
+      # The automatic publisher classifies the source installer Release before choosing
+      # channels. A prerelease advances beta only; stable requires a non-prerelease source
+      # here, or an explicit operator choice in the dedicated manual Publish Train workflow.
+      # publish-train.mjs independently enforces the same boundary before any remote write.
+      - name: Inspect source release
+        id: source_release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          IS_PRERELEASE="$(gh release view "${{ github.ref_name }}" --json isPrerelease --jq '.isPrerelease')"
+          case "$IS_PRERELEASE" in
+            true|false) ;;
+            *)
+              echo "::error::Unexpected isPrerelease value for ${{ github.ref_name }}: $IS_PRERELEASE"
+              exit 1
+              ;;
+          esac
+          echo "is_prerelease=$IS_PRERELEASE" >> "$GITHUB_OUTPUT"
+
+      - name: Publish stable train
+        if: steps.source_release.outputs.is_prerelease == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/publish-train.mjs --tag "${{ github.ref_name }}" --channel stable
+
+      - name: Publish beta train
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/publish-train.mjs --tag "${{ github.ref_name }}" --channel beta
+
+      - name: Publish train summary
+        if: always()
+        run: |
+          {
+            echo "### Hot-update train publish — ${{ github.ref_name }}"
+            echo ""
+            if [ "${{ job.status }}" = "success" ]; then
+              if [ "${{ steps.source_release.outputs.is_prerelease }}" = "true" ]; then
+                echo "The beta channel pointer was updated; stable was intentionally left unchanged because the source Release is a prerelease."
+              else
+                echo "Both the stable and beta channel pointers were updated from a non-prerelease source Release."
+              fi
+            else
+              echo "This job did not finish. The installer release for ${{ github.ref_name }} is unaffected"
+              echo "(published by the separate, already-completed \`release\` job)."
+              echo ""
+              echo "To retry: re-run this job — the publish script detects and safely resumes a partially"
+              echo "created train release — or trigger the **Publish Train** workflow manually for the"
+              echo "intended channel. A prerelease-to-stable publish also requires its explicit confirmation checkbox."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  mirror-atomgit:
+    needs: release
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.15.0"
+
+      - name: Mirror published release to AtomGit
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ATOMGIT_TOKEN: ${{ secrets.ATOMGIT_TOKEN }}
+          ATOMGIT_OWNER: LuoJunCheng
+          ATOMGIT_REPO: LucCode-Releases
+        run: |
+          node scripts/mirror-release-to-atomgit.mjs --tag "${{ github.ref_name }}"

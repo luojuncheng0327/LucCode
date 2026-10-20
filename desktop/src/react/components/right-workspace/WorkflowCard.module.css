@@ -1,0 +1,330 @@
+.card {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-8) var(--space-16);
+    gap: 6px;
+    transition: gap 0.25s var(--ease-out);
+}
+
+.card[data-collapsed] {
+    gap: 0;
+    /* 解禁硬高度上限 + overflow:hidden：原本 40% 截断 + .list 不滚动，导致展开后
+       内容被裁、与下方卡重合。改为卡片随内容自然增高，整列滚动交给外层 panel
+       （RightWorkspacePanel .shell overflow-y:auto）。节点 preview 自带 3 行滚动（见 .scroll）。 */
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: default;
+    color: inherit;
+}
+
+.title {
+    flex: 1;
+    text-align: left;
+    font-family: "Songti SC", "Noto Serif CJK SC", serif;
+    font-size: var(--fs-body);
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.count {
+    font-size: var(--fs-hint);
+    color: var(--text-muted);
+}
+
+.chevron {
+    flex: 0 0 auto;
+    color: var(--text-light);
+    transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.chevron[data-open="false"] {
+    transform: rotate(-90deg);
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+/* workflow 行（父） */
+.item {
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.34);
+    overflow: hidden;
+}
+
+.row {
+    width: 100%;
+    min-height: 32px;
+    padding: 6px 8px;
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr) auto auto auto;
+    gap: 7px;
+    align-items: center;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: default;
+    font-size: var(--fs-caption);
+}
+
+.row:hover {
+    background: rgba(0, 0, 0, 0.025);
+}
+
+.statusIcon {
+    text-align: center;
+    color: var(--text-light);
+    font-size: var(--fs-ui);
+    line-height: 1;
+}
+
+.status-running {
+    color: var(--accent);
+    display: inline-block;
+    animation: workflowSpin 1.4s linear infinite;
+}
+
+.status-done {
+    color: #5aa07a;
+}
+
+.status-failed {
+    color: #c46a6a;
+}
+
+.status-aborted {
+    color: var(--text-light);
+}
+
+@keyframes workflowSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.name {
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.agentCount {
+    font-size: var(--fs-hint);
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.duration {
+    font-size: var(--fs-hint);
+    color: var(--text-muted);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+/* 节点列表（展开 workflow 后） */
+.nodeList {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 4px 6px 5px;
+    border-top: 1px solid rgba(0, 0, 0, 0.045);
+}
+
+.nodeItem {
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.nodeRow {
+    width: 100%;
+    min-height: 28px;
+    padding: 4px 6px;
+    display: grid;
+    grid-template-columns: 14px 16px minmax(0, 1fr) auto;
+    gap: 6px;
+    align-items: center;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: default;
+    font-size: var(--fs-caption);
+}
+
+.nodeRow:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.nodeAvatar {
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    min-height: 16px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--overlay-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nodeAvatarImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+.nodeName {
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.nodeTokens {
+    font-size: var(--fs-hint);
+    color: var(--text-muted);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.details {
+    border-top: 1px solid rgba(0, 0, 0, 0.045);
+}
+
+.scroll {
+    /* 每个展开节点 preview 限 ~3 行后内部滚动，避免单节点把卡片撑高、彼此挤压。 */
+    max-height: 4.5rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 6px 7px 7px;
+    font-size: var(--fs-caption);
+}
+
+.scroll :global(.message) {
+    max-width: 100%;
+}
+
+/* Phase 折叠区 */
+.phaseSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.phaseHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  width: 100%;
+  cursor: default;
+  text-align: left;
+}
+
+.phaseHeader:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.phaseName {
+  font-size: var(--fs-caption);
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.headerDots {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+
+.miniDot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+}
+
+.miniDot[data-step-kind="parallel"] { color: #8da4b8; }
+.miniDot[data-step-kind="pipeline"] { color: #c4a87d; }
+.miniDot[data-step-kind="log"] { color: #8baa8b; }
+
+.miniAvatar {
+  width: 12px;
+  height: 12px;
+  min-width: 12px;
+  min-height: 12px;
+  border-radius: 50%;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.miniAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.miniEllipsis {
+  font-size: var(--fs-hint);
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+.phaseCount {
+  font-size: var(--fs-hint);
+  color: var(--text-muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  flex: 0 0 auto;
+}
+
+.phaseNodes {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 0 6px 4px 18px;
+}
+
+/* 脚本步骤图标容器（替代 nodeAvatar） */
+.stepIcon {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* tokens 汇总（workflow row 增加） */
+.tokenSum {
+  font-size: var(--fs-hint);
+  color: var(--text-muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}

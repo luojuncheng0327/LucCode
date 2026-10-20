@@ -1,0 +1,218 @@
+html,
+body,
+#root {
+  height: 100%;
+}
+
+.mobile-desktop-root {
+  height: 100vh;
+  height: 100dvh;
+  font-size: var(--fs-title);
+  overflow: hidden;
+  touch-action: pan-y;
+  overscroll-behavior-x: contain;
+}
+
+.mobile-desktop-app {
+  height: 100%;
+}
+
+.mobile-update-banner {
+  position: fixed;
+  top: calc(var(--titlebar-h, 44px) + 8px);
+  left: max(12px, env(safe-area-inset-left, 0px));
+  right: max(12px, env(safe-area-inset-right, 0px));
+  z-index: 120;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+  padding: 8px 10px 8px 14px;
+  border: 1px solid var(--overlay-light);
+  border-radius: 8px;
+  color: var(--text);
+  background: color-mix(in srgb, var(--bg-card, var(--bg)) 94%, var(--accent) 6%);
+  box-shadow: 0 8px 24px rgba(40, 34, 24, 0.12);
+  -webkit-app-region: no-drag;
+}
+
+.mobile-update-banner span {
+  min-width: 0;
+  font-family: var(--font-serif);
+  font-size: var(--fs-body);
+  line-height: 1.25;
+}
+
+.mobile-update-banner button {
+  flex: 0 0 auto;
+  min-height: 30px;
+  padding: 0 var(--space-12);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  color: var(--accent);
+  background: var(--accent-light);
+  font: inherit;
+}
+
+.mobile-update-banner button:active {
+  transform: translateY(1px);
+}
+
+/* 桌面已把 titlebar 改为文档流布局行；移动端维持 fixed overlay——
+   移动端侧栏是 fixed 抽屉、preview 全屏、chat-area 等都依赖 --titlebar-h 避让，
+   移动端 titlebar 正规化留作后续。特异性 (0,2,0) 覆盖桌面的 .titlebar (0,1,0)。 */
+.mobile-desktop-root .titlebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+.mobile-desktop-root .tb-toggle-left {
+  margin-left: 4px;
+}
+
+.mobile-desktop-root .tb-left-group {
+  pointer-events: auto;
+  -webkit-app-region: no-drag;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.mobile-desktop-root .tb-new-session {
+  width: 32px;
+  color: var(--text-light, #888);
+  border: 1px solid var(--overlay-light);
+  background: var(--overlay-subtle);
+  opacity: 0.9;
+}
+
+.mobile-desktop-root .tb-new-session:hover {
+  color: var(--text, #333);
+  background: var(--overlay-light);
+  opacity: 1;
+}
+
+.mobile-desktop-root .tb-center-title {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 88px;
+  right: 88px;
+  pointer-events: none;
+  -webkit-app-region: drag;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  color: var(--text);
+  font-family: var(--font-serif);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.mobile-desktop-root .tb-center-title span {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-desktop-root .tb-toggle-right {
+  margin-right: 4px;
+}
+
+.mobile-drawer-scrim {
+  position: fixed;
+  inset: var(--titlebar-h) 0 0;
+  z-index: 70;
+  border: 0;
+  padding: 0;
+  background: var(--overlay-medium);
+  -webkit-app-region: no-drag;
+}
+
+@media (max-width: 860px) {
+  .mobile-desktop-root {
+    --sidebar-width: min(84vw, 320px);
+    --jian-sidebar-width: min(88vw, 360px);
+  }
+
+  .mobile-desktop-root .sidebar,
+  .mobile-desktop-root .jian-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    z-index: 90;
+    box-shadow: none;
+  }
+
+  .mobile-desktop-root .sidebar {
+    left: 0;
+    right: auto;
+  }
+
+  .mobile-desktop-root .jian-sidebar {
+    left: auto;
+    right: 0;
+  }
+
+  .mobile-desktop-root .jian-sidebar-inner {
+    box-shadow: none;
+  }
+
+  .mobile-desktop-root .main-content {
+    min-width: 0;
+  }
+
+  .mobile-desktop-root .chat-area {
+    padding: calc(var(--titlebar-h) + var(--space-12)) var(--space-16) calc(var(--input-card-h, 152px) + 2.5rem);
+  }
+
+  .mobile-desktop-root .input-area {
+    padding: 0 var(--space-8) calc(env(safe-area-inset-bottom, 0px) + var(--space-8));
+  }
+
+  .mobile-desktop-root #previewPanel[data-preview-open="false"] {
+    display: none;
+  }
+
+  .mobile-desktop-root #previewPanel[data-preview-open="true"] {
+    position: fixed;
+    inset: var(--titlebar-h) 0 0;
+    z-index: 88;
+    width: 100vw;
+    height: calc(100dvh - var(--titlebar-h));
+    padding-top: 0;
+    border-left: 0;
+    background: var(--bg);
+  }
+
+  .mobile-desktop-root #previewPanel[data-preview-open="true"] .resize-handle {
+    display: none;
+  }
+
+  .mobile-desktop-root #previewPanel[data-preview-open="true"] [data-preview-panel-inner] {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+  }
+
+  .mobile-desktop-root #previewPanel[data-preview-open="true"] [data-preview-body-shell] {
+    margin: var(--panel-edge-gap);
+  }
+
+  .mobile-desktop-root .main-content.welcome-mode .chat-area {
+    padding-top: calc(var(--titlebar-h) + 12vh + 1lh);
+  }
+
+  .mobile-desktop-root .jian-sidebar-inner {
+    padding-right: var(--panel-edge-gap);
+    padding-left: var(--panel-edge-gap);
+  }
+}

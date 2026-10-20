@@ -1,0 +1,1073 @@
+/* ========================================
+   浮动面板 — CSS Module
+   ActivityPanel、AutomationPanel、BridgePanel
+   ======================================== */
+
+.floatingPanel {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: var(--sidebar-width);
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: var(--space-40) var(--space-24);
+    pointer-events: none;
+    transition: left var(--duration-slow) var(--ease-out);
+}
+
+:global(.sidebar.collapsed ~ .main-content) .floatingPanel {
+    left: 0;
+}
+
+.floatingPanelHidden {
+    display: none;
+}
+
+.floatingPanelInner {
+    pointer-events: auto;
+    width: 66%;
+    height: 80%;
+    max-width: 560px;
+    min-width: 320px;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-card, var(--bg));
+    border: 1px solid var(--overlay-light);
+    border-radius: var(--radius-lg, 12px);
+    box-shadow: 0 8px 32px var(--shadow), 0 2px 8px rgba(0,0,0,0.04);
+    overflow: hidden;
+    animation: luc-slide-in-left var(--duration-slow) var(--ease-out) both;
+}
+
+.floatingPanelClosing .floatingPanelInner {
+    animation: luc-slide-out-left var(--duration-instant) ease-in forwards;
+}
+
+.floatingPanelHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-16) var(--space-24);
+    border-bottom: 1px solid var(--overlay-light);
+    flex-shrink: 0;
+}
+
+.floatingPanelTitle {
+    font-size: var(--fs-ui);
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+}
+
+.floatingPanelClose {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: default;
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    transition: color var(--duration-fast), background var(--duration-fast);
+    display: flex;
+    align-items: center;
+}
+
+.floatingPanelClose:hover {
+    color: var(--text);
+    background: var(--overlay-light);
+}
+
+.floatingPanelBody {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-16) var(--space-24);
+    scroll-behavior: smooth;
+}
+
+/* 列表/详情切换 */
+.listView,
+.detailView {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+.listViewHidden,
+.detailViewHidden {
+    display: none;
+}
+
+.floatingPanelBack {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: default;
+    font-size: var(--fs-caption);
+    padding: 3px 6px;
+    border-radius: var(--radius-sm);
+    transition: color var(--duration-fast), background var(--duration-fast);
+}
+
+.floatingPanelBack:hover {
+    color: var(--text);
+    background: var(--overlay-light);
+}
+
+.floatingPanelSubtitle {
+    font-size: var(--fs-caption);
+    color: var(--text-muted);
+    flex: 1;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 活动详情标题区：头像 + 名字 + 副标题 */
+.detailHeaderInfo {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding: 0 8px;
+}
+
+.detailHeaderAvatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.detailHeaderText {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.detailHeaderName {
+    font-size: var(--fs-ui);
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.2;
+}
+
+.detailHeaderSubtitle {
+    font-size: var(--fs-hint);
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 详情视图里的消息 */
+.activityDetailMsg {
+    margin-bottom: var(--space-16);
+}
+
+.activityDetailMsgUser {
+    text-align: right;
+}
+
+.activityDetailBubble {
+    display: inline-block;
+    max-width: 90%;
+    text-align: left;
+    padding: var(--space-8) var(--space-12);
+    border-radius: var(--radius-md);
+    font-size: var(--fs-caption);
+    line-height: 1.6;
+}
+
+.activityDetailMsgUser .activityDetailBubble {
+    background: rgba(var(--accent-rgb), 0.08);
+    color: var(--text);
+    white-space: pre-wrap;
+}
+
+.activityDetailMsgAssistant .activityDetailBubble {
+    background: var(--bg);
+    border: 1px solid var(--overlay-light);
+    color: var(--text);
+}
+
+.activityDetailBubble :global(.md-content) {
+    font-size: var(--fs-caption);
+}
+
+.activityHbToggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    margin-right: var(--space-8);
+}
+
+.actPromoteBtn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: 1px solid var(--overlay-light);
+    color: var(--text-muted);
+    font-size: var(--fs-hint);
+    padding: 3px 10px;
+    border-radius: var(--radius-sm);
+    cursor: default;
+    margin-left: auto;
+    margin-right: var(--space-8);
+    transition: color var(--duration-fast), border-color var(--duration-fast), background var(--duration-fast);
+    white-space: nowrap;
+}
+
+.actPromoteBtn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--overlay-light);
+}
+
+.activityCards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+}
+
+/* Sidebar 计数 badge */
+.automationCountBadge {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    background: var(--overlay-light);
+    padding: 0 5px;
+    border-radius: 8px;
+    margin-left: auto;
+}
+
+/* ── 任务计划列表 ── */
+
+.automationList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.autoItem {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    padding: 0.55rem 0.7rem;
+    border: 1px solid var(--overlay-light);
+    border-radius: var(--radius-md);
+    background: var(--bg);
+    transition: border-color var(--duration-fast);
+    font-family: inherit;
+}
+
+.autoItem:hover {
+    border-color: var(--overlay-medium);
+}
+
+.autoItemInfo {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.autoItemLabel {
+    font-size: var(--fs-caption);
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: text;
+}
+
+.autoItemLabel:hover {
+    text-decoration-style: dotted;
+}
+
+.autoItemLabelInput {
+    font-size: var(--fs-caption);
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
+    border-radius: var(--radius-sm);
+    padding: 1px 4px;
+    outline: none;
+    width: 100%;
+}
+
+.autoItemSchedule {
+    font-size: var(--fs-hint);
+    color: var(--text-muted);
+}
+
+.autoItemMeta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 8px;
+}
+
+.autoItemExecutor {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+}
+
+.autoItemExecutorAvatar {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.autoItemExecutorName {
+    font-size: var(--fs-hint);
+    color: var(--text-muted);
+}
+
+.autoItemExecutorBadge {
+    font-size: 0.58rem;
+    line-height: 1;
+    color: var(--accent);
+    border: 1px solid rgba(var(--accent-rgb), 0.28);
+    border-radius: var(--radius-sm);
+    padding: 2px 4px;
+}
+
+.autoItemModelWrap::before {
+    content: "\b7";
+    margin-right: 8px;
+    color: var(--overlay-medium);
+}
+
+.autoItemModelWrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.autoModelPill {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.6rem;
+    font-family: inherit;
+    color: var(--text-muted);
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 1px 5px;
+    cursor: default;
+    max-width: 130px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color var(--duration-slow), border-color var(--duration-slow);
+}
+
+.autoModelPill:hover,
+.autoModelOpen .autoModelPill {
+    color: var(--accent);
+    border-color: rgba(var(--accent-rgb), 0.25);
+}
+
+.autoModelArrow {
+    font-size: 0.5rem;
+    transition: transform var(--duration-slow);
+}
+
+.autoModelOpen .autoModelArrow {
+    transform: rotate(180deg);
+}
+
+/* 通过 portal 渲染到 body，position 由 inline style (fixed) 提供，避开父卡片 overflow:hidden 截断 */
+.autoModelDropdown {
+    min-width: 140px;
+    max-height: calc(5 * 1.9rem + 8px);
+    overflow-y: auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 4px;
+    box-shadow: 0 4px 12px var(--shadow);
+}
+
+.autoModelOption {
+    display: block;
+    width: 100%;
+    text-align: left;
+    font-size: var(--fs-hint);
+    font-family: inherit;
+    padding: 5px 8px;
+    border: none;
+    background: none;
+    color: var(--text-light);
+    border-radius: 3px;
+    cursor: default;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.autoModelOption:hover {
+    background: var(--accent-light);
+    color: var(--accent);
+}
+
+.autoModelOptionActive {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.autoItemActions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity var(--duration-fast);
+}
+
+.autoItem:hover .autoItemActions {
+    opacity: 1;
+}
+
+.autoItemBtn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: default;
+    padding: 3px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    transition: color var(--duration-fast), background var(--duration-fast);
+}
+
+.autoItemBtn:hover {
+    color: var(--text);
+    background: var(--overlay-light);
+}
+
+.autoItemBtnDanger:hover {
+    color: var(--danger, #d9534f);
+}
+
+.automationEmpty {
+    font-size: var(--fs-caption);
+    color: var(--text-muted);
+    text-align: center;
+    padding: var(--space-40) 0;
+    line-height: 1.6;
+}
+
+/* ── Activity Card ── */
+
+.activitySessionItem {
+    min-width: 0;
+}
+
+.activitySessionCard {
+    --chat-resource-card-width: 100%;
+    margin: 0;
+}
+
+.activitySessionItem[data-open="true"] .activitySessionCard {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.activitySessionCardError {
+    border-color: rgba(var(--danger-rgb), 0.25);
+}
+
+.activitySessionAvatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.activitySessionAction {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: default;
+    transition: color var(--duration-fast), background var(--duration-fast), transform var(--duration-fast) var(--ease-out);
+}
+
+.activitySessionAction:hover:not(:disabled) {
+    color: var(--accent);
+    background: var(--overlay-light);
+}
+
+.activitySessionAction:disabled {
+    opacity: 0.36;
+}
+
+.activitySessionAction[data-active="true"] {
+    transform: rotate(180deg);
+}
+
+.activityInlineTranscript {
+    max-height: 18rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--space-16);
+    border: var(--panel-card-border);
+    border-top: 0;
+    border-bottom-right-radius: var(--radius-chat-card);
+    border-bottom-left-radius: var(--radius-chat-card);
+    background: var(--panel-card-bg);
+    box-shadow: var(--panel-card-shadow);
+    color: var(--text-muted);
+    font-size: var(--fs-caption);
+    line-height: 1.6;
+}
+
+.activityInlineTranscript .activityDetailMsg:last-child {
+    margin-bottom: 0;
+}
+
+.actCard {
+    border: 1px solid var(--overlay-light);
+    border-radius: var(--radius-md);
+    padding: var(--space-16);
+    transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+    background: var(--bg-card, var(--bg));
+}
+
+.actCard:hover {
+    border-color: var(--overlay-medium);
+    box-shadow: 0 2px 8px var(--shadow);
+}
+
+.actCardHead {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    margin-bottom: var(--space-4);
+}
+
+.actCardAvatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.actCardAgentName {
+    font-size: var(--fs-caption);
+    color: var(--text);
+    font-weight: 600;
+}
+
+.actCardBadge {
+    font-size: 0.62rem;
+    color: var(--text-muted);
+    background: var(--overlay-light);
+    padding: 1px 6px;
+    border-radius: 8px;
+    letter-spacing: 0.02em;
+}
+
+.actCardTime {
+    font-size: var(--fs-hint);
+    color: var(--text-muted);
+    margin-left: auto;
+}
+
+.actCardSummary {
+    font-size: var(--fs-ui);
+    color: var(--text);
+    line-height: 1.6;
+    margin-bottom: var(--space-4);
+}
+
+.actCardMeta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-16);
+    font-size: var(--fs-hint);
+    color: var(--text-muted);
+}
+
+.actCardDuration {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.actCardError {
+    border-color: rgba(var(--danger-rgb), 0.25);
+}
+
+.actCardError .actCardSummary {
+    color: var(--danger);
+}
+
+.actCardViewHint {
+    margin-left: auto;
+    color: var(--accent);
+    font-size: var(--fs-hint);
+    opacity: 0;
+    transition: opacity var(--duration-fast);
+}
+
+.actCard:hover .actCardViewHint {
+    opacity: 1;
+}
+
+.activityEmpty {
+    text-align: center;
+    padding: var(--space-40) var(--space-8);
+    color: var(--text-muted);
+    font-size: var(--fs-ui);
+}
+
+/* 只读 session banner */
+.readonlySessionBanner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-8) var(--space-16);
+    background: var(--overlay-light);
+    border-bottom: 1px solid var(--overlay-medium);
+    font-size: var(--fs-caption);
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.readonlyBannerInfo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-16);
+}
+
+.readonlyBannerTime {
+    font-size: var(--fs-hint);
+    opacity: 0.7;
+}
+
+.readonlyBackBtn {
+    background: none;
+    border: 1px solid var(--overlay-medium);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: var(--fs-hint);
+    padding: 3px 10px;
+    cursor: default;
+    transition: all var(--duration-fast);
+}
+
+.readonlyBackBtn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* ── Bridge Panel ── */
+
+.bridgePanelWide .floatingPanelInner {
+    width: 100%;
+    max-width: 800px;
+    min-width: 420px;
+    height: 85%;
+}
+
+/* ── Bridge Agent Selector (inline header) ── */
+
+.bridgeAgentRow {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.bridgeAgentBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    max-width: 140px;
+    background: var(--overlay-light);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: default;
+    font-size: var(--fs-caption);
+    color: var(--text);
+    transition: background var(--duration-fast);
+}
+
+.bridgeAgentBtn:hover {
+    background: var(--overlay-medium, rgba(0, 0, 0, 0.08));
+}
+
+.bridgeAgentAvatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.bridgeAgentName {
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+}
+
+.bridgeAgentArrow {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.bridgeAgentMenu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 100;
+    background: var(--bg-card, #fff);
+    border: 1px solid var(--overlay-light);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    min-width: 160px;
+    padding: 4px 0;
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.bridgeAgentMenuItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 6px 10px;
+    background: none;
+    border: none;
+    cursor: default;
+    font-size: var(--fs-caption);
+    color: var(--text);
+    text-align: left;
+    transition: background var(--duration-instant);
+}
+
+.bridgeAgentMenuItem:hover {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.bridgeAgentMenuItemActive {
+    background: rgba(180, 132, 108, 0.08);
+    font-weight: 600;
+}
+
+.bridgeTabs {
+    display: flex;
+    gap: 2px;
+}
+
+.bridgeTab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    font-size: var(--fs-ui);
+    font-weight: 500;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: default;
+    border-radius: var(--radius-sm);
+    transition: color var(--duration-fast), background var(--duration-fast);
+}
+
+.bridgeTab:hover {
+    color: var(--text);
+    background: var(--overlay-light);
+}
+
+.bridgeTabActive {
+    color: var(--text);
+    background: var(--overlay-light);
+    font-weight: 600;
+}
+
+.bridgeTabDot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.bridgeBody {
+    position: relative;
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+.bridgeSidebar {
+    width: 180px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--overlay-light);
+    overflow-y: auto;
+}
+
+.bridgeContactList {
+    padding: var(--space-8) 0;
+}
+
+.bridgeContactEmpty {
+    padding: var(--space-24) var(--space-16);
+    text-align: center;
+    font-size: var(--fs-caption);
+    color: var(--text-muted);
+}
+
+.bridgeContactItem {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    padding: var(--space-8) var(--space-12);
+    cursor: default;
+    transition: background var(--duration-instant);
+}
+
+.bridgeContactItem:hover {
+    background: var(--overlay-light);
+}
+
+.bridgeContactItemActive {
+    background: var(--accent-light);
+}
+
+.bridgeContactAvatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--overlay-light);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--fs-hint);
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.bridgeContactAvatarImg {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.bridgeContactInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.bridgeContactName {
+    font-size: var(--fs-caption);
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bridgeContactTime {
+    font-size: var(--fs-hint);
+    color: var(--text-muted);
+    margin-top: 1px;
+}
+
+.bridgeChat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.bridgeChatHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px var(--space-16);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.bridgeChatHeaderHidden { display: none; }
+
+.bridgeChatHeaderName {
+    font-size: var(--fs-caption);
+    font-weight: 600;
+    color: var(--text);
+}
+
+.bridgeChatReset {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: default;
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+}
+
+.bridgeChatReset:hover {
+    color: var(--text);
+    background: var(--overlay-light);
+}
+
+.bridgeChatEmpty {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: var(--fs-ui);
+}
+
+.bridgeChatMessages {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-24) var(--space-16) var(--space-16);
+    scroll-behavior: smooth;
+}
+
+.bridgeChatNoMsg {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: var(--fs-caption);
+    padding: var(--space-40) 0;
+}
+
+.bridgeBubbleRow {
+    display: flex;
+    margin-bottom: var(--space-8);
+}
+
+.bridgeBubbleWrap {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: var(--space-8);
+}
+
+.bridgeBubbleIn {
+    align-items: flex-start;
+}
+
+.bridgeBubbleOut {
+    align-items: flex-end;
+}
+
+.bridgeBubble {
+    max-width: 92%;
+    padding: var(--space-8) var(--space-16);
+    border-radius: var(--radius-md);
+    font-size: var(--fs-title);
+    line-height: 1.75;
+    word-break: break-word;
+}
+
+.bridgeBubbleIn .bridgeBubble {
+    background: none;
+    color: var(--text);
+}
+
+.bridgeBubbleIn .bridgeBubble :global(.md-content) {
+    font-family: var(--font-serif);
+}
+
+.bridgeBubbleOut .bridgeBubble {
+    background: rgba(0, 0, 0, 0.045);
+    color: var(--text);
+    border-radius: var(--radius-md) var(--radius-md) var(--radius-sm) var(--radius-md);
+}
+
+.bridgeBubble p:last-child {
+    margin-bottom: 0;
+}
+
+.bridgeBubbleTime {
+    font-size: var(--fs-hint);
+    color: var(--text-muted);
+    margin-top: 2px;
+    padding: 0 var(--space-4);
+}
+
+/* 未配置蒙版 */
+.bridgeOverlay {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    background: color-mix(in srgb, var(--bg) 75%, transparent);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bridgeOverlayHidden { display: none; }
+
+.bridgeOverlayContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-12);
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.bridgeOverlayContent svg {
+    opacity: 0.35;
+}
+
+.bridgeOverlayText {
+    font-size: var(--fs-ui);
+    line-height: 1.5;
+    max-width: 220px;
+}
+
+.bridgeOverlayBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: var(--space-6) var(--space-16);
+    border-radius: 6px;
+    border: none;
+    background: color-mix(in srgb, var(--text-muted) 10%, transparent);
+    color: var(--text-muted);
+    font-size: var(--fs-ui);
+    cursor: default;
+    transition: background var(--duration-fast);
+}
+
+.bridgeOverlayBtn:hover {
+    background: color-mix(in srgb, var(--text-muted) 18%, transparent);
+}

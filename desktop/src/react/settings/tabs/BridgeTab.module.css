@@ -1,0 +1,120 @@
+.wechat-logged-in {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-8);
+    padding: var(--space-8) 0;
+}
+
+.wechat-login-info {
+    font-size: var(--fs-caption);
+    color: var(--text-secondary);
+}
+
+.wechat-btn-row {
+    display: flex;
+    gap: var(--space-8);
+}
+
+.wechat-scan-row {
+    display: flex;
+    justify-content: center;
+    padding: var(--space-8) 0;
+}
+
+.wechat-hints {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-top: var(--space-8);
+    font-size: var(--fs-hint);
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.wechat-info-reminder {
+    margin-top: var(--space-4);
+    padding: var(--space-4) var(--space-8);
+    color: var(--text-light);
+    background: rgba(var(--accent-rgb, 83, 125, 150), 0.1);
+    border-left: 2px solid rgba(var(--accent-rgb, 83, 125, 150), 0.48);
+}
+
+.bridge-permission-select {
+    max-width: 180px;
+}
+
+.bridge-permission-trigger {
+    min-width: 152px;
+    padding: 0.32rem 0.55rem;
+    font-size: var(--fs-ui);
+    border-radius: var(--radius-sm);
+}
+
+.bridge-permission-auto {
+    color: var(--permission-auto);
+    border-color: var(--permission-auto-border);
+    background: var(--permission-auto-bg);
+}
+
+.bridge-permission-operate {
+    color: var(--danger, #c55);
+    border-color: color-mix(in srgb, var(--danger, #c55) 34%, transparent);
+    background: color-mix(in srgb, var(--danger, #c55) 7%, var(--bg-card));
+}
+
+.bridge-permission-read_only {
+    color: var(--accent);
+    border-color: rgba(var(--accent-rgb), 0.3);
+    background: rgba(var(--accent-rgb), 0.06);
+}
+
+.bridge-permission-value,
+.bridge-permission-option {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-width: 0;
+    white-space: nowrap;
+}
+
+.bridge-permission-value {
+    flex: 1;
+}
+
+.bridge-permission-value span,
+.bridge-permission-option span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bridge-permission-arrow {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    color: currentColor;
+    opacity: 0.7;
+    margin-left: var(--space-8);
+}
+
+.bridge-permission-option svg {
+    flex: 0 0 auto;
+}
+
+.bridge-permission-value svg[data-permission-mode="read_only"],
+.bridge-permission-option svg[data-permission-mode="read_only"] {
+    transform: scale(0.8);
+    transform-origin: center;
+}
+
+.bridge-permission-option-auto {
+    color: var(--permission-auto);
+}
+
+.bridge-permission-option-operate {
+    color: var(--danger, #c55);
+}
+
+.bridge-permission-option-read_only {
+    color: var(--accent);
+}

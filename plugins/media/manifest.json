@@ -1,0 +1,8 @@
+{
+  "id": "media",
+  "name": "Media Generation",
+  "version": "0.1.0",
+  "description": "Agent-facing media generation tools backed by Luc Media Manager.",
+  "trust": "full-access",
+  "hidden": true
+}

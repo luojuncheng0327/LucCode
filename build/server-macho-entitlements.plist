@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  server 箱内可执行 Mach-O（node 二进制、spawn-helper 等）在 Developer ID +
+  hardened runtime（codesign 附加 "options runtime" 标志）签名时必须携带的
+  entitlements（经 codesign 的 entitlements 参数传入）。
+
+  为什么必须带：arm64 macOS 严格执行 W^X，hardened runtime 二进制默认不允许
+  申请"可写又可执行"的内存。没有 com.apple.security.cs.allow-jit 时，V8 在
+  进程启动阶段就无法 mmap(MAP_JIT) 出 CodeRange 区域，node 直接死于
+  "Fatal process out of memory: Failed to reserve virtual memory for CodeRange"
+  （SIGTRAP，还没执行到任何用户代码）。缺了这份文件签出来的箱子在
+  arm64 Mac 上完全无法启动。
+
+  内容与应用外壳（electron-builder 使用的 desktop/entitlements.mac.plist）
+  完全一致：外壳用这套配方通过了签名、公证和真机运行验证，这里照抄整套
+  已知好配方，不做最小化裁剪，避免再引入一次"看起来能省掉"的事故。
+  .node addon 不加 hardened runtime，因此不需要（也不使用）这份文件。
+-->
+<plist version="1.0">
+<dict>
+    <key>com.apple.security.cs.allow-jit</key>
+    <true/>
+    <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+    <true/>
+    <key>com.apple.security.cs.allow-dyld-environment-variables</key>
+    <true/>
+</dict>
+</plist>

@@ -1,0 +1,459 @@
+.shell {
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: var(--panel-edge-gap) 0;
+    gap: var(--panel-edge-gap);
+    /* 整列平级卡片栈：卡片总高超出时整列滚动 */
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.workspaceCard {
+    --right-workspace-jian-open-height: 320px;
+    --right-workspace-jian-closed-height: 40px;
+    --right-workspace-jian-bottom: var(--panel-edge-gap);
+    --right-workspace-jian-reserved: calc(var(--right-workspace-jian-closed-height) + var(--right-workspace-jian-bottom));
+    position: relative;
+    /* desk 卡撑满优先：独处（下方无平级卡片）时 flex-grow 顶满整列，避免短卡 + 下方空隙的不对称。
+       下方出现平级卡片（todo/workflow/活动/状态）时收缩让位，但不低于地板 640px——
+       收缩到地板后整列总高仍超出时，由 .shell 滚动（绝不把 desk 压到 640 以下）。
+       min(…,100%) 仅在极矮窗口（panel < 640）兜底防 desk 自身溢出。 */
+    flex: 1 1 var(--right-workspace-desk-height, 640px);
+    min-height: min(var(--right-workspace-desk-height, 640px), 100%);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.workspaceHeader {
+    position: relative;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 6px calc(var(--space-8) + 7.5rem) 2px var(--space-16);
+}
+
+.workspaceTitle {
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: "Songti SC", "Noto Serif CJK SC", serif;
+    font-size: var(--fs-title);
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.tabs {
+    --right-workspace-active-tab-index: 0;
+    --right-workspace-tab-slider-offset: 0px;
+    position: relative;
+    flex: 0 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px;
+    margin: 0 var(--space-8);
+    padding: 2px;
+    border-radius: var(--radius-sm);
+    background: var(--overlay-subtle);
+    border: 1px solid var(--overlay-light);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+}
+
+.tabSlider {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    left: 2px;
+    z-index: 0;
+    width: calc((100% - 6px) / 2);
+    border-radius: max(2px, calc(var(--radius-sm) - 2px));
+    background: var(--tab-slider-bg, var(--bg-card));
+    box-shadow: var(--tab-slider-shadow, 0 1px 3px var(--shadow));
+    transform: translateX(var(--right-workspace-tab-slider-offset));
+    transition: transform var(--duration-slow) cubic-bezier(0.4, 0, 0.2, 1),
+                width var(--duration-slow) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tab {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    height: 20px;
+    border: none;
+    border-radius: max(2px, calc(var(--radius-sm) - 2px));
+    background: transparent;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: var(--fs-hint);
+    font-weight: 400;
+    cursor: default;
+    transition: color var(--duration-fast) var(--ease-out);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tab:hover {
+    color: var(--text-muted);
+}
+
+.tabActive {
+    color: var(--text-muted);
+}
+
+.content {
+    position: relative;
+    flex: 1 1 0;
+    height: 0;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding-top: 0;
+}
+
+.sessionFilesPanel {
+    --right-workspace-list-toolbar-height: 25px;
+    position: relative;
+    flex: 1 1 0;
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
+    display: block;
+    overflow: hidden;
+    background: transparent;
+}
+
+.sessionFilesToolbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: var(--right-workspace-list-toolbar-height);
+    min-height: 0;
+    margin: 0 var(--space-8);
+}
+
+.sessionFilesSortButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    min-height: 20px;
+    padding: 2px 7px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: var(--fs-hint);
+    line-height: 1;
+    cursor: default;
+    transition: background var(--duration-fast), color var(--duration-fast);
+    white-space: nowrap;
+}
+
+.sessionFilesSortButton:hover {
+    background: var(--overlay-subtle);
+    color: var(--text);
+}
+
+.sessionFilesSortButton svg {
+    display: block;
+    flex: 0 0 auto;
+    opacity: 0.6;
+}
+
+.sessionFilesSortButton span {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+}
+
+.emptyState {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-24);
+    color: var(--text-muted);
+    font-size: var(--fs-caption);
+    text-align: center;
+}
+
+.fileList {
+    position: absolute;
+    top: var(--right-workspace-list-toolbar-height);
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: auto;
+    min-height: 0;
+    overflow-y: auto;
+    display: block;
+    padding: 4px 2px calc(var(--right-workspace-jian-reserved, 56px) + var(--panel-edge-gap));
+    scroll-padding-bottom: calc(var(--right-workspace-jian-reserved, 56px) + var(--panel-edge-gap));
+    outline: none;
+}
+
+.fileRow {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    height: 28px;
+    padding: 0 8px;
+    margin: 0 2px;
+    border-radius: 4px;
+    color: var(--text);
+    font-size: var(--fs-caption);
+    line-height: 1.4;
+    cursor: default;
+    user-select: none;
+    transition: background 0.14s var(--ease-out), color 0.14s var(--ease-out);
+}
+
+.fileRow:hover {
+    background: var(--overlay-subtle);
+}
+
+.fileRowSelected {
+    background: rgba(var(--accent-rgb), 0.1);
+}
+
+.fileRowSelected:hover {
+    background: rgba(var(--accent-rgb), 0.14);
+}
+
+.fileIcon {
+    flex: 0 0 14px;
+    width: 14px;
+    height: 14px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fileIcon svg {
+    width: 14px;
+    height: 14px;
+    display: block;
+}
+
+.fileMain {
+    flex: 1;
+    min-width: 0;
+    transition: padding-right var(--duration-fast) var(--ease-out);
+}
+
+.fileName {
+    color: var(--text);
+    font-size: var(--fs-caption);
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fileMeta {
+    display: none;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    color: var(--text-muted);
+    font-size: 0.58rem;
+    line-height: 1.35;
+}
+
+.fileMeta span + span::before {
+    content: "·";
+    margin-right: 0.35rem;
+}
+
+.fileActions {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    opacity: 0;
+    padding-left: var(--space-8);
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--overlay-subtle) 10px,
+        var(--overlay-subtle)
+    );
+    pointer-events: none;
+    transition: opacity var(--duration-instant) var(--ease-out);
+}
+
+.fileRow:hover .fileMain,
+.fileRow:focus-within .fileMain {
+    padding-right: 122px;
+}
+
+.fileRow:hover .fileActions,
+.fileRow:focus-within .fileActions {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.fileRowSelected:hover .fileActions,
+.fileRowSelected:focus-within .fileActions {
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(var(--accent-rgb), 0.14) 10px,
+        rgba(var(--accent-rgb), 0.14)
+    );
+}
+
+.fileAction {
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: default;
+    transition: color 0.16s var(--ease-out), background 0.16s var(--ease-out);
+}
+
+.fileAction:hover:not(:disabled) {
+    color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.08);
+}
+
+.fileAction:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.fileRubberBand {
+    position: fixed;
+    z-index: 5;
+    border: 1px solid rgba(var(--accent-rgb), 0.45);
+    background: rgba(var(--accent-rgb), 0.08);
+    border-radius: var(--radius-sm);
+    pointer-events: none;
+}
+
+.jianDrawer {
+    --right-workspace-jian-open-dur: 400ms;
+    --right-workspace-jian-close-dur: var(--duration-slow);
+    --right-workspace-jian-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    position: absolute;
+    left: var(--panel-edge-gap);
+    right: var(--panel-edge-gap);
+    bottom: var(--right-workspace-jian-bottom);
+    z-index: 2;
+    height: var(--right-workspace-jian-open-height);
+    max-height: none;
+    overflow: hidden;
+    margin: 0;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--jian-note-border, rgba(200, 160, 110, 0.2));
+    background: var(--jian-note-bg, #FAF0E2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: height var(--right-workspace-jian-open-dur) var(--right-workspace-jian-ease);
+}
+
+.jianDrawer[data-open="false"] {
+    height: var(--right-workspace-jian-closed-height);
+    transition-duration: var(--right-workspace-jian-close-dur);
+}
+
+.jianDrawer[data-open="false"] .jianHeader {
+    height: var(--right-workspace-jian-closed-height);
+}
+
+.jianHeader {
+    height: 46px;
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-16);
+    border-bottom: 1px solid var(--jian-note-border, rgba(200, 160, 110, 0.2));
+}
+
+.jianRule {
+    height: 1px;
+    background: var(--jian-note-border, rgba(200, 160, 110, 0.25));
+}
+
+.jianTitle {
+    color: var(--text-light);
+    font-family: var(--font-ui);
+    font-size: 0.94rem;
+    font-weight: 600;
+    letter-spacing: 0;
+}
+
+.jianToggle {
+    position: absolute;
+    right: calc(var(--panel-edge-gap) + 6px);
+    bottom: calc(var(--panel-edge-gap) + 6px);
+    z-index: 3;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--overlay-light);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: default;
+    transition: border-color 0.16s var(--ease-out), color 0.16s var(--ease-out);
+}
+
+.jianToggle:hover {
+    color: var(--text-muted);
+    border-color: var(--overlay-light);
+}
+
+.jianBody {
+    height: calc(var(--right-workspace-jian-open-height) - 48px);
+    transform: translateY(0);
+    transition: transform var(--right-workspace-jian-open-dur) var(--right-workspace-jian-ease);
+}
+
+.jianDrawer[data-open="false"] .jianBody {
+    transform: translateY(24px);
+    pointer-events: none;
+    transition-duration: var(--right-workspace-jian-close-dur);
+}
+
+.jianBody :global([data-desk-editor]) {
+    height: 100%;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .jianDrawer,
+    .jianBody {
+        transition: none !important;
+    }
+}

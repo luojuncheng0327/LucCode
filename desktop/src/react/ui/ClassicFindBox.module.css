@@ -1,0 +1,57 @@
+.findBox {
+    position: absolute;
+    right: 14px;
+    top: 14px;
+    z-index: 12;
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    width: min(330px, calc(100% - 28px));
+    height: 32px;
+    padding: 0 calc(var(--space-4) + 1px) 0 calc(var(--space-8) + 1px);
+    border: 1px solid var(--overlay-light);
+    border-radius: var(--radius-sm);
+    background: var(--bg-glass, rgba(255, 253, 247, 0.86));
+    box-shadow: var(--panel-card-shadow);
+    color: var(--text-muted);
+    font-family: var(--font-ui);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+}
+
+.findBox input {
+    flex: 1;
+    min-width: 0;
+    height: 24px;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--text);
+    font-size: var(--fs-caption);
+}
+
+.findCount {
+    min-width: 42px;
+    text-align: right;
+    font-size: var(--fs-hint);
+    color: var(--text-muted);
+}
+
+.findBox button {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: default;
+}
+
+.findBox button:hover {
+    color: var(--text);
+    background: var(--overlay-subtle);
+}

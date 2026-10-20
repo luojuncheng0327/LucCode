@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@luccode/plugin-protocol": ["packages/plugin-protocol/src/index.ts"],
+      "@luccode/plugin-sdk": ["packages/plugin-sdk/src/index.ts"],
+      "@luccode/plugin-runtime": ["packages/plugin-runtime/src/index.ts"],
+      "@luccode/plugin-components": ["packages/plugin-components/src/index.ts"],
+      "@/*": ["desktop/src/react/*"]
+    }
+  },
+  "include": [
+    "desktop/src/**/*.ts",
+    "desktop/src/**/*.tsx",
+    "packages/*/src/**/*.ts",
+    "packages/*/src/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "desktop/dist-renderer"
+  ]
+}

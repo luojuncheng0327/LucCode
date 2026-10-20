@@ -1,0 +1,9 @@
+{
+  "id": "jimeng-cli",
+  "name": "即梦 CLI",
+  "version": "0.1.0",
+  "description": "通过官方 dreamina 命令提供即梦图片和视频生成能力。",
+  "trust": "full-access",
+  "hidden": true,
+  "activationEvents": ["onStartup"]
+}

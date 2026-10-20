@@ -1,0 +1,81 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.14rem;
+  box-sizing: border-box;
+  padding: 0.06rem 0.24rem;
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--bg-card) 84%, rgba(var(--accent-rgb), 0.18));
+  border: none;
+  border-radius: var(--radius-sm);
+  line-height: 1.25;
+  white-space: nowrap;
+  vertical-align: middle;
+  user-select: none;
+  margin: 0 0.12rem;
+  max-width: min(8rem, 100%);
+  overflow: hidden;
+}
+
+.thumbnail {
+  width: 1.15em;
+  height: 1.15em;
+  border-radius: 3px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: rgba(var(--accent-rgb), 0.1);
+}
+
+.audioIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  width: 1.15em;
+  height: 1.15em;
+  padding: 0 0.1em;
+  border-radius: 3px;
+  background: rgba(var(--accent-rgb), 0.1);
+  flex-shrink: 0;
+}
+
+.audioIcon span {
+  display: block;
+  width: 1.5px;
+  border-radius: 999px;
+  background: var(--accent);
+  opacity: 0.72;
+}
+
+.audioIcon span:nth-child(1) {
+  height: 42%;
+}
+
+.audioIcon span:nth-child(2) {
+  height: 74%;
+}
+
+.audioIcon span:nth-child(3) {
+  height: 55%;
+}
+
+.audioIcon span:nth-child(4) {
+  height: 86%;
+}
+
+.at {
+  color: var(--accent);
+  opacity: 0.88;
+  flex-shrink: 0;
+}
+
+.name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--accent);
+}

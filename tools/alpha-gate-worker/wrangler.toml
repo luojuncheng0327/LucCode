@@ -1,0 +1,33 @@
+# Alpha invite gate — deployment skeleton.
+#
+# This file carries no account id, no namespace id and no secret. Fill the
+# placeholders in locally (see DEPLOY.md); never commit the filled-in values.
+
+name = "alpha-invite-gate"
+main = "worker.mjs"
+# Bump this only when you have read the Workers changelog for the newer date.
+compatibility_date = "2026-07-01"
+
+# The invite ledger. Create the namespace first, then paste its id here.
+#   npx wrangler@4.118.0 kv namespace create INVITE_KV
+[[kv_namespaces]]
+binding = "INVITE_KV"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+[vars]
+# Where a redeemed invite points the desktop client's updater. Must be https,
+# and must not be guessable — in this version the address itself is the guard.
+FEED_URL = "REPLACE_WITH_UPDATE_FEED_URL"
+# How many fresh codes a successful redemption hands back.
+FISSION_COUNT = "2"
+# Generations past the roots. Redemptions beyond it still succeed, they simply
+# hand back no children.
+MAX_GENERATION = "5"
+# Hard ceiling on codes ever minted, roots included.
+GLOBAL_CAP = "10000"
+# Redemption attempts allowed per client IP per hour.
+RATE_LIMIT_PER_HOUR = "30"
+
+# ADMIN_TOKEN is deliberately absent from [vars]: it is a secret and must be
+# installed with `wrangler secret put ADMIN_TOKEN`. Without it, every /admin
+# endpoint answers 401.

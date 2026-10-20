@@ -1,0 +1,245 @@
+.floatingActions {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    z-index: 5;
+    padding: 28px;
+}
+
+.floatingActionsSurface {
+    position: relative;
+    display: flex;
+    gap: 3px;
+    background: var(--bg-card, var(--bg));
+    border-radius: var(--radius-sm);
+    padding: 2px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-2px);
+    transition:
+        opacity var(--duration-fast) var(--ease-out),
+        transform var(--duration-fast) var(--ease-out);
+}
+
+.floatingActions:hover .floatingActionsSurface,
+.floatingActions:focus-within .floatingActionsSurface,
+.floatingActionsPinned .floatingActionsSurface {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.actionBtn {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 6px;
+    font-size: var(--fs-hint);
+    color: var(--text-muted);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: default;
+    transition: background var(--duration-instant), color var(--duration-instant);
+}
+
+.actionBtn:hover {
+    background: var(--overlay-light);
+    color: var(--text);
+}
+
+.actionBtnActive {
+    background: var(--overlay-light);
+    color: var(--text);
+}
+
+.actionBtn:disabled {
+    opacity: 0.68;
+}
+
+.actionBtnBusy svg {
+    animation: coverToolPulse 1.2s ease-in-out infinite;
+}
+
+.coverActionWrap {
+    position: relative;
+    display: flex;
+}
+
+.coverMenu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 20;
+    min-width: 132px;
+    padding: 4px;
+    border: 1px solid var(--overlay-light);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card, var(--bg));
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    animation: luc-popout var(--duration-fast) var(--ease-out);
+    transform-origin: top right;
+}
+
+.coverMenu button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    width: 100%;
+    padding: 6px 8px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text);
+    font-size: var(--fs-hint);
+    text-align: left;
+    white-space: nowrap;
+    cursor: default;
+}
+
+.coverMenuIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 13px;
+    height: 13px;
+    flex: 0 0 13px;
+    color: var(--text-muted);
+}
+
+.coverMenu button:hover:not(:disabled) {
+    background: var(--overlay-light);
+}
+
+.coverMenu button:disabled {
+    color: var(--text-muted);
+    opacity: 0.55;
+}
+
+.coverMenuTooltipAnchor {
+    display: block;
+    width: 100%;
+}
+
+.coverGalleryCard {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 28;
+    width: min(780px, calc(100vw - 112px));
+    max-width: calc(var(--preview-panel-width) - 32px);
+    max-height: min(72vh, 680px);
+    overflow: auto;
+    padding: var(--space-16);
+    border: 1px solid var(--overlay-light);
+    border-radius: var(--radius-card, 8px);
+    background: var(--bg-card, var(--bg));
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.16);
+    animation: luc-popout var(--duration-fast) var(--ease-out);
+    transform-origin: top right;
+}
+
+.coverGalleryHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-16);
+    margin-bottom: var(--space-8);
+    padding-bottom: var(--space-8);
+    border-bottom: 1px solid var(--overlay-light);
+}
+
+.coverGalleryTitle {
+    color: var(--text);
+    font-size: var(--fs-body);
+    font-weight: 600;
+}
+
+.coverGalleryClose {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: default;
+    transition: background var(--duration-instant), color var(--duration-instant);
+}
+
+.coverGalleryClose:hover {
+    background: var(--overlay-light);
+    color: var(--text);
+}
+
+.coverGalleryGrid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--space-8);
+}
+
+.coverGalleryItem {
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text);
+    cursor: default;
+    text-align: left;
+}
+
+.coverGalleryItem:disabled {
+    opacity: 0.62;
+}
+
+.coverGalleryThumb {
+    display: block;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    background: var(--overlay-light);
+    box-shadow: inset 0 0 0 1px var(--overlay-light);
+}
+
+.coverGalleryThumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.coverGalleryItem:hover .coverGalleryThumb img {
+    transform: scale(1.035);
+}
+
+.coverGalleryName {
+    display: block;
+    overflow: hidden;
+    margin-top: 5px;
+    color: var(--text-muted);
+    font-size: 0.62rem;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.coverGalleryItem:hover .coverGalleryName {
+    color: var(--text);
+}
+
+@media (max-width: 980px) {
+    .coverGalleryCard {
+        width: min(620px, calc(100vw - 80px));
+    }
+}
+
+@keyframes coverToolPulse {
+    0%, 100% { opacity: 0.45; transform: translateY(0); }
+    50% { opacity: 1; transform: translateY(-1px); }
+}
