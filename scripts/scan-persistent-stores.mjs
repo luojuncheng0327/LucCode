@@ -197,7 +197,7 @@ function collectBindings(source) {
       const initializerText = declaration.initializer?.getText(source) ?? "";
       const isFsInitializer = /(?:require|import)\s*\(\s*["'](?:node:)?fs(?:\/promises)?["']\s*\)/.test(initializerText)
         || /^\w+\.promises$/.test(initializerText)
-        || (ts.isIdentifier(declaration.initializer) && fsNamespaces.has(declaration.initializer.text));
+        || (declaration.initializer && ts.isIdentifier(declaration.initializer) && fsNamespaces.has(declaration.initializer.text));
       const isDatabaseInitializer = /(?:require|import)\s*\(\s*["']better-sqlite3["']\s*\)/.test(initializerText);
       if (ts.isIdentifier(declaration.name)) {
         if (isFsInitializer) fsNamespaces.add(declaration.name.text);
