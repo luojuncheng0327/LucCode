@@ -427,7 +427,7 @@ export async function startServer(root: CompositionRoot = {}): Promise<void> {
   } catch (error) {
     // Construction transferred ownership, but normal shutdown is not wired yet.
     try { await engine.dispose(); } catch (cleanupError) {
-      log.warn("Engine startup cleanup failed", cleanupError);
+      log.warn("Engine startup cleanup failed: " + String(cleanupError));
     }
     throw error;
   }
