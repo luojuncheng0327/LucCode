@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import Database from "better-sqlite3";
 import { test } from "node:test";
-import { createUsageLedger } from "../lib/llm/usage-ledger.ts";
+import { createUsageLedger, preflightUsageLedgerMigration, validateUsageLedgerDatabase } from "../lib/llm/usage-ledger.ts";
 
 const fixedNow = () => Date.parse("2026-10-21T02:00:00.000Z");
 const usage = { input: { totalTokens: 7 }, output: { totalTokens: 3 }, cache: { readTokens: null, writeTokens: 0 }, totalTokens: 10 };
@@ -94,4 +94,64 @@ test("missing usage fields remain missing and persisted time zone cannot drift",
   ledger.close();
   ledger = createUsageLedger({ ...options, timeZone: "UTC" });
   assert.equal(ledger.listDaily().timeZone, "Asia/Shanghai");
+  ledger.close();
+});
+
+test("import transaction failure rolls back entries, identities, rollups and completion marker", (t) => {
+  const options = fixture(t);
+  createUsageLedger(options).close();
+  const db = new Database(options.databasePath);
+  try {
+    db.exec("DELETE FROM usage_meta WHERE key='legacy_migrated'; CREATE TRIGGER reject_second BEFORE INSERT ON usage_entries WHEN NEW.request_id='b' BEGIN SELECT RAISE(ABORT, 'injected import failure'); END");
+    fs.writeFileSync(options.legacyStoragePath, JSON.stringify({ entries: [legacyEntry("a"), legacyEntry("b")] }));
+    assert.throws(() => createUsageLedger(options), /injected import failure/);
+    for (const table of ["usage_entries", "usage_seen_requests", "usage_daily_rollups"]) assert.equal(db.prepare(`SELECT COUNT(*) AS n FROM ${table}`).get().n, 0);
+    assert.equal(db.prepare("SELECT value FROM usage_meta WHERE key='legacy_migrated'").get(), undefined);
+    db.exec("DROP TRIGGER reject_second");
+    const ledger = createUsageLedger(options);
+    try { assert.equal(ledger.listDaily().rows[0].requestCount, 2); } finally { ledger.close(); }
+  } finally { db.close(); }
+  validateUsageLedgerDatabase(options.databasePath);
+});
+
+test("storagePath alias, filters, clear, close and multiple connections preserve accounting", (t) => {
+  const options = fixture(t);
+  fs.writeFileSync(options.legacyStoragePath, JSON.stringify({ entries: [] }));
+  const alias = { storagePath: options.legacyStoragePath, now: fixedNow, timeZone: "UTC" };
+  const first = createUsageLedger(alias);
+  const second = createUsageLedger(alias);
+  try {
+    first.record({ requestId: "shared", model: { provider: "p", id: "m" }, usage: { prompt_tokens: 5, completion_tokens: 2, prompt_tokens_details: { cached_tokens: 1 } }, usageContext: { source: { subsystem: "unit", operation: "check" }, attribution: { kind: "session", sessionId: "s", sessionPath: "agent/s" } } });
+    assert.equal(second.record({ requestId: "shared", usage }), null);
+    assert.equal(second.listDaily({ provider: "p", modelId: "m", until: "2026-10-21" }).rows[0].tokens.total, 7);
+    assert.equal(second.list({ provider: "other" }).entries.length, 0);
+    const entry = second.list({ sessionId: "s", limit: 1 }).entries[0];
+    entry.model.provider = "changed";
+    assert.equal(second.list().entries[0].model.provider, "p");
+    first.clear();
+    assert.equal(second.listDaily().rows.length, 0);
+    assert.ok(second.record({ requestId: "shared", usage }));
+  } finally { first.close(); second.close(); }
+  const reopened = createUsageLedger(alias);
+  try { assert.equal(reopened.list().entries.length, 1); } finally { reopened.close(); }
+  for (const action of [() => reopened.start(), () => reopened.finish("x"), () => reopened.recordError("x", "e"), () => reopened.listDaily(), () => reopened.clear()]) assert.throws(action, /closed/);
+  reopened.close();
+  assert.deepEqual(JSON.parse(fs.readFileSync(options.legacyStoragePath)), { entries: [] });
+});
+
+test("preflight and validation fail closed without repairing damaged stores", (t) => {
+  const options = fixture(t);
+  assert.throws(() => validateUsageLedgerDatabase(options.databasePath));
+  assert.equal(fs.existsSync(options.databasePath), false);
+  const ledger = createUsageLedger(options);
+  ledger.record({ requestId: "one", usage });
+  ledger.close();
+  fs.writeFileSync(options.legacyStoragePath, "{bad legacy after import");
+  preflightUsageLedgerMigration(options.databasePath, options.legacyStoragePath);
+  const db = new Database(options.databasePath);
+  try {
+    db.exec("DELETE FROM usage_seen_requests");
+    assert.throws(() => validateUsageLedgerDatabase(options.databasePath), /identity/);
+    assert.equal(db.prepare("SELECT COUNT(*) AS n FROM usage_seen_requests").get().n, 0);
+  } finally { db.close(); }
 });

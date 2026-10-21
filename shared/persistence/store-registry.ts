@@ -30,6 +30,7 @@ type StoreInput = {
   pathExclusions?: string[];
   pathKind?: "file" | "tree";
   format: PersistenceFormat;
+  sqliteDatabasePatterns?: string[];
   schemaSource: PersistenceSchemaSource;
   openEntry: string[];
   migrationEntry?: string[];
@@ -98,6 +99,7 @@ function defineStore(input: StoreInput): StoreDescriptor {
     pathExclusions: [...(input.pathExclusions ?? [])],
     pathKind: input.pathKind ?? "file",
     format: input.format,
+    ...(input.sqliteDatabasePatterns ? { sqliteDatabasePatterns: [...input.sqliteDatabasePatterns] } : {}),
     schemaSource: input.schemaSource,
     schemaContract,
     openEntry: [...input.openEntry],
@@ -870,12 +872,20 @@ export const PERSISTENT_STORES: readonly StoreDescriptor[] = Object.freeze([
   defineStore({
     id: "usage-ledger",
     ownerModule: "lib/llm/usage-ledger.ts",
-    pathPatterns: ["usage-ledger.json"],
-    format: "json",
-    schemaSource: runtimeSource("lib/llm/usage-ledger.ts", "UsageLedger reader and atomic serializer"),
-    openEntry: ["new UsageLedger"],
+    pathPatterns: ["usage-ledger.sqlite", "usage-ledger.json"],
+    sqliteDatabasePatterns: ["usage-ledger.sqlite"],
+    format: "sqlite",
+    schemaSource: { kind: "sqlite-runtime", module: "lib/llm/usage-ledger.ts", contract: "UsageLedger SQLite schema and one-time JSON migration" },
+    openEntry: ["createUsageLedger"],
+    migrationEntry: ["core/data-epoch-migrations.ts usage-ledger-json-to-sqlite"],
+    protocolModules: ["lib/llm/usage-observer.ts"],
+    firstPossibleOpenPhase: "epoch_transition",
+    firstPossibleWritePhase: "epoch_transition",
+    checkpointPolicy: "Online backup for usage-ledger.sqlite; byte-exact copy for legacy JSON; WAL and SHM are folded into the database backup.",
+    restorePolicy: "Quarantine current database, WAL, SHM and legacy JSON; restore checkpoint bytes before lowering the epoch barrier.",
+    compatibility: "Legacy JSON is imported once and never modified. Epoch 1 readers would miss new SQLite writes. Retained details cannot recover older trimmed history.",
     identityContract: "Usage buckets are keyed by their runtime dimensions inside one LUC_HOME ledger.",
-    siteRules: rules(["lib/llm/usage-ledger.ts"], "Writes the usage ledger."),
+    siteRules: rules(["lib/llm/usage-ledger.ts"], "Opens the usage database and imports read-only legacy JSON."),
   }),
   defineStore({
     id: "installed-plugins",

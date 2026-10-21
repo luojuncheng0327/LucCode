@@ -63,7 +63,6 @@ import { registerDeferredResultBusHandlers } from "./deferred-result-bus-handler
 import { registerLoopBusHandlers } from "./loop-bus-handlers.ts";
 import { resolveLucHome } from "../shared/luc-runtime-paths.ts";
 import { DATA_EPOCH } from "../shared/contract-versions.cjs";
-import { readDataEpochStamp } from "../shared/data-epoch.cjs";
 import { describeForeignServerBlock, isForeignServerBlocking, probeServerInfo } from "../shared/server-info-probe.cjs";
 import { coordinateDataEpochStartup, describeDataEpochStartupBlock } from "../core/data-epoch-coordinator.ts";
 import { createDataEpochCheckpointProvider } from "../core/data-epoch-checkpoint-provider.ts";
@@ -303,49 +302,20 @@ export async function startServer(root: CompositionRoot = {}): Promise<void> {
       ownVersion: appVersion,
       allowDowngrade: allowDataDowngrade,
       log: { warn: (msg: string) => console.warn(msg) },
-      // DATA_EPOCH is pinned at 1, so production never actually runs a
-      // transition today — this injection only makes sure the checkpoint
-      // provider is wired in, rather than absent, the day DATA_EPOCH first
-      // bumps (an absent provider fails closed with
-      // "checkpoint-provider-unavailable"; this makes that dead branch live).
+      // The production 1 -> 2 edge imports JSON usage into SQLite only after
+      // this provider has captured and verified the affected store.
       checkpointProvider: createDataEpochCheckpointProvider(),
     });
     if (epochResult.allowed === false) {
-      // DATA_EPOCH=1 is still the compatibility baseline: production has
-      // no epoch migration path yet. At this stage, damaged/orphaned epoch
-      // metadata is diagnostic evidence, not proof that the user's stores
-      // have changed format. Refusing the whole application on that weak
-      // signal makes the future safety mechanism itself a present-day
-      // availability hazard.
-      //
-      // Keep blocking when there is concrete evidence of newer-format
-      // data: a readable higher stamp or a readable transition targeting a
-      // higher epoch. Once this build itself advances beyond epoch 1, every
-      // coordinator failure is strict again.
-      const stampRead = readDataEpochStamp(lucHome);
-      const hasHigherStamp = stampRead.status === "ok"
-        && stampRead.stamp.minimumReaderEpoch > DATA_EPOCH;
-      const hasHigherTransition = Number.isInteger(epochResult.toEpoch)
-        && epochResult.toEpoch! > DATA_EPOCH;
-      const mustBlock = DATA_EPOCH > 1 || hasHigherStamp || hasHigherTransition;
-      if (!mustBlock) {
-        console.warn(
-          `LUC_DATA_EPOCH_BASELINE_WARNING reason=${epochResult.reason}\n`
-          + `[data-epoch] epoch=1 baseline metadata could not be trusted (${epochResult.detail}); `
-          + "no higher-epoch evidence was found, so ordinary startup will continue.",
-        );
-      } else {
-        // 机读标记先于人读文案打印：desktop 从缓存的 server stderr 里识别这行,
-        // 渲染专属双语对话框(见 desktop/main.cjs 的 detectDataEpochLaunchMarker)。
-        // blocked = 旧内核撞上更高印章;其余 reason(incomplete-transition /
-        // corrupt-* 等)统一归入 transition-incomplete 分支。人读文案不变。
-        const marker = epochResult.reason === "epoch-downgrade-blocked"
-          ? "LUC_DATA_EPOCH_BLOCKED"
-          : "LUC_DATA_EPOCH_TRANSITION_INCOMPLETE";
-        console.error(`${marker} reason=${epochResult.reason}`);
-        console.error(describeDataEpochStartupBlock(epochResult));
-        process.exit(1);
-      }
+      // 机读标记先于人读文案打印：desktop 从缓存的 server stderr 里识别这行,
+      // 渲染专属双语对话框(见 desktop/main.cjs 的 detectDataEpochLaunchMarker)。
+      // Epoch 2 之后任何协调失败都必须阻断启动。
+      const marker = epochResult.reason === "epoch-downgrade-blocked"
+        ? "LUC_DATA_EPOCH_BLOCKED"
+        : "LUC_DATA_EPOCH_TRANSITION_INCOMPLETE";
+      console.error(`${marker} reason=${epochResult.reason}`);
+      console.error(describeDataEpochStartupBlock(epochResult));
+      process.exit(1);
     }
   }
 

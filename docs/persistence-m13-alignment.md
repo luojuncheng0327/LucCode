@@ -1,4 +1,4 @@
-# M1.3 persistence alignment — 2026-10-21
+# M1.2–M1.3 persistence alignment — 2026-10-21
 
 ## Scope and evidence levels
 
@@ -10,12 +10,38 @@ No compatibility text or runtime behavior is invented from those fields.
 
 `scripts/generate-persistence-target-alignment.mjs` derives the current comparison
 from source and registry rules. The current result has 61 runtime stores, 58
-target-only stores, 3 live legacy contracts, 17 descriptor differences, and 41
+target-only stores, 3 live legacy contracts, 15 descriptor differences, and 43
 static descriptor matches. Fifty owner modules remain explicit side-effect-free
 scaffolds. Source existence and static matches do not prove feature parity.
 
 The retained legacy stores have 9 development-state, 2 update-channel, and 2
-download-cache write sites. `usage-ledger` remains JSON. `DATA_EPOCH` remains 1.
+download-cache write sites. `usage-ledger` now has a real SQLite owner with a
+read-only, byte-preserving JSON import path. `DATA_EPOCH` is 2 only because the
+1→2 usage-ledger edge is registered, checkpointed, validated, and recoverable.
+The remaining M1.4 schema work (`env_events`, `local_resources`, four existing
+table additions, and the remaining indexes) is still pending.
+
+## M1.2 usage-ledger migration evidence
+
+The owner implements the four release-specified tables: `usage_entries`,
+`usage_seen_requests`, `usage_daily_rollups`, and `usage_meta`. The database keeps
+request identities and daily rollups after detail trimming, preserves missing
+token fields as missing, persists the first statistics time zone, emits events
+after commit, and closes explicitly with the engine lifecycle. `storagePath`
+remains accepted as a compatibility alias; its JSON file is never rewritten.
+
+The coordinator's production `usage-ledger-json-to-sqlite` migration validates
+legacy JSON before writing a checkpoint, then uses the existing checkpoint,
+journal, validation, and restore flow. The checkpoint contract uses SQLite online
+backup for the database and exact byte copies for legacy JSON; WAL/SHM sidecars
+are quarantined on restore. Restore now hashes same-size files before accepting an
+already-restored shortcut.
+
+The RED/GREEN evidence is in `D:\openhanako\hana135\validation-m12-green-20261021`.
+The final targeted migration/ledger/normalization set is 17/17 green, the full
+existing-plus-new targeted set is 52/52 green after the final fingerprint repin, and
+the generator reports 4 real SQLite introspections. This does not claim Electron
+launch or whole-product Hana parity.
 
 ## Package worker attribution
 

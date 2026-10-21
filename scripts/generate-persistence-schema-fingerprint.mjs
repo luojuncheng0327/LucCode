@@ -316,7 +316,24 @@ async function fileHistorySchema(rootDir) {
   );
 }
 
+async function usageLedgerSchema(rootDir) {
+  const runtime = await import(pathToFileURL(path.join(rootDir, "lib/llm/usage-ledger.ts")).href);
+  const requireFromRepository = createRequire(path.join(rootDir, "package.json"));
+  const Database = requireFromRepository("better-sqlite3");
+  return withTemporaryDatabase(
+    "luc-usage-ledger-schema-",
+    (tempDir) => {
+      const databasePath = path.join(tempDir, "usage-ledger.sqlite");
+      const ledger = runtime.createUsageLedger({ databasePath });
+      ledger.close();
+      return new Database(databasePath, { readonly: true, fileMustExist: true });
+    },
+    (db) => readSqliteRuntimeSchema(db),
+  );
+}
+
 async function introspectSqliteStore(rootDir, storeId) {
+  if (storeId === "usage-ledger") return usageLedgerSchema(rootDir);
   if (storeId === "session-manifest-sqlite") return sessionManifestSchema(rootDir);
   if (storeId === "agent-facts-sqlite") return factStoreSchema(rootDir);
   if (storeId === "file-history-sqlite") return fileHistorySchema(rootDir);

@@ -328,12 +328,22 @@ function isSqliteSidecarPattern(pattern: string): boolean {
   return pattern.endsWith("-wal") || pattern.endsWith("-shm");
 }
 
+export function sqliteDatabasePatterns(descriptor: StoreDescriptor): string[] {
+  if (descriptor.format !== "sqlite") return [];
+  const patterns = descriptor.sqliteDatabasePatterns ?? descriptor.pathPatterns.filter(pattern => !isSqliteSidecarPattern(pattern));
+  if (!patterns.length || patterns.some(pattern => !descriptor.pathPatterns.includes(pattern) || isSqliteSidecarPattern(pattern))) {
+    throw new Error(`invalid SQLite database checkpoint contract for ${descriptor.id}`);
+  }
+  return patterns;
+}
+
 async function captureStoreItems(
   homeDir: string,
   tmpDir: string,
   descriptor: StoreDescriptor,
 ): Promise<DataEpochCheckpointItem[]> {
   const isSqlite = descriptor.format === "sqlite";
+  const databases = sqliteDatabasePatterns(descriptor);
   // WAL/SHM sidecars are never captured as independent files: the backup
   // API already folds their content into the single backed-up main file.
   const patterns = isSqlite
@@ -366,7 +376,7 @@ async function captureStoreItems(
       } else {
         const relPath = toPosixPath(path.relative(homeDir, match.absPath));
         const destPath = path.join(tmpDir, "stores", descriptor.id, ...relPath.split("/"));
-        if (isSqlite) {
+        if (databases.includes(pattern)) {
           await captureSqliteBackup(match.absPath, destPath);
         } else {
           await captureFileCopy(match.absPath, destPath);

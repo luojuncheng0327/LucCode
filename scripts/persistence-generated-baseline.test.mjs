@@ -18,15 +18,15 @@ test("committed inventory and target audit reproduce from their generators", () 
   assert.deepEqual(readBuild("persistence-target-alignment"), generateTargetAlignment());
 });
 
-test("fingerprint verifies real epoch-1 stores and excludes target scaffolds", async () => {
+test("fingerprint verifies real epoch-2 stores and excludes target scaffolds", async () => {
   resetPersistenceSchemaCaches();
   const fingerprint = await assertCommittedPersistenceSchemaFingerprint();
-  assert.equal(persistenceSchemaCacheStats().sqliteIntrospections, 3);
-  assert.equal(fingerprint.dataEpoch, 1);
+  assert.equal(persistenceSchemaCacheStats().sqliteIntrospections, 4);
+  assert.equal(fingerprint.dataEpoch, 2);
   const sqlite = fingerprint.schemas.filter((schema) => schema.kind === "sqlite-runtime");
-  assert.equal(sqlite.length, 3);
+  assert.equal(sqlite.length, 4);
   assert.ok(sqlite.every((schema) => schema.runtimeSchema.objects.length > 0));
-  assert.ok(!sqlite.some((schema) => schema.storeId === "usage-ledger"));
+  assert.deepEqual(sqlite.find((schema) => schema.storeId === "usage-ledger").runtimeSchema.objects.filter(o => o.type === "table").map(o => o.name).sort(), ["usage_daily_rollups", "usage_entries", "usage_meta", "usage_seen_requests"]);
   assert.ok(!fingerprint.schemas.some((schema) => ["host-resource-catalog-sqlite", "task-runtime-sqlite"].includes(schema.storeId)));
-  assert.equal(readBuild("persistence-store-inventory").stores.find((store) => store.id === "usage-ledger").format, "json");
+  assert.equal(readBuild("persistence-store-inventory").stores.find((store) => store.id === "usage-ledger").format, "sqlite");
 });

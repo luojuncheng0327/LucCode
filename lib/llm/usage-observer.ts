@@ -21,12 +21,26 @@ function maybeNumber(...values) {
   return null;
 }
 
-function cacheCreationTokens(usage) {
-  const direct = maybeNumber(usage?.cacheWrite, usage?.cacheWriteTokens, usage?.cache_creation_input_tokens);
+function presentNumber(...values) {
+  for (const value of values) {
+    if (value === null || value === undefined || value === "" || typeof value === "boolean") continue;
+    const n = numberOrNull(value);
+    if (n !== null) return n;
+  }
+  return null;
+}
+
+function cacheCreationTokens(usage, preserveMissingFields = false) {
+  const direct = (preserveMissingFields ? presentNumber : maybeNumber)(usage?.cacheWrite, usage?.cacheWriteTokens, usage?.cache_creation_input_tokens);
   if (direct !== null) return direct;
 
   const creation = usage?.cache_creation;
-  if (!creation || typeof creation !== "object") return 0;
+  if (!creation || typeof creation !== "object") return preserveMissingFields ? null : 0;
+  if (preserveMissingFields) {
+    const short = presentNumber(creation.ephemeral_5m_input_tokens);
+    const long = presentNumber(creation.ephemeral_1h_input_tokens);
+    return short === null || long === null ? null : short + long;
+  }
   return firstNumber(creation.ephemeral_5m_input_tokens)
     + firstNumber(creation.ephemeral_1h_input_tokens);
 }
@@ -72,15 +86,15 @@ function reasoningTokens(usage) {
  * input to the cache has to know which of the two shapes it is holding, so the
  * test lives here once instead of being restated at each use.
  */
-function inputIncludesCachedTokens(usage) {
+function inputIncludesCachedTokens(usage, readNumber = numberOrNull) {
   // OpenAI Chat Completions.
-  if (numberOrNull(usage?.prompt_tokens) !== null) return true;
-  if (numberOrNull(usage?.completion_tokens) !== null) return true;
+  if (readNumber(usage?.prompt_tokens) !== null) return true;
+  if (readNumber(usage?.completion_tokens) !== null) return true;
   // OpenAI Responses reuses Anthropic's input_tokens name for the opposite
   // meaning: the whole prompt, with the cached slice broken out under
   // input_tokens_details. That detail block is the only thing telling the two
   // apart, so it has to count as a signal here.
-  if (numberOrNull(usage?.input_tokens_details?.cached_tokens) !== null) return true;
+  if (readNumber(usage?.input_tokens_details?.cached_tokens) !== null) return true;
   return false;
 }
 
@@ -122,12 +136,14 @@ function hitRatio(inputTokens, cacheReadTokens, cacheWriteTokens, support, input
 export function normalizeLlmUsage(usage, options: Record<string, any> = {}) {
   if (!usage || typeof usage !== "object") return null;
 
-  const inputTokens = firstNumber(usage.input, usage.inputTokens, usage.input_tokens, usage.prompt_tokens);
-  const outputTokens = firstNumber(usage.output, usage.outputTokens, usage.output_tokens, usage.completion_tokens);
+  const preserveMissingFields = options.preserveMissingFields === true;
+  const readNumber = preserveMissingFields ? presentNumber : firstNumber;
+  const inputTokens = readNumber(usage.input, usage.inputTokens, usage.input_tokens, usage.prompt_tokens);
+  const outputTokens = readNumber(usage.output, usage.outputTokens, usage.output_tokens, usage.completion_tokens);
   const cacheMissTokens = maybeNumber(usage.cacheMiss, usage.cacheMissTokens, usage.prompt_cache_miss_tokens);
   const support = cacheSupport(options);
   const cacheReadTokens = support === "reported"
-    ? firstNumber(
+    ? readNumber(
       usage.cacheRead,
       usage.cacheReadTokens,
       usage.cache_read_input_tokens,
@@ -136,12 +152,12 @@ export function normalizeLlmUsage(usage, options: Record<string, any> = {}) {
       usage.input_tokens_details?.cached_tokens
     )
     : null;
-  const cacheWriteTokens = support === "reported" ? cacheCreationTokens(usage) : null;
-  const inputCoversCache = inputIncludesCachedTokens(usage);
-  const fallbackTotal = inputCoversCache
+  const cacheWriteTokens = support === "reported" ? cacheCreationTokens(usage, preserveMissingFields) : null;
+  const inputCoversCache = inputIncludesCachedTokens(usage, preserveMissingFields ? presentNumber : numberOrNull);
+  const fallbackTotal = preserveMissingFields && (inputTokens === null || outputTokens === null) ? null : inputCoversCache
     ? inputTokens + outputTokens
     : inputTokens + outputTokens + cacheReadTokens + cacheWriteTokens;
-  const totalTokens = firstNumber(
+  const totalTokens = readNumber(
     usage.totalTokens,
     usage.total_tokens,
     fallbackTotal
@@ -159,8 +175,8 @@ export function normalizeLlmUsage(usage, options: Record<string, any> = {}) {
       readTokens: cacheReadTokens,
       writeTokens: cacheWriteTokens,
       missTokens: support === "reported" ? cacheMissTokens : null,
-      hit: support === "reported" ? cacheReadTokens > 0 : null,
-      created: support === "reported" ? cacheWriteTokens > 0 : null,
+      hit: support === "reported" ? (cacheReadTokens === null ? null : cacheReadTokens > 0) : null,
+      created: support === "reported" ? (cacheWriteTokens === null ? null : cacheWriteTokens > 0) : null,
       hitRatio: hitRatio(inputTokens, cacheReadTokens, cacheWriteTokens, support, inputCoversCache),
       support,
     },

@@ -5,6 +5,7 @@ import {
   createDataEpochCheckpointProvider,
   DATA_EPOCH_CHECKPOINTS_DIRNAME,
   expandStorePathPattern,
+  sqliteDatabasePatterns,
   type DataEpochCheckpointItem,
   type DataEpochCheckpointMetadata,
 } from "./data-epoch-checkpoint-provider.ts";
@@ -213,7 +214,8 @@ interface ActualStoreFile {
  */
 function collectActualStoreFiles(homeDir: string, descriptor: StoreDescriptor): ActualStoreFile[] {
   const results: ActualStoreFile[] = [];
-  for (const pattern of descriptor.pathPatterns) {
+  const patterns = new Set([...descriptor.pathPatterns, ...sqliteDatabasePatterns(descriptor).flatMap(pattern => [`${pattern}-wal`, `${pattern}-shm`])]);
+  for (const pattern of patterns) {
     const matches = expandStorePathPattern(homeDir, pattern);
     for (const match of matches) {
       if (match.isDirectory) {
@@ -290,8 +292,8 @@ async function restoreOneStore(args: {
     && (await Promise.all(existing.map(async (file) => {
       const captured = capturedByRelPath.get(file.relPath);
       if (!captured) return false;
-      const stat = await fs.promises.stat(file.absPath).catch(() => null);
-      return stat != null && stat.size === captured.bytes;
+      const actual = await sha256File(file.absPath);
+      return actual.bytes === captured.bytes && actual.sha256 === captured.sha256;
     }))).every(Boolean);
 
   if (!alreadyRestored) {

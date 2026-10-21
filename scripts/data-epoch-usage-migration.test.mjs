@@ -56,4 +56,23 @@ test("bad legacy data is rejected before checkpoint or reader barrier writes", a
   assert.equal(result.reason, "transition-preflight-failed", result.detail);
   assert.deepEqual(fs.readFileSync(path.join(options.homeDir, "data-epoch.json")), stamp);
   assert.equal(fs.existsSync(path.join(options.homeDir, "usage-ledger.sqlite")), false);
+  assert.equal(fs.existsSync(path.join(options.homeDir, "data-epoch-checkpoints")), false);
+});
+
+test("restore quarantines new SQLite sidecars and can resume after copy-back interruption", async (t) => {
+  const options = await fixture(t);
+  const failed = await coordinateDataEpochStartup({ ...options, faultHook(event) { if (event === "journal:migrated") throw new Error("stop"); } });
+  assert.equal(failed.reason, "transition-failed");
+  for (const suffix of ["-wal", "-shm"]) fs.writeFileSync(path.join(options.homeDir, `usage-ledger.sqlite${suffix}`), "orphan sidecar");
+  const restoreOptions = { homeDir: options.homeDir, transitionId: "usage-1-to-2", confirmToken: "restore usage-1-to-2", log: { warn() {} } };
+  await assert.rejects(restoreDataEpochCheckpoint({ ...restoreOptions, faultHook(event) { if (event === "restore:store-copied-back:usage-ledger") throw new Error("restore interruption"); } }), /restore interruption/);
+  // A resumed restore must compare hashes, even when a copied-back file has the same size.
+  fs.writeFileSync(path.join(options.homeDir, "usage-ledger.json"), options.bytes.replace("legacy", "mutate"));
+  const restored = await restoreDataEpochCheckpoint(restoreOptions);
+  assert.equal(fs.readFileSync(path.join(options.homeDir, "usage-ledger.json"), "utf8"), options.bytes);
+  for (const suffix of ["", "-wal", "-shm"]) {
+    assert.equal(fs.existsSync(path.join(options.homeDir, `usage-ledger.sqlite${suffix}`)), false);
+    assert.ok(fs.existsSync(path.join(restored.quarantineDir, "usage-ledger", `usage-ledger.sqlite${suffix}`)));
+  }
+  assert.equal((await coordinateDataEpochStartup({ ...options, transitionIdFactory: () => "after-restore" })).action, "transition-committed");
 });

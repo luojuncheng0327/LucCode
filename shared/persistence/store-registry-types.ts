@@ -93,6 +93,8 @@ export interface StoreDescriptor {
   pathExclusions: string[];
   pathKind: "file" | "tree";
   format: PersistenceFormat;
+  /** Main databases only; other registered files are copied as raw bytes. */
+  sqliteDatabasePatterns?: string[];
   schemaSource: PersistenceSchemaSource;
   schemaContract: PersistenceSchemaContract;
   openEntry: string[];

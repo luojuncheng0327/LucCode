@@ -18,8 +18,8 @@
     "runtimeStores": 61,
     "targetOnlyStores": 58,
     "compatibilityOnlyStores": 3,
-    "contractDifferences": 16,
-    "staticDescriptorMatches": 42,
+    "contractDifferences": 15,
+    "staticDescriptorMatches": 43,
     "scaffoldOwners": 50
   },
   "stores": [
@@ -6752,43 +6752,55 @@
       },
       "current": {
         "owner": "lib/llm/usage-ledger.ts",
-        "format": "json",
+        "format": "sqlite",
         "paths": [
+          "usage-ledger.sqlite",
           "usage-ledger.json"
         ],
         "pathKind": "file",
         "schemaSource": {
-          "kind": "runtime-contract",
+          "kind": "sqlite-runtime",
           "module": "lib/llm/usage-ledger.ts",
-          "contract": "UsageLedger reader and atomic serializer"
+          "contract": "UsageLedger SQLite schema and one-time JSON migration"
         },
         "openEntry": [
-          "new UsageLedger"
+          "createUsageLedger"
         ],
-        "migrationEntry": []
+        "migrationEntry": [
+          "core/data-epoch-migrations.ts usage-ledger-json-to-sqlite"
+        ]
       },
       "ownerStatus": "source-present-unverified",
-      "status": "contract-difference",
-      "differences": [
-        "format",
-        "paths"
-      ],
+      "status": "static-descriptor-match",
+      "differences": [],
       "runtimeVerified": false,
       "writeSites": [
         {
           "sourceFile": "lib/llm/usage-ledger.ts",
-          "kind": "atomic-write",
-          "excerpt": "atomicWriteSync(storagePath, `${JSON.stringify({ version: STORAGE_VERSION, entries, }, null, 2)}\\n`)",
+          "kind": "database-open",
+          "excerpt": "new Database(databasePath, { readonly: true, fileMustExist: true })",
+          "ordinal": 0
+        },
+        {
+          "sourceFile": "lib/llm/usage-ledger.ts",
+          "kind": "database-open",
+          "excerpt": "new Database(databasePath, { readonly: true, fileMustExist: true })",
+          "ordinal": 1
+        },
+        {
+          "sourceFile": "lib/llm/usage-ledger.ts",
+          "kind": "database-open",
+          "excerpt": "new Database(location)",
           "ordinal": 0
         },
         {
           "sourceFile": "lib/llm/usage-ledger.ts",
           "kind": "mkdir",
-          "excerpt": "fs.mkdirSync(path.dirname(storagePath), { recursive: true })",
+          "excerpt": "fs.mkdirSync(path.dirname(location), { recursive: true })",
           "ordinal": 0
         }
       ],
-      "nextAction": "Keep the current contract until its replacement and migration are verified."
+      "nextAction": "Descriptor fields match; runtime parity is not established by this audit."
     },
     {
       "id": "user-custom-themes",

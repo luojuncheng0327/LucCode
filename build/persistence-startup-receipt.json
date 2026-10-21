@@ -620,13 +620,13 @@
     },
     {
       "id": "usage-ledger",
-      "firstPossibleOpenPhase": "engine_construct",
-      "firstPossibleWritePhase": "runtime_ready",
+      "firstPossibleOpenPhase": "epoch_transition",
+      "firstPossibleWritePhase": "epoch_transition",
       "opensBeforeFutureCoordinator": false,
       "writesBeforeFutureCoordinator": false,
       "bootstrapSafety": null,
       "preCoordinatorReadProjection": null,
-      "breakingMigrationRequiresAccessMove": false
+      "breakingMigrationRequiresAccessMove": true
     },
     {
       "id": "user-preferences",

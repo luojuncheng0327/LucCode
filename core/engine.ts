@@ -725,7 +725,8 @@ export class LucEngine {
     this._listeners = new Set();
     this._eventBus = null;
     this._usageLedger = createUsageLedger({
-      storagePath: path.join(this.luccodeHome, "usage-ledger.json"),
+      databasePath: path.join(this.luccodeHome, "usage-ledger.sqlite"),
+      legacyStoragePath: path.join(this.luccodeHome, "usage-ledger.json"),
       eventBus: {
         emit: (event, sessionPath) => this._emitEvent(event, sessionPath),
       },
@@ -2718,7 +2719,11 @@ export class LucEngine {
       try {
         await this.disposeComputerRuntime();
       } finally {
-        this._sessionManifestStore?.close?.();
+        try {
+          this._usageLedger?.close?.();
+        } finally {
+          this._sessionManifestStore?.close?.();
+        }
       }
     }
   }

@@ -1,5 +1,5 @@
 {
-  "dataEpoch": 1,
+  "dataEpoch": 2,
   "exemptions": [
     {
       "expiresOn": "2026-10-31",
@@ -757,7 +757,7 @@
     ],
     "version": 3
   },
-  "payloadFingerprint": "sha256:650031d4d668d72cd69ed54f13e5ea8e55bcf3fdfab2d317e987d67f987308b5",
+  "payloadFingerprint": "sha256:a6e765b82653de51ed9b6acbe92be413f840931801402e3356691946aaf84907",
   "registry": [
     {
       "affectedByEpochMigration": true,
@@ -2968,38 +2968,46 @@
     {
       "affectedByEpochMigration": true,
       "bootstrapSafety": null,
-      "checkpointPolicy": "Included in a future epoch checkpoint unless the coordinator explicitly classifies it otherwise.",
+      "checkpointPolicy": "Online backup for usage-ledger.sqlite; byte-exact copy for legacy JSON; WAL and SHM are folded into the database backup.",
       "epochPolicy": "epoch-managed",
       "exemption": null,
-      "firstPossibleOpenPhase": "engine_construct",
-      "firstPossibleWritePhase": "runtime_ready",
-      "format": "json",
+      "firstPossibleOpenPhase": "epoch_transition",
+      "firstPossibleWritePhase": "epoch_transition",
+      "format": "sqlite",
       "id": "usage-ledger",
       "identityContract": "Usage buckets are keyed by their runtime dimensions inside one LUC_HOME ledger.",
-      "migrationEntry": [],
+      "migrationEntry": [
+        "core/data-epoch-migrations.ts usage-ledger-json-to-sqlite"
+      ],
       "openEntry": [
-        "new UsageLedger"
+        "createUsageLedger"
       ],
       "ownerModule": "lib/llm/usage-ledger.ts",
       "pathExclusions": [],
       "pathKind": "file",
-      "pathPattern": "usage-ledger.json",
+      "pathPattern": "usage-ledger.sqlite",
       "pathPatterns": [
+        "usage-ledger.sqlite",
         "usage-ledger.json"
       ],
       "preCoordinatorReadProjection": null,
-      "protocolModules": [],
-      "restorePolicy": "Restore only through the owning module after reader compatibility is established.",
+      "protocolModules": [
+        "lib/llm/usage-observer.ts"
+      ],
+      "restorePolicy": "Quarantine current database, WAL, SHM and legacy JSON; restore checkpoint bytes before lowering the epoch barrier.",
       "schemaContract": {
-        "compatibility": "The named runtime reader is canonical; this inventory does not imply stricter validation than runtime currently performs.",
+        "compatibility": "Legacy JSON is imported once and never modified. Epoch 1 readers would miss new SQLite writes. Retained details cannot recover older trimmed history.",
         "kind": "runtime-source",
         "source": "lib/llm/usage-ledger.ts"
       },
       "schemaSource": {
-        "contract": "UsageLedger reader and atomic serializer",
-        "kind": "runtime-contract",
+        "contract": "UsageLedger SQLite schema and one-time JSON migration",
+        "kind": "sqlite-runtime",
         "module": "lib/llm/usage-ledger.ts"
-      }
+      },
+      "sqliteDatabasePatterns": [
+        "usage-ledger.sqlite"
+      ]
     },
     {
       "affectedByEpochMigration": true,
@@ -3212,8 +3220,8 @@
   ],
   "review": {
     "classification": "compatible",
-    "compatibilityReason": "Correct stale channels inventory from YAML to the Markdown files already read and written by ChannelManager/createChannel/parseChannel. Isolated runtime checkpoint regression proves actual ch_fixture.md is captured. No persisted bytes or reader/writer implementation changed; DATA_EPOCH remains 1.",
-    "payloadFingerprint": "sha256:650031d4d668d72cd69ed54f13e5ea8e55bcf3fdfab2d317e987d67f987308b5"
+    "compatibilityReason": "Repin real epoch-2 runtime schemas and source contracts after final implementation.",
+    "payloadFingerprint": "sha256:a6e765b82653de51ed9b6acbe92be413f840931801402e3356691946aaf84907"
   },
   "schemas": [
     {
@@ -3323,14 +3331,14 @@
       "contract": "checkpoint metadata.json layout, per-store capture strategy, and verify byte/sha256 reconciliation",
       "kind": "runtime-contract",
       "module": "core/data-epoch-checkpoint-provider.ts",
-      "sourceHash": "sha256:b25c625a800c508a28e9f7bf69b7ab74fe7c4308bd9fd09601f688d13abfd92c",
+      "sourceHash": "sha256:89a0f6340980d5bb277699f404b714d2c09f9434fc2edec6254b16f6d3f5a82e",
       "storeId": "data-epoch-checkpoints"
     },
     {
       "contract": "restore quarantine layout, restore-receipt.json schema, and append-only data-epoch-restores.log line shape",
       "kind": "runtime-contract",
       "module": "core/data-epoch-restore.ts",
-      "sourceHash": "sha256:73666997643b1059d9b88b16250425168b3e1b5c98d83b1eedffc24cc192cec7",
+      "sourceHash": "sha256:32f8fef4d9f15b465896e4d02d60de4639225a2a2a01f00b669fc8e613e3d3e0",
       "storeId": "data-epoch-restore-quarantine"
     },
     {
@@ -3351,7 +3359,7 @@
         },
         {
           "module": "core/data-epoch-migrations.ts",
-          "sourceHash": "sha256:78f8fb4631008a61a46bac4a802d59f10a6a866cc3bd9b15eed59ac217ea5585"
+          "sourceHash": "sha256:3dc569faafc622a1dee5fb6e8220fcdcc51a1f5f58bd81cdb84f85026cf9ccc7"
         }
       ],
       "sourceHash": "sha256:ddd8a3dcd3e1c94bdaf81220d6ca2cf41ce930526b4385e1796f15985c6f5755",
@@ -3612,7 +3620,7 @@
       "contract": "server-info writer and desktop bootstrap reader",
       "kind": "runtime-contract",
       "module": "server/index.ts",
-      "sourceHash": "sha256:bf2705757a5a9eae820f6932ad03d99e0ed1158768fda05fee26fafebc9a30d1",
+      "sourceHash": "sha256:4d5f810908bdfc533a1adb3be696026b368b97ead72a9dcf70405910b23eec87",
       "storeId": "server-runtime-info"
     },
     {
@@ -3778,10 +3786,45 @@
       "storeId": "terminal-session-state"
     },
     {
-      "contract": "UsageLedger reader and atomic serializer",
-      "kind": "runtime-contract",
+      "contract": "UsageLedger SQLite schema and one-time JSON migration",
+      "kind": "sqlite-runtime",
       "module": "lib/llm/usage-ledger.ts",
-      "sourceHash": "sha256:00a7790fb4ac8bd6bb3ea801272e804fd222dd3314c66f5d68c7e1a5953e7af8",
+      "protocolModules": [
+        {
+          "module": "lib/llm/usage-observer.ts",
+          "sourceHash": "sha256:035d8e0f9a6f31fe698a0ca4020e8b656d658293ad78bb2ccc8fd13c804f1327"
+        }
+      ],
+      "runtimeSchema": {
+        "objects": [
+          {
+            "name": "usage_daily_rollups",
+            "sql": "CREATE TABLE usage_daily_rollups( stat_day TEXT NOT NULL, provider TEXT NOT NULL, model_id TEXT NOT NULL, request_count INTEGER NOT NULL DEFAULT 0, ok_count INTEGER NOT NULL DEFAULT 0, error_count INTEGER NOT NULL DEFAULT 0, aborted_count INTEGER NOT NULL DEFAULT 0, usage_missing_count INTEGER NOT NULL DEFAULT 0, input_tokens REAL NOT NULL DEFAULT 0, output_tokens REAL NOT NULL DEFAULT 0, total_tokens REAL NOT NULL DEFAULT 0, cache_read_tokens REAL NOT NULL DEFAULT 0, cache_write_tokens REAL NOT NULL DEFAULT 0, input_missing_count INTEGER NOT NULL DEFAULT 0, output_missing_count INTEGER NOT NULL DEFAULT 0, total_missing_count INTEGER NOT NULL DEFAULT 0, cache_read_missing_count INTEGER NOT NULL DEFAULT 0, cache_write_missing_count INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(stat_day, provider, model_id) )",
+            "tableName": "usage_daily_rollups",
+            "type": "table"
+          },
+          {
+            "name": "usage_entries",
+            "sql": "CREATE TABLE usage_entries(entry_order INTEGER PRIMARY KEY AUTOINCREMENT, request_id TEXT NOT NULL UNIQUE, started_at TEXT NOT NULL, ended_at TEXT NOT NULL, status TEXT NOT NULL, provider TEXT NOT NULL, model_id TEXT NOT NULL, entry_json TEXT NOT NULL)",
+            "tableName": "usage_entries",
+            "type": "table"
+          },
+          {
+            "name": "usage_meta",
+            "sql": "CREATE TABLE usage_meta(key TEXT PRIMARY KEY, value TEXT NOT NULL)",
+            "tableName": "usage_meta",
+            "type": "table"
+          },
+          {
+            "name": "usage_seen_requests",
+            "sql": "CREATE TABLE usage_seen_requests(request_id TEXT PRIMARY KEY)",
+            "tableName": "usage_seen_requests",
+            "type": "table"
+          }
+        ],
+        "userVersion": 0
+      },
+      "sourceHash": "sha256:e64362e0f5304ad92e1ae9ead4fe64dcb139dc5f62ed830bd5862fe90e2072c4",
       "storeId": "usage-ledger"
     },
     {
@@ -7471,9 +7514,25 @@
     },
     {
       "exemptionId": null,
-      "kind": "atomic-write",
+      "kind": "database-open",
       "ordinal": 0,
-      "reason": "Writes the usage ledger.",
+      "reason": "Opens the usage database and imports read-only legacy JSON.",
+      "sourceFile": "lib/llm/usage-ledger.ts",
+      "storeId": "usage-ledger"
+    },
+    {
+      "exemptionId": null,
+      "kind": "database-open",
+      "ordinal": 0,
+      "reason": "Opens the usage database and imports read-only legacy JSON.",
+      "sourceFile": "lib/llm/usage-ledger.ts",
+      "storeId": "usage-ledger"
+    },
+    {
+      "exemptionId": null,
+      "kind": "database-open",
+      "ordinal": 1,
+      "reason": "Opens the usage database and imports read-only legacy JSON.",
       "sourceFile": "lib/llm/usage-ledger.ts",
       "storeId": "usage-ledger"
     },
@@ -7481,7 +7540,7 @@
       "exemptionId": null,
       "kind": "mkdir",
       "ordinal": 0,
-      "reason": "Writes the usage ledger.",
+      "reason": "Opens the usage database and imports read-only legacy JSON.",
       "sourceFile": "lib/llm/usage-ledger.ts",
       "storeId": "usage-ledger"
     },

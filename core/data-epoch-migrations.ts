@@ -1,3 +1,6 @@
+import path from "node:path";
+import { createUsageLedger, preflightUsageLedgerMigration, validateUsageLedgerDatabase } from "../lib/llm/usage-ledger.ts";
+
 export type DataEpochRecoveryMode = "resume-idempotent" | "restore-only";
 
 export interface DataEpochMigrationContext {
@@ -34,11 +37,27 @@ export interface ResolvedDataEpochMigrationPath {
   recoveryModes: Record<string, DataEpochRecoveryMode>;
 }
 
-// Production remains at DATA_EPOCH=1. A future breaking format change must
-// land one adjacent migration edge and its schema-review contract before the
-// epoch constant is raised; the coordinator refuses an incomplete path.
-export const DATA_EPOCH_MIGRATIONS: readonly DataEpochMigration[] = Object.freeze([]);
-export const DATA_EPOCH_BREAKING_REVIEWS: readonly DataEpochBreakingReview[] = Object.freeze([]);
+// Epoch 1 writers only update JSON. After this transition SQLite is canonical,
+// so an older reader would silently miss all new accounting without the barrier.
+export const DATA_EPOCH_MIGRATIONS: readonly DataEpochMigration[] = Object.freeze([{
+  id: "usage-ledger-json-to-sqlite",
+  fromEpoch: 1, toEpoch: 2,
+  affectedStoreIds: ["usage-ledger"],
+  recoveryMode: "restore-only",
+  preflight({ homeDir }) {
+    preflightUsageLedgerMigration(path.join(homeDir, "usage-ledger.sqlite"), path.join(homeDir, "usage-ledger.json"));
+  },
+  migrate({ homeDir }) {
+    const ledger = createUsageLedger({ databasePath: path.join(homeDir, "usage-ledger.sqlite"), legacyStoragePath: path.join(homeDir, "usage-ledger.json") });
+    ledger.close();
+  },
+  validate({ homeDir }) { validateUsageLedgerDatabase(path.join(homeDir, "usage-ledger.sqlite")); },
+}]);
+export const DATA_EPOCH_BREAKING_REVIEWS: readonly DataEpochBreakingReview[] = Object.freeze([{
+  fromEpoch: 1, toEpoch: 2, affectedStoreIds: ["usage-ledger"],
+  checkpointPolicy: "Before the reader barrier, copy legacy JSON bytes and online-backup any existing SQLite database including WAL content.",
+  restorePolicy: "Use the existing journaled restore: quarantine database, WAL, SHM and JSON, restore exact checkpoint bytes, then lower the epoch barrier.",
+}]);
 
 function requirePositiveEpoch(value: number, label: string) {
   if (!Number.isInteger(value) || value < 1) throw new Error(`${label} must be a positive integer`);

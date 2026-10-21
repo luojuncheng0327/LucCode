@@ -20,7 +20,7 @@ test("the 116-store release target remains separate from the live registry", () 
     assert.ok(PERSISTENT_STORES.some((store) => store.id === id), id);
     assert.ok(!catalog.stores.some((store) => store.id === id), id);
   }
-  assert.equal(PERSISTENT_STORES.find((store) => store.id === "usage-ledger").format, "json");
+  assert.equal(PERSISTENT_STORES.find((store) => store.id === "usage-ledger").format, "sqlite");
   assert.equal(catalog.stores.find((store) => store.id === "usage-ledger").format, "sqlite");
 });
 
@@ -35,9 +35,9 @@ test("alignment exposes scaffolds, old contracts, and actual write-site evidence
   assert.equal(result.summary.compatibilityOnlyStores, 3);
   assert.equal(result.summary.scaffoldOwners, 50);
   const usage = result.stores.find((store) => store.id === "usage-ledger");
-  assert.equal(usage.current.format, "json");
+  assert.equal(usage.current.format, "sqlite");
   assert.equal(usage.target.format, "sqlite");
-  assert.ok(usage.differences.includes("format"));
+  assert.deepEqual(usage.differences, []);
   assert.equal(usage.runtimeVerified, false);
   for (const store of result.stores.filter((store) => store.ownerStatus === "scaffold")) {
     assert.equal(store.current, null);

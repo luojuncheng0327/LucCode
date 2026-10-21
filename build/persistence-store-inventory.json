@@ -2255,33 +2255,41 @@
     {
       "id": "usage-ledger",
       "ownerModule": "lib/llm/usage-ledger.ts",
-      "pathPattern": "usage-ledger.json",
+      "pathPattern": "usage-ledger.sqlite",
       "pathPatterns": [
+        "usage-ledger.sqlite",
         "usage-ledger.json"
       ],
       "pathExclusions": [],
       "pathKind": "file",
-      "format": "json",
+      "format": "sqlite",
+      "sqliteDatabasePatterns": [
+        "usage-ledger.sqlite"
+      ],
       "schemaSource": {
-        "kind": "runtime-contract",
+        "kind": "sqlite-runtime",
         "module": "lib/llm/usage-ledger.ts",
-        "contract": "UsageLedger reader and atomic serializer"
+        "contract": "UsageLedger SQLite schema and one-time JSON migration"
       },
       "schemaContract": {
         "kind": "runtime-source",
         "source": "lib/llm/usage-ledger.ts",
-        "compatibility": "The named runtime reader is canonical; this inventory does not imply stricter validation than runtime currently performs."
+        "compatibility": "Legacy JSON is imported once and never modified. Epoch 1 readers would miss new SQLite writes. Retained details cannot recover older trimmed history."
       },
       "openEntry": [
-        "new UsageLedger"
+        "createUsageLedger"
       ],
-      "migrationEntry": [],
-      "protocolModules": [],
-      "firstPossibleOpenPhase": "engine_construct",
-      "firstPossibleWritePhase": "runtime_ready",
+      "migrationEntry": [
+        "core/data-epoch-migrations.ts usage-ledger-json-to-sqlite"
+      ],
+      "protocolModules": [
+        "lib/llm/usage-observer.ts"
+      ],
+      "firstPossibleOpenPhase": "epoch_transition",
+      "firstPossibleWritePhase": "epoch_transition",
       "epochPolicy": "epoch-managed",
-      "checkpointPolicy": "Included in a future epoch checkpoint unless the coordinator explicitly classifies it otherwise.",
-      "restorePolicy": "Restore only through the owning module after reader compatibility is established.",
+      "checkpointPolicy": "Online backup for usage-ledger.sqlite; byte-exact copy for legacy JSON; WAL and SHM are folded into the database backup.",
+      "restorePolicy": "Quarantine current database, WAL, SHM and legacy JSON; restore checkpoint bytes before lowering the epoch barrier.",
       "affectedByEpochMigration": true,
       "bootstrapSafety": null,
       "preCoordinatorReadProjection": null,
@@ -6604,9 +6612,27 @@
     },
     {
       "sourceFile": "lib/llm/usage-ledger.ts",
-      "kind": "atomic-write",
-      "excerpt": "atomicWriteSync(storagePath, `${JSON.stringify({ version: STORAGE_VERSION, entries, }, null, 2)}\\n`)",
-      "reason": "Writes the usage ledger.",
+      "kind": "database-open",
+      "excerpt": "new Database(databasePath, { readonly: true, fileMustExist: true })",
+      "reason": "Opens the usage database and imports read-only legacy JSON.",
+      "storeId": "usage-ledger",
+      "exemptionId": null,
+      "ordinal": 0
+    },
+    {
+      "sourceFile": "lib/llm/usage-ledger.ts",
+      "kind": "database-open",
+      "excerpt": "new Database(databasePath, { readonly: true, fileMustExist: true })",
+      "reason": "Opens the usage database and imports read-only legacy JSON.",
+      "storeId": "usage-ledger",
+      "exemptionId": null,
+      "ordinal": 1
+    },
+    {
+      "sourceFile": "lib/llm/usage-ledger.ts",
+      "kind": "database-open",
+      "excerpt": "new Database(location)",
+      "reason": "Opens the usage database and imports read-only legacy JSON.",
       "storeId": "usage-ledger",
       "exemptionId": null,
       "ordinal": 0
@@ -6614,8 +6640,8 @@
     {
       "sourceFile": "lib/llm/usage-ledger.ts",
       "kind": "mkdir",
-      "excerpt": "fs.mkdirSync(path.dirname(storagePath), { recursive: true })",
-      "reason": "Writes the usage ledger.",
+      "excerpt": "fs.mkdirSync(path.dirname(location), { recursive: true })",
+      "reason": "Opens the usage database and imports read-only legacy JSON.",
       "storeId": "usage-ledger",
       "exemptionId": null,
       "ordinal": 0
