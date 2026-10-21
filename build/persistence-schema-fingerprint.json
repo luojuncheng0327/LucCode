@@ -757,7 +757,7 @@
     ],
     "version": 3
   },
-  "payloadFingerprint": "sha256:a6e765b82653de51ed9b6acbe92be413f840931801402e3356691946aaf84907",
+  "payloadFingerprint": "sha256:249821fbcedcba0a3ceb001ef9ead73a6acb6b7ee487f6f1e4127a482de9f39c",
   "registry": [
     {
       "affectedByEpochMigration": true,
@@ -3220,8 +3220,8 @@
   ],
   "review": {
     "classification": "compatible",
-    "compatibilityReason": "Repin real epoch-2 runtime schemas and source contracts after final implementation.",
-    "payloadFingerprint": "sha256:a6e765b82653de51ed9b6acbe92be413f840931801402e3356691946aaf84907"
+    "compatibilityReason": "M1.4 adds nullable session and file-history columns plus env_events; schema v1 file-history readers remain supported, existing rows are preserved and epoch remains 2.",
+    "payloadFingerprint": "sha256:249821fbcedcba0a3ceb001ef9ead73a6acb6b7ee487f6f1e4127a482de9f39c"
   },
   "schemas": [
     {
@@ -3455,7 +3455,7 @@
           },
           {
             "name": "files",
-            "sql": "CREATE TABLE files( id INTEGER PRIMARY KEY AUTOINCREMENT, rel_path TEXT NOT NULL UNIQUE, deleted_at INTEGER )",
+            "sql": "CREATE TABLE files( id INTEGER PRIMARY KEY AUTOINCREMENT, rel_path TEXT NOT NULL UNIQUE, deleted_at INTEGER, stat_size INTEGER, stat_mtime_ms REAL )",
             "tableName": "files",
             "type": "table"
           },
@@ -3474,7 +3474,7 @@
         ],
         "userVersion": 0
       },
-      "sourceHash": "sha256:d06b4e7e0f6f4bc7040bad4d517fe77c220a1f680a5f51d42086bae66622683d",
+      "sourceHash": "sha256:c5b854f9eb084cfe858726e2fcf00a8544692be3f18f26a9f295dfc23625a385",
       "storeId": "file-history-sqlite"
     },
     {
@@ -3671,6 +3671,12 @@
       "runtimeSchema": {
         "objects": [
           {
+            "name": "idx_env_events_scope",
+            "sql": "CREATE INDEX idx_env_events_scope ON env_events(scope_kind, scope_agent_id, seq)",
+            "tableName": "env_events",
+            "type": "index"
+          },
+          {
             "name": "idx_session_locator_history_session",
             "sql": "CREATE INDEX idx_session_locator_history_session ON session_locator_history(session_id, created_at)",
             "tableName": "session_locator_history",
@@ -3695,14 +3701,20 @@
             "type": "index"
           },
           {
+            "name": "env_events",
+            "sql": "CREATE TABLE env_events ( seq INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT NOT NULL, scope_kind TEXT NOT NULL, scope_agent_id TEXT NOT NULL, payload_json TEXT NOT NULL, at TEXT NOT NULL )",
+            "tableName": "env_events",
+            "type": "table"
+          },
+          {
             "name": "session_branch_heads",
-            "sql": "CREATE TABLE session_branch_heads ( session_id TEXT PRIMARY KEY, leaf_id TEXT, observed_tail_leaf_id TEXT, revision INTEGER NOT NULL, reason TEXT NOT NULL, updated_at TEXT NOT NULL, FOREIGN KEY(session_id) REFERENCES session_manifests(session_id) ON DELETE CASCADE )",
+            "sql": "CREATE TABLE session_branch_heads ( session_id TEXT PRIMARY KEY, leaf_id TEXT, observed_tail_leaf_id TEXT, observed_message_count INTEGER, revision INTEGER NOT NULL, reason TEXT NOT NULL, updated_at TEXT NOT NULL, FOREIGN KEY(session_id) REFERENCES session_manifests(session_id) ON DELETE CASCADE )",
             "tableName": "session_branch_heads",
             "type": "table"
           },
           {
             "name": "session_capability_snapshots",
-            "sql": "CREATE TABLE session_capability_snapshots ( session_id TEXT PRIMARY KEY, tool_names_json TEXT, prompt_snapshot_json TEXT, capability_drift_dismissed_fingerprint TEXT, source TEXT NOT NULL, updated_at TEXT NOT NULL, FOREIGN KEY(session_id) REFERENCES session_manifests(session_id) ON DELETE CASCADE )",
+            "sql": "CREATE TABLE session_capability_snapshots ( session_id TEXT PRIMARY KEY, tool_names_json TEXT, tool_selection_explicit INTEGER NOT NULL DEFAULT 0, prompt_snapshot_json TEXT, capability_drift_dismissed_fingerprint TEXT, source TEXT NOT NULL, updated_at TEXT NOT NULL, FOREIGN KEY(session_id) REFERENCES session_manifests(session_id) ON DELETE CASCADE )",
             "tableName": "session_capability_snapshots",
             "type": "table"
           },
@@ -3726,14 +3738,14 @@
           },
           {
             "name": "session_manifests",
-            "sql": "CREATE TABLE session_manifests ( session_id TEXT PRIMARY KEY, schema_version INTEGER NOT NULL, owner_agent_id TEXT, domain TEXT NOT NULL, kind TEXT NOT NULL, lifecycle TEXT NOT NULL, health TEXT NOT NULL, current_locator_type TEXT NOT NULL, current_locator_path TEXT NOT NULL, current_locator_key TEXT NOT NULL UNIQUE, current_locator_reason TEXT, locator_updated_at TEXT NOT NULL, memory_policy_json TEXT NOT NULL, permission_mode_snapshot_json TEXT NOT NULL, thinking_level TEXT, pinned_at TEXT, pin_order INTEGER, workspace_scope_json TEXT NOT NULL, plugin_json TEXT NOT NULL, provenance_json TEXT NOT NULL, migration_json TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, deleted_at TEXT )",
+            "sql": "CREATE TABLE session_manifests ( session_id TEXT PRIMARY KEY, schema_version INTEGER NOT NULL, owner_agent_id TEXT, domain TEXT NOT NULL, kind TEXT NOT NULL, lifecycle TEXT NOT NULL, health TEXT NOT NULL, current_locator_type TEXT NOT NULL, current_locator_path TEXT NOT NULL, current_locator_key TEXT NOT NULL UNIQUE, current_locator_reason TEXT, locator_updated_at TEXT NOT NULL, memory_policy_json TEXT NOT NULL, permission_mode_snapshot_json TEXT NOT NULL, thinking_level TEXT, pinned_at TEXT, pin_order INTEGER, coordinator_granted_at TEXT, project_id TEXT, service_tier TEXT, experience_enabled INTEGER, provider_cache_affinity_key TEXT, memory_reflection_snapshot_json TEXT, experiments_json TEXT, forked_from_json TEXT, memory_fork_baseline_json TEXT, reminder_state_json TEXT, preview_ui_state_json TEXT, workspace_scope_json TEXT NOT NULL, plugin_json TEXT NOT NULL, provenance_json TEXT NOT NULL, migration_json TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, deleted_at TEXT )",
             "tableName": "session_manifests",
             "type": "table"
           }
         ],
-        "userVersion": 5
+        "userVersion": 11
       },
-      "sourceHash": "sha256:1581ca74c72d7de100ad6cd4b095c0a4ca523e37cf711989afa4c4a0b05fb936",
+      "sourceHash": "sha256:5d05feaf71f1bb714940fc89f6a5e56a439ee1547353d8698697442eb9e1eda5",
       "storeId": "session-manifest-sqlite"
     },
     {

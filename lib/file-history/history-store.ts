@@ -47,6 +47,21 @@ export class FileHistoryStore {
     this._db = new Database(dbPath);
     this._mergeWindowMs = mergeWindowMs;
     this._now = now;
+    try {
+      // Inspect the version before creating or migrating any schema.
+      const hasMeta = this._db.prepare("SELECT 1 FROM sqlite_master WHERE name = 'meta' AND type = 'table'").get();
+      const versionRow = hasMeta ? this._db.prepare("SELECT value FROM meta WHERE key = 'schema_version'").get() : null;
+      if (versionRow && Number(versionRow.value) > FILE_HISTORY_SCHEMA_VERSION) {
+        throw new Error("file-history schema version " + versionRow.value + " is newer than supported " + FILE_HISTORY_SCHEMA_VERSION);
+      }
+      this._initSchema();
+    } catch (error) {
+      this._db.close();
+      throw error;
+    }
+  }
+
+  _initSchema(): void {
     // auto_vacuum 必须在建表前设置才对新库生效
     this._db.pragma("auto_vacuum = INCREMENTAL");
     this._db.pragma("journal_mode = WAL");
@@ -56,7 +71,9 @@ export class FileHistoryStore {
       CREATE TABLE IF NOT EXISTS files(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         rel_path TEXT NOT NULL UNIQUE,
-        deleted_at INTEGER
+        deleted_at INTEGER,
+        stat_size INTEGER,
+        stat_mtime_ms REAL
       );
       CREATE TABLE IF NOT EXISTS snapshots(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -73,12 +90,30 @@ export class FileHistoryStore {
       CREATE INDEX IF NOT EXISTS idx_snapshots_time ON snapshots(captured_at);
     `);
     const versionRow = this._db.prepare("SELECT value FROM meta WHERE key = 'schema_version'").get();
-    if (!versionRow) {
-      this._db.prepare("INSERT INTO meta(key, value) VALUES('schema_version', ?)").run(String(FILE_HISTORY_SCHEMA_VERSION));
-    } else if (Number(versionRow.value) > FILE_HISTORY_SCHEMA_VERSION) {
-      this._db.close();
-      throw new Error(`file-history schema version ${versionRow.value} is newer than supported ${FILE_HISTORY_SCHEMA_VERSION}`);
-    }
+    // These nullable additions are compatible with the existing v1 reader.
+    // Keep both ALTERs atomic, including databases with only one added column.
+    this._db.transaction(() => {
+      const columns = new Set(this._db.pragma("table_info(files)").map((column) => column.name));
+      if (!columns.has("stat_size")) this._db.exec("ALTER TABLE files ADD COLUMN stat_size INTEGER");
+      if (!columns.has("stat_mtime_ms")) this._db.exec("ALTER TABLE files ADD COLUMN stat_mtime_ms REAL");
+      if (!versionRow) {
+        this._db.prepare("INSERT INTO meta(key, value) VALUES('schema_version', ?)").run(String(FILE_HISTORY_SCHEMA_VERSION));
+      }
+    })();
+  }
+
+  getStatSignature(relPath: string): { size: number; mtimeMs: number } | null {
+    const row = this._db.prepare("SELECT stat_size AS size, stat_mtime_ms AS mtimeMs FROM files WHERE rel_path = ?").get(relPath);
+    return !row || row.size == null || row.mtimeMs == null
+      ? null : { size: Number(row.size), mtimeMs: Number(row.mtimeMs) };
+  }
+
+  setStatSignatures(entries: Array<{ relPath: string; size: number; mtimeMs: number }>): void {
+    if (!entries.length || !this._db.open) return;
+    const update = this._db.prepare("UPDATE files SET stat_size = ?, stat_mtime_ms = ? WHERE rel_path = ?");
+    this._db.transaction(() => {
+      for (const entry of entries) update.run(entry.size, entry.mtimeMs, entry.relPath);
+    })();
   }
 
   recordSnapshot({ relPath, content, origin, opContext = null, capturedAt = this._now() }: RecordSnapshotInput): RecordSnapshotResult {
