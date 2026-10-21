@@ -208,7 +208,9 @@ function collectRuntimeExportTargets(exportValue, targets = []) {
   }
 
   for (const [condition, value] of Object.entries(exportValue)) {
-    if (condition === "types") continue;
+    // Published packages may retain workspace-only source/type metadata while
+    // shipping only dist/. Neither condition is enabled by our Node runtime.
+    if (condition === "types" || condition === "source") continue;
     collectRuntimeExportTargets(value, targets);
   }
 
