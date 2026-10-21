@@ -6440,6 +6440,123 @@
       "ordinal": 0
     },
     {
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "kind": "mkdir",
+      "excerpt": "fsp.mkdir(directory, { recursive: true, mode })",
+      "reason": "ensureDirectory creates the caller-supplied extract/copy/move destination or its parents. This shared primitive has no independent LUC_HOME identity; no production caller is integrated yet.",
+      "storeId": null,
+      "exemptionId": "package-file-worker-parent-directory",
+      "ordinal": 0
+    },
+    {
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "kind": "mkdir",
+      "excerpt": "fsp.mkdir(target, { recursive: false, mode: stat.mode & 0o777 })",
+      "reason": "copyDirectory creates its same-parent .install-UUID temporary directory and copies child directories into it; ownership follows the caller-supplied destination.",
+      "storeId": null,
+      "exemptionId": "package-file-worker-copy-directories",
+      "ordinal": 0
+    },
+    {
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "kind": "mkdir",
+      "excerpt": "fsp.mkdir(temporary, { recursive: false, mode: sourceStat.mode & 0o777 })",
+      "reason": "copyDirectory creates its same-parent .install-UUID temporary directory and copies child directories into it; ownership follows the caller-supplied destination.",
+      "storeId": null,
+      "exemptionId": "package-file-worker-copy-directories",
+      "ordinal": 0
+    },
+    {
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "kind": "remove-path",
+      "excerpt": "fsp.rm(backup, { recursive: true, force: true })",
+      "reason": "copyDirectory renames the existing destination to a sibling .backup-UUID, promotes .install-UUID, attempts restoration on failed promotion, and removes only its own backup or temporary tree. No production store caller is integrated.",
+      "storeId": null,
+      "exemptionId": "package-file-worker-copy-promotion",
+      "ordinal": 0
+    },
+    {
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "kind": "remove-path",
+      "excerpt": "fsp.rm(target, { recursive: true, force: true, maxRetries: 2 })",
+      "reason": "removeTarget deletes the caller-supplied absolute target or the move source after EXDEV copy. The worker does not authorize roots; integration must constrain and register caller-owned targets.",
+      "storeId": null,
+      "exemptionId": "package-file-worker-remove",
+      "ordinal": 0
+    },
+    {
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "kind": "remove-path",
+      "excerpt": "fsp.rm(temporary, { recursive: true, force: true })",
+      "reason": "copyDirectory renames the existing destination to a sibling .backup-UUID, promotes .install-UUID, attempts restoration on failed promotion, and removes only its own backup or temporary tree. No production store caller is integrated.",
+      "storeId": null,
+      "exemptionId": "package-file-worker-copy-promotion",
+      "ordinal": 0
+    },
+    {
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "kind": "rename",
+      "excerpt": "fsp.rename(backup, destination)",
+      "reason": "copyDirectory renames the existing destination to a sibling .backup-UUID, promotes .install-UUID, attempts restoration on failed promotion, and removes only its own backup or temporary tree. No production store caller is integrated.",
+      "storeId": null,
+      "exemptionId": "package-file-worker-copy-promotion",
+      "ordinal": 0
+    },
+    {
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "kind": "rename",
+      "excerpt": "fsp.rename(destination, backup)",
+      "reason": "copyDirectory renames the existing destination to a sibling .backup-UUID, promotes .install-UUID, attempts restoration on failed promotion, and removes only its own backup or temporary tree. No production store caller is integrated.",
+      "storeId": null,
+      "exemptionId": "package-file-worker-copy-promotion",
+      "ordinal": 0
+    },
+    {
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "kind": "rename",
+      "excerpt": "fsp.rename(source, destination)",
+      "reason": "moveDirectory renames caller-supplied absolute source and destination after inspecting source links; EXDEV falls back to the separately inventoried copy/remove primitives. Destination ownership must be established by future callers.",
+      "storeId": null,
+      "exemptionId": "package-file-worker-move",
+      "ordinal": 0
+    },
+    {
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "kind": "rename",
+      "excerpt": "fsp.rename(temporary, destination)",
+      "reason": "copyDirectory renames the existing destination to a sibling .backup-UUID, promotes .install-UUID, attempts restoration on failed promotion, and removes only its own backup or temporary tree. No production store caller is integrated.",
+      "storeId": null,
+      "exemptionId": "package-file-worker-copy-promotion",
+      "ordinal": 0
+    },
+    {
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "kind": "write-file",
+      "excerpt": "fs.createWriteStream(destination, { flags: \"wx\", mode })",
+      "reason": "copyFile exclusively creates bytes inside copyDirectory's temporary tree; it neither chooses a store root nor establishes a persistence contract.",
+      "storeId": null,
+      "exemptionId": "package-file-worker-copy-file",
+      "ordinal": 0
+    },
+    {
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "kind": "write-file",
+      "excerpt": "fs.createWriteStream(target, { flags: \"wx\", mode: entryMode(entry, false) })",
+      "reason": "extractZip writes validated ZIP entry bytes with exclusive creation inside the caller-owned extraction root. Future callers must register their actual staging destination.",
+      "storeId": null,
+      "exemptionId": "package-file-worker-extract-file",
+      "ordinal": 0
+    },
+    {
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "kind": "write-file",
+      "excerpt": "fs.writeSync(2, `Package file worker exited abnormally${suffix}.\\n`.slice(0, MAX_ABNORMAL_STDERR_BYTES))",
+      "reason": "Writes a bounded abnormal-exit diagnostic to inherited file descriptor 2 (stderr), not a filesystem store.",
+      "storeId": null,
+      "exemptionId": "package-file-worker-stderr",
+      "ordinal": 0
+    },
+    {
       "sourceFile": "lib/file-history/file-history-service.ts",
       "kind": "persistent-store-constructor",
       "excerpt": "new FileHistoryStore({ dbPath: path.join(this._historyRoot, workspaceHashForRoot(root), \"history.sqlite\"), mergeWindowMs: this._mergeWindowMs, now: this._now, })",
@@ -10046,6 +10163,95 @@
         "secret-write"
       ],
       "linePattern": "(?:path[.]dirname\\(filePath\\)|writeSecretFileSync\\(filePath)"
+    },
+    {
+      "id": "package-file-worker-copy-directories",
+      "ownerModule": "lib/extension-platform/package-file-worker.mjs",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "reason": "copyDirectory creates its same-parent .install-UUID temporary directory and copies child directories into it; ownership follows the caller-supplied destination.",
+      "expiresOn": "2026-10-31",
+      "kinds": [
+        "mkdir"
+      ],
+      "linePattern": "^(?:fsp\\.mkdir\\(target, \\{ recursive: false, mode: stat\\.mode & 0o777 \\}\\)|fsp\\.mkdir\\(temporary, \\{ recursive: false, mode: sourceStat\\.mode & 0o777 \\}\\))$"
+    },
+    {
+      "id": "package-file-worker-copy-file",
+      "ownerModule": "lib/extension-platform/package-file-worker.mjs",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "reason": "copyFile exclusively creates bytes inside copyDirectory's temporary tree; it neither chooses a store root nor establishes a persistence contract.",
+      "expiresOn": "2026-10-31",
+      "kinds": [
+        "write-file"
+      ],
+      "linePattern": "^(?:fs\\.createWriteStream\\(destination, \\{ flags: \"wx\", mode \\}\\))$"
+    },
+    {
+      "id": "package-file-worker-copy-promotion",
+      "ownerModule": "lib/extension-platform/package-file-worker.mjs",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "reason": "copyDirectory renames the existing destination to a sibling .backup-UUID, promotes .install-UUID, attempts restoration on failed promotion, and removes only its own backup or temporary tree. No production store caller is integrated.",
+      "expiresOn": "2026-10-31",
+      "kinds": [
+        "rename",
+        "remove-path"
+      ],
+      "linePattern": "^(?:fsp\\.rename\\(destination, backup\\)|fsp\\.rename\\(temporary, destination\\)|fsp\\.rename\\(backup, destination\\)|fsp\\.rm\\(backup, \\{ recursive: true, force: true \\}\\)|fsp\\.rm\\(temporary, \\{ recursive: true, force: true \\}\\))$"
+    },
+    {
+      "id": "package-file-worker-extract-file",
+      "ownerModule": "lib/extension-platform/package-file-worker.mjs",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "reason": "extractZip writes validated ZIP entry bytes with exclusive creation inside the caller-owned extraction root. Future callers must register their actual staging destination.",
+      "expiresOn": "2026-10-31",
+      "kinds": [
+        "write-file"
+      ],
+      "linePattern": "^(?:fs\\.createWriteStream\\(target, \\{ flags: \"wx\", mode: entryMode\\(entry, false\\) \\}\\))$"
+    },
+    {
+      "id": "package-file-worker-move",
+      "ownerModule": "lib/extension-platform/package-file-worker.mjs",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "reason": "moveDirectory renames caller-supplied absolute source and destination after inspecting source links; EXDEV falls back to the separately inventoried copy/remove primitives. Destination ownership must be established by future callers.",
+      "expiresOn": "2026-10-31",
+      "kinds": [
+        "rename"
+      ],
+      "linePattern": "^(?:fsp\\.rename\\(source, destination\\))$"
+    },
+    {
+      "id": "package-file-worker-parent-directory",
+      "ownerModule": "lib/extension-platform/package-file-worker.mjs",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "reason": "ensureDirectory creates the caller-supplied extract/copy/move destination or its parents. This shared primitive has no independent LUC_HOME identity; no production caller is integrated yet.",
+      "expiresOn": "2026-10-31",
+      "kinds": [
+        "mkdir"
+      ],
+      "linePattern": "^(?:fsp\\.mkdir\\(directory, \\{ recursive: true, mode \\}\\))$"
+    },
+    {
+      "id": "package-file-worker-remove",
+      "ownerModule": "lib/extension-platform/package-file-worker.mjs",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "reason": "removeTarget deletes the caller-supplied absolute target or the move source after EXDEV copy. The worker does not authorize roots; integration must constrain and register caller-owned targets.",
+      "expiresOn": "2026-10-31",
+      "kinds": [
+        "remove-path"
+      ],
+      "linePattern": "^(?:fsp\\.rm\\(target, \\{ recursive: true, force: true, maxRetries: 2 \\}\\))$"
+    },
+    {
+      "id": "package-file-worker-stderr",
+      "ownerModule": "lib/extension-platform/package-file-worker.mjs",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "reason": "Writes a bounded abnormal-exit diagnostic to inherited file descriptor 2 (stderr), not a filesystem store.",
+      "expiresOn": "2026-10-31",
+      "kinds": [
+        "write-file"
+      ],
+      "linePattern": "^(?:fs\\.writeSync\\(2, `Package file worker exited abnormally\\$\\{suffix\\}\\.\\\\n`\\.slice\\(0, MAX_ABNORMAL_STDERR_BYTES\\)\\))$"
     },
     {
       "id": "sandbox-command-output",

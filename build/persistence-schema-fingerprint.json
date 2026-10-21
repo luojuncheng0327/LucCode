@@ -476,6 +476,95 @@
       "sourceFile": "core/local-user-account.ts"
     },
     {
+      "expiresOn": "2026-10-31",
+      "id": "package-file-worker-copy-directories",
+      "kinds": [
+        "mkdir"
+      ],
+      "linePattern": "^(?:fsp\\.mkdir\\(target, \\{ recursive: false, mode: stat\\.mode & 0o777 \\}\\)|fsp\\.mkdir\\(temporary, \\{ recursive: false, mode: sourceStat\\.mode & 0o777 \\}\\))$",
+      "ownerModule": "lib/extension-platform/package-file-worker.mjs",
+      "reason": "copyDirectory creates its same-parent .install-UUID temporary directory and copies child directories into it; ownership follows the caller-supplied destination.",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs"
+    },
+    {
+      "expiresOn": "2026-10-31",
+      "id": "package-file-worker-copy-file",
+      "kinds": [
+        "write-file"
+      ],
+      "linePattern": "^(?:fs\\.createWriteStream\\(destination, \\{ flags: \"wx\", mode \\}\\))$",
+      "ownerModule": "lib/extension-platform/package-file-worker.mjs",
+      "reason": "copyFile exclusively creates bytes inside copyDirectory's temporary tree; it neither chooses a store root nor establishes a persistence contract.",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs"
+    },
+    {
+      "expiresOn": "2026-10-31",
+      "id": "package-file-worker-copy-promotion",
+      "kinds": [
+        "rename",
+        "remove-path"
+      ],
+      "linePattern": "^(?:fsp\\.rename\\(destination, backup\\)|fsp\\.rename\\(temporary, destination\\)|fsp\\.rename\\(backup, destination\\)|fsp\\.rm\\(backup, \\{ recursive: true, force: true \\}\\)|fsp\\.rm\\(temporary, \\{ recursive: true, force: true \\}\\))$",
+      "ownerModule": "lib/extension-platform/package-file-worker.mjs",
+      "reason": "copyDirectory renames the existing destination to a sibling .backup-UUID, promotes .install-UUID, attempts restoration on failed promotion, and removes only its own backup or temporary tree. No production store caller is integrated.",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs"
+    },
+    {
+      "expiresOn": "2026-10-31",
+      "id": "package-file-worker-extract-file",
+      "kinds": [
+        "write-file"
+      ],
+      "linePattern": "^(?:fs\\.createWriteStream\\(target, \\{ flags: \"wx\", mode: entryMode\\(entry, false\\) \\}\\))$",
+      "ownerModule": "lib/extension-platform/package-file-worker.mjs",
+      "reason": "extractZip writes validated ZIP entry bytes with exclusive creation inside the caller-owned extraction root. Future callers must register their actual staging destination.",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs"
+    },
+    {
+      "expiresOn": "2026-10-31",
+      "id": "package-file-worker-move",
+      "kinds": [
+        "rename"
+      ],
+      "linePattern": "^(?:fsp\\.rename\\(source, destination\\))$",
+      "ownerModule": "lib/extension-platform/package-file-worker.mjs",
+      "reason": "moveDirectory renames caller-supplied absolute source and destination after inspecting source links; EXDEV falls back to the separately inventoried copy/remove primitives. Destination ownership must be established by future callers.",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs"
+    },
+    {
+      "expiresOn": "2026-10-31",
+      "id": "package-file-worker-parent-directory",
+      "kinds": [
+        "mkdir"
+      ],
+      "linePattern": "^(?:fsp\\.mkdir\\(directory, \\{ recursive: true, mode \\}\\))$",
+      "ownerModule": "lib/extension-platform/package-file-worker.mjs",
+      "reason": "ensureDirectory creates the caller-supplied extract/copy/move destination or its parents. This shared primitive has no independent LUC_HOME identity; no production caller is integrated yet.",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs"
+    },
+    {
+      "expiresOn": "2026-10-31",
+      "id": "package-file-worker-remove",
+      "kinds": [
+        "remove-path"
+      ],
+      "linePattern": "^(?:fsp\\.rm\\(target, \\{ recursive: true, force: true, maxRetries: 2 \\}\\))$",
+      "ownerModule": "lib/extension-platform/package-file-worker.mjs",
+      "reason": "removeTarget deletes the caller-supplied absolute target or the move source after EXDEV copy. The worker does not authorize roots; integration must constrain and register caller-owned targets.",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs"
+    },
+    {
+      "expiresOn": "2026-10-31",
+      "id": "package-file-worker-stderr",
+      "kinds": [
+        "write-file"
+      ],
+      "linePattern": "^(?:fs\\.writeSync\\(2, `Package file worker exited abnormally\\$\\{suffix\\}\\.\\\\n`\\.slice\\(0, MAX_ABNORMAL_STDERR_BYTES\\)\\))$",
+      "ownerModule": "lib/extension-platform/package-file-worker.mjs",
+      "reason": "Writes a bounded abnormal-exit diagnostic to inherited file descriptor 2 (stderr), not a filesystem store.",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs"
+    },
+    {
       "expiresOn": "2027-01-31",
       "id": "sandbox-command-output",
       "kinds": [
@@ -668,7 +757,7 @@
     ],
     "version": 3
   },
-  "payloadFingerprint": "sha256:1729dd12d237b06b3e11fe680d59ec326c52fdcfc019ad77bfe406e3b4bdc657",
+  "payloadFingerprint": "sha256:6afa7e6bb6db55af1927346029547f4b860c3ed66479fba8352a84e2b2381c6a",
   "registry": [
     {
       "affectedByEpochMigration": true,
@@ -3122,8 +3211,8 @@
   ],
   "review": {
     "classification": "compatible",
-    "compatibilityReason": "Executable-source drift only: desktop/auto-updater.cjs now kicks an immediate update check when the invite channel is activated, and shared/artifact-core/ota-core.cjs resolves an apply that races an already-caught-up machine as a graceful already-current outcome instead of an error. Neither change alters any persisted record shape: update-channel.json keeps its exact fields, and ota-state.json continues to use its existing lastError/available fields (only the writing semantics on one code path changed). No store, path ownership, or exemption changed.",
-    "payloadFingerprint": "sha256:1729dd12d237b06b3e11fe680d59ec326c52fdcfc019ad77bfe406e3b4bdc657"
+    "compatibilityReason": "M1.3 compatible registration audit, DATA_EPOCH remains 1. Retains 61 runtime descriptors including JSON usage-ledger and 3 live legacy stores. Adds 8 exact, expiring primitive exemptions for 13 dormant package-worker sites; no production caller or store ownership is claimed. The initial-commit fingerprint is internally invalid and has 41 stale sourceHash fields across 38 modules (36 unchanged since 042810c; the other 2 only rename erased declare properties, with identical transpiled JavaScript). Real SQLite introspection and all non-sourceHash schema fields match the archived baseline. The invalid original and structural/history audits are preserved in validation-m13-resume-20261021. This is an explicit reviewed regeneration of a malformed initial receipt, not a migration or runtime parity claim.",
+    "payloadFingerprint": "sha256:6afa7e6bb6db55af1927346029547f4b860c3ed66479fba8352a84e2b2381c6a"
   },
   "schemas": [
     {
@@ -3205,7 +3294,7 @@
       "contract": "agent config and authored Markdown/image profile protocol",
       "kind": "directory-contract",
       "module": "core/agent-manager.ts",
-      "sourceHash": "sha256:077173fbec071cc4b86099c186392bb1e85340d689f4d75702130687473f737d",
+      "sourceHash": "sha256:3fa8f2b3de3e99c8dc54e8781a75099e0c42b9175645e220124be6481e4f22ec",
       "storeId": "agent-profile"
     },
     {
@@ -3219,7 +3308,7 @@
       "contract": "token-scoped import plan/package and export package protocol",
       "kind": "directory-contract",
       "module": "lib/character-cards/service.ts",
-      "sourceHash": "sha256:407c0265bf71fb054c6e4df2bd10320114e24b03e9a1b7e6e837db70165e66c6",
+      "sourceHash": "sha256:38c999efd50b68288aa2aa41936feae0ba2e28473c02d88acb1595a722d4d185",
       "storeId": "character-card-staging"
     },
     {
@@ -3240,14 +3329,14 @@
       "contract": "restore quarantine layout, restore-receipt.json schema, and append-only data-epoch-restores.log line shape",
       "kind": "runtime-contract",
       "module": "core/data-epoch-restore.ts",
-      "sourceHash": "sha256:bcd5728b4195c2ba6972acaae0408aea8394441ca9298e23ad1e0c7be69229fc",
+      "sourceHash": "sha256:73666997643b1059d9b88b16250425168b3e1b5c98d83b1eedffc24cc192cec7",
       "storeId": "data-epoch-restore-quarantine"
     },
     {
       "contract": "DATA_EPOCH stamp parser and atomic writer",
       "kind": "runtime-contract",
       "module": "shared/data-epoch.cjs",
-      "sourceHash": "sha256:7fdbf842c5c0d417c2c45764c35a230637c1584a6eb59321aec6f9d11fecce6f",
+      "sourceHash": "sha256:ddd8a3dcd3e1c94bdaf81220d6ca2cf41ce930526b4385e1796f15985c6f5755",
       "storeId": "data-epoch-stamp"
     },
     {
@@ -3264,7 +3353,7 @@
           "sourceHash": "sha256:78f8fb4631008a61a46bac4a802d59f10a6a866cc3bd9b15eed59ac217ea5585"
         }
       ],
-      "sourceHash": "sha256:7fdbf842c5c0d417c2c45764c35a230637c1584a6eb59321aec6f9d11fecce6f",
+      "sourceHash": "sha256:ddd8a3dcd3e1c94bdaf81220d6ca2cf41ce930526b4385e1796f15985c6f5755",
       "storeId": "data-epoch-transition-journal"
     },
     {
@@ -3285,56 +3374,56 @@
       "contract": "bounded base64 cover upload temporary-directory lifecycle",
       "kind": "directory-contract",
       "module": "server/routes/desk.ts",
-      "sourceHash": "sha256:7d2cf25f7dbcdf256dc4188fb0256ddf413fa726fbf1ea934abb8e9514a45fc6",
+      "sourceHash": "sha256:4915af9fbd124cc6a1b8520822c054a4dbf7aac45acd416ba64c41ad2c428985",
       "storeId": "desk-cover-upload-staging"
     },
     {
       "contract": "desktop launch, renderer, server-crash, and browser-command diagnostic logs",
       "kind": "directory-contract",
       "module": "desktop/src/shared/desktop-launch-diagnostics.cjs",
-      "sourceHash": "sha256:08e6ae1d7d8a9ed9f75be234196aa1d8ec9e65aabd9fc6b1caace522e1bd1406",
+      "sourceHash": "sha256:bdb0ccfb6e37ef5033809c085f403d2f3606b14abdfa34c05eb49227a1e99330",
       "storeId": "desktop-diagnostics"
     },
     {
       "contract": "GPU startup state version, crash evidence, recovery mode, and legacy migration markers",
       "kind": "runtime-contract",
       "module": "desktop/src/shared/gpu-startup-policy.cjs",
-      "sourceHash": "sha256:5cab554e6252fa24be8102c4a4da333a8f7b18c762d1aa4856850c2b206103da",
+      "sourceHash": "sha256:cfda401a526a86dd19bf8e2dcebf467b89c9553a31bac1870924580dac9a9af4",
       "storeId": "desktop-gpu-startup-state"
     },
     {
       "contract": "update channel record version, device identifier, activation flag, update feed address, activation time, and held invite codes",
       "kind": "runtime-contract",
       "module": "desktop/auto-updater.cjs",
-      "sourceHash": "sha256:c55d64f0b00c7ea454b2f7adaba35633703702b3625985f3994fd8501271151f",
+      "sourceHash": "sha256:f00356d33c9a9a2d2a0c72b1deb3091b7d742feaddc936f4dbd6dc22f001a818",
       "storeId": "desktop-update-channel"
     },
     {
       "contract": "install ACL heal state version, per install-identity grant bookkeeping, recovery probe result, and ineffective probe count",
       "kind": "runtime-contract",
       "module": "desktop/src/shared/win32-install-acl-heal.cjs",
-      "sourceHash": "sha256:27c84465992fa66823ea676ad15f7fb591ea3381c60e86827cc6f492a638c9ea",
+      "sourceHash": "sha256:c02be58d671c1a7bf3a22da72f192819af58c92db16cc6cc5e5a446592285f6b",
       "storeId": "desktop-win32-install-acl-heal-state"
     },
     {
       "contract": "desktop window bounds, release announcement bookmark, and update cache version marker readers",
       "kind": "directory-contract",
       "module": "desktop/main.cjs",
-      "sourceHash": "sha256:01d8babd69c27000a9b45b9b97d00e9b70cde6c87367b24a062fec154ab02d1b",
+      "sourceHash": "sha256:5802bbf8647b8cd4a33294c6239ee27236501441c52f6fef5b879a598f3ef6b8",
       "storeId": "desktop-window-version-state"
     },
     {
       "contract": "device, credential, and pairing-session validators/serializers",
       "kind": "runtime-contract",
       "module": "core/device-registry.ts",
-      "sourceHash": "sha256:5e2db8e7b1de0b05eca16bb028fa9d972f1f7ea9f0a9f6417b0961c853d4a43f",
+      "sourceHash": "sha256:4e735cdec33981fda4bfc170d1616bd992faeffc0a57951cfe6bfbf7a6e75fce",
       "storeId": "device-access-registries"
     },
     {
       "contract": "execution lease registry validator and atomic serializer",
       "kind": "runtime-contract",
       "module": "core/execution-lease-registry.ts",
-      "sourceHash": "sha256:466f63f0b4ee2839b4d70bb51a85f28ec643c35c324b06b465ff39181b6716c7",
+      "sourceHash": "sha256:c5f921ecb3a57aa6c7e35676b451209cf763844446d957e55bd86365bbb92e1d",
       "storeId": "execution-leases"
     },
     {
@@ -3383,28 +3472,28 @@
       "contract": "installed manifest, install receipt, backup, and source-package directory protocols",
       "kind": "directory-contract",
       "module": "core/plugin-manager.ts",
-      "sourceHash": "sha256:78098ac67519299dd169da7eab6abef5f960141551fb63a5266c3d36210d9497",
+      "sourceHash": "sha256:88f6a0a9a06b90ca1a514a6e88e062fca8fabee6d031eaf0bd750c7053f2ac9d",
       "storeId": "installed-plugins"
     },
     {
       "contract": "read-only known-binary legacy copy source",
       "kind": "directory-contract",
       "module": "lib/pi-sdk/search-tools.ts",
-      "sourceHash": "sha256:66d234f8e7ffcd574f0e2bba76661bd8b1b03650e206b9bd4479347f95b30fc9",
+      "sourceHash": "sha256:42dfb8e6b755aaf4d65ec7decf9ac246c80f7e06bd3d308e499dc4ea6c7145e6",
       "storeId": "legacy-pi-search-cache"
     },
     {
       "contract": "sessionless upload naming and age-based cleanup protocol",
       "kind": "directory-contract",
       "module": "server/routes/upload.ts",
-      "sourceHash": "sha256:8c07b613a588bdc0ab2c2410ee1c0298188e3142ae188d52ee9880fbe947381c",
+      "sourceHash": "sha256:7c90afe0de1cee86030675c01095ce407c5f0308b4fd9cd2193423002c10902f",
       "storeId": "legacy-upload-cache"
     },
     {
       "contract": "local authentication secret reader and atomic serializer",
       "kind": "runtime-contract",
       "module": "core/local-user-account.ts",
-      "sourceHash": "sha256:a91644f7d468bc3a50a0b434428f8b6a66938032484917bd1deb15556ee0bc63",
+      "sourceHash": "sha256:65983177371ac8497520b907ade2ddc62dd3d4fb79f210fff5b0330b1228b396",
       "storeId": "local-user-auth"
     },
     {
@@ -3418,7 +3507,7 @@
       "contract": "managed search-tool binary and Windows sandbox runtime cache validation",
       "kind": "directory-contract",
       "module": "lib/pi-sdk/search-tools.ts",
-      "sourceHash": "sha256:66d234f8e7ffcd574f0e2bba76661bd8b1b03650e206b9bd4479347f95b30fc9",
+      "sourceHash": "sha256:42dfb8e6b755aaf4d65ec7decf9ac246c80f7e06bd3d308e499dc4ea6c7145e6",
       "storeId": "managed-runtime-caches"
     },
     {
@@ -3432,7 +3521,7 @@
       "contract": "job.json/input.html request contract and generated PDF output lifecycle",
       "kind": "directory-contract",
       "module": "plugins/office/lib/html-to-pdf.ts",
-      "sourceHash": "sha256:096a7dc9eac668a6803c0f6cd5ce93316294e48405fb0e908c602b7cf33d0bef",
+      "sourceHash": "sha256:793db8a527d5de552e16a20b4eed414a7a2523f6856fc0af1700bfb4bc5acc01",
       "storeId": "office-render-jobs"
     },
     {
@@ -3453,7 +3542,7 @@
       "contract": "verified plugin release ZIP naming by pluginId/version and expected sha256",
       "kind": "directory-contract",
       "module": "server/routes/plugins.ts",
-      "sourceHash": "sha256:7aca9bf305209962b8db0710cd36df12ff761c41715c85b0965b5088a6a97bac",
+      "sourceHash": "sha256:964019770235c43ace5cb422a6531150941beb3e3f1c5cad1eebf3fe30572c40",
       "storeId": "plugin-download-cache"
     },
     {
@@ -3473,70 +3562,70 @@
       "contract": "ProviderCatalogStore plus provider plugin/config runtime readers",
       "kind": "directory-contract",
       "module": "core/provider-catalog.ts",
-      "sourceHash": "sha256:843021b7c33a2f815e633455b5ae7d3e1619befa6b3c7d53af9be5ca6d257b00",
+      "sourceHash": "sha256:b9369617d79c2891842cb03f9fe6441f38ed9765bb5621e530deb754fcad2750",
       "storeId": "provider-state"
     },
     {
       "contract": "debug logs, browser cold state, switch diagnostics, and WeChat cache readers",
       "kind": "directory-contract",
       "module": "lib/debug-log.ts",
-      "sourceHash": "sha256:b17c104fd85fe7f3751137519fdb4ff4d8aec2d5a386e0fb358167d83da6ede6",
+      "sourceHash": "sha256:c9a52ee6dea69b4e7e37a5561196c88790dc67ab45fcac75da3515519310d1e5",
       "storeId": "runtime-diagnostics"
     },
     {
       "contract": "one JSON object per append-only security audit line",
       "kind": "runtime-contract",
       "module": "core/security-audit-log.ts",
-      "sourceHash": "sha256:640bace22d0de45b180c3599849f9e4ee79d3a9e5f50631c5a1068443ea69d5c",
+      "sourceHash": "sha256:daea3ea1e1a1ab41ddb330a295e9c9d7e20a7f57c97581fb0616b59f6554be9f",
       "storeId": "security-audit-log"
     },
     {
       "contract": "grant registry validator, quarantine, and atomic serializer",
       "kind": "runtime-contract",
       "module": "core/grant-registry.ts",
-      "sourceHash": "sha256:ab9a9da116f6254ef31caca568ffc52cd9a46552c187796eec860107e12646eb",
+      "sourceHash": "sha256:a6b0c7aeb69c5e3b35515848a255ee59fed3b913c77ce6f0c6b69c34e9783a38",
       "storeId": "security-grants"
     },
     {
       "contract": "independent 0600 random key-file protocols for resource and plugin ticket services",
       "kind": "directory-contract",
       "module": "core/resource-ticket-service.ts",
-      "sourceHash": "sha256:5f573553aefe8d90150fccde5ba4438f44d77e8fcc48f9d1c2943d256b2eb5b2",
+      "sourceHash": "sha256:21cf4d2e78857bd632de2927b8410595c85354d631576c8bcde93b2100906234",
       "storeId": "security-key-material"
     },
     {
       "contract": "server network mode/listen configuration validator",
       "kind": "runtime-contract",
       "module": "core/server-network-config.ts",
-      "sourceHash": "sha256:100b9051458a988c4156e1236c84f5ad1696c9b6e374c016b9706e36a2fa82b2",
+      "sourceHash": "sha256:417c9ba21bc4e3d999aef3ea35f1e2224aacf5a6f58f59da3eaec9d5748d8633",
       "storeId": "server-network-config"
     },
     {
       "contract": "server-node identity parser and ensureLocalIdentityRegistries seed",
       "kind": "runtime-contract",
       "module": "core/server-identity.ts",
-      "sourceHash": "sha256:c2ea6e4fb07c4f7a0a8d3af2252662d9532739e1fbfa2bb72b30b571fc9c15cf",
+      "sourceHash": "sha256:484a4771355e73649237e563b6a8f5fe08ee0eccecc78967a363dc9a38a49dd5",
       "storeId": "server-node-identity"
     },
     {
       "contract": "server-info writer and desktop bootstrap reader",
       "kind": "runtime-contract",
       "module": "server/index.ts",
-      "sourceHash": "sha256:a63a67ce8d4f09cb70a3aaab7728146cae2dab7c32a6efa4e24bdf7efe7e36db",
+      "sourceHash": "sha256:bf2705757a5a9eae820f6932ad03d99e0ed1158768fda05fee26fafebc9a30d1",
       "storeId": "server-runtime-info"
     },
     {
       "contract": "InputDraftsStore and SessionProjectCatalogStore normalizers",
       "kind": "runtime-contract",
       "module": "core/input-drafts-store.ts",
-      "sourceHash": "sha256:d8b80b579bd4e2d6ab1f686fe96eee5dba2235bbb13c92329928c5dcf4f4cdfa",
+      "sourceHash": "sha256:9a7ec2007cbbce9e3e030bfec193b68b1805a6639a150494bd1da038d2bef461",
       "storeId": "session-drafts-and-projects"
     },
     {
       "contract": "SessionFile payload naming, v1 sidecar, ownership, and 72-hour cold-session cleanup protocol",
       "kind": "directory-contract",
       "module": "lib/session-files/session-file-registry.ts",
-      "sourceHash": "sha256:b45edf5121b19472b33c7c4a8e73f75d26b574ce09cc8844304a83103f472f5c",
+      "sourceHash": "sha256:d1524c6911302948cb3510defda2d39ce83557b760ff05f426bb57740d8179e6",
       "storeId": "session-files"
     },
     {
@@ -3544,12 +3633,12 @@
         {
           "contract": "core/session-coordinator.ts Luc metadata extensions",
           "module": "core/session-coordinator.ts",
-          "sourceHash": "sha256:9bd93a7f479b160a2a4133f29769531e23037442d6adada445c43bedd2017922"
+          "sourceHash": "sha256:d8c65f47ef0ccaf127c3a86b793d4630b5cff938ced44671efc4150c91f26ac9"
         },
         {
           "contract": "core/session-jsonl-file.ts repair contract",
           "module": "core/session-jsonl-file.ts",
-          "sourceHash": "sha256:6a311935b1a95c7b6af0c3f2980869de4923fdb9b307cecb8475e400b389af12"
+          "sourceHash": "sha256:1e2ec1da4a783fc3704bd5dac2f71f0dc36a6e16f3f7327394251c592d4b0362"
         }
       ],
       "kind": "external-versioned",
@@ -3642,7 +3731,7 @@
       "contract": "bridge index, legacy session metadata, title, and vision sidecar readers",
       "kind": "runtime-contract",
       "module": "core/bridge-session-manager.ts",
-      "sourceHash": "sha256:7ed05febd0506adb3cdc38c86a652f1c47a4e1a499f9308a7e940faaae1297ef",
+      "sourceHash": "sha256:c3dad1a6e6ddd8e9b13e98d03cde57a253bc98e0abd318bcbd604672de75604d",
       "storeId": "session-sidecars"
     },
     {
@@ -3656,35 +3745,35 @@
       "contract": "SKILL.md package, bundle registry, and export staging protocols",
       "kind": "directory-contract",
       "module": "lib/skills/skill-package-installer.ts",
-      "sourceHash": "sha256:5a2271d372236897663e9f9c1da68b5d886bdfa720f3edfea78277c6e26e754e",
+      "sourceHash": "sha256:c31330c50c5c4ccb04bf49b4447b7ea5831ac13e3ace034596d9a869ee7034e9",
       "storeId": "skill-state"
     },
     {
       "contract": "CACHE_VERSION and translation normalization",
       "kind": "runtime-contract",
       "module": "lib/skills/skill-name-translation-cache.ts",
-      "sourceHash": "sha256:eba740ee9dd214e86625b0d1c6a917f8d6b053ac0e1ec2922308a7fdc19ddca3",
+      "sourceHash": "sha256:47447958f447dfd484d3dd00e300c83798617e297307f2eff5a3ded1e31524aa",
       "storeId": "skill-translation-cache"
     },
     {
       "contract": "schemaVersion 1 studio mount registry validator",
       "kind": "runtime-contract",
       "module": "core/studio-mounts.ts",
-      "sourceHash": "sha256:04c2b5d3e98c7bc1b88556ae694b2e2193cc27c9c91db72368f8e40a809491d2",
+      "sourceHash": "sha256:cb64ef11dca0dd3f1d19af76e98a5a24de75f77dbce8f14c5787af4b40f1e870",
       "storeId": "studio-mount-registry"
     },
     {
       "contract": "SubagentRunStore and SubagentThreadStore permissive runtime readers",
       "kind": "runtime-contract",
       "module": "lib/subagent-run-store.ts",
-      "sourceHash": "sha256:38375cadeacdde9078615c302af60ac1db61531b702a25b148ae6d10c0ee3570",
+      "sourceHash": "sha256:6ae53b0c32152b5a40ee71c6d0d37d9254e0d4d78a078c78ffe2f07b9a087fa9",
       "storeId": "subagent-state"
     },
     {
       "contract": "terminal metadata JSON plus ordered transcript JSONL protocol",
       "kind": "directory-contract",
       "module": "lib/terminal/terminal-session-manager.ts",
-      "sourceHash": "sha256:5e7c4faac6ad1ad030c410192d0d2b96c8bb2f566228c7dcb0a36e5970fd1e9e",
+      "sourceHash": "sha256:f08f1fd90dad3788d5d4072d208634cfe6a0079990f189525e98f69285528c02",
       "storeId": "terminal-session-state"
     },
     {
@@ -3705,21 +3794,21 @@
       "contract": "user/studio registry readers plus legacy spaces.json compatibility projection",
       "kind": "runtime-contract",
       "module": "core/server-identity.ts",
-      "sourceHash": "sha256:c2ea6e4fb07c4f7a0a8d3af2252662d9532739e1fbfa2bb72b30b571fc9c15cf",
+      "sourceHash": "sha256:484a4771355e73649237e563b6a8f5fe08ee0eccecc78967a363dc9a38a49dd5",
       "storeId": "user-studio-registries"
     },
     {
       "contract": "web session registry validator, expiry, and serializer",
       "kind": "runtime-contract",
       "module": "core/web-session-store.ts",
-      "sourceHash": "sha256:1aa9e95917becfdaa38dbe6930110426a34679310e43c13b6460e1b89bd43f04",
+      "sourceHash": "sha256:fa710ece560dcc809673cfed5f60b91e10753545235f33355bf427056a92c1d9",
       "storeId": "web-session-registry"
     },
     {
       "contract": "Windows sandbox migration marker readers",
       "kind": "runtime-contract",
       "module": "lib/sandbox/win32-legacy-migration.ts",
-      "sourceHash": "sha256:46672032c7ec242c4395e29556066864ee36d3dec59183a8ddf7bbef4d1c56ec",
+      "sourceHash": "sha256:8fbc4658086f3f90cfd04b43d658829edf6d69ee496ad28059bb02ff7d250abc",
       "storeId": "windows-sandbox-migration-state"
     },
     {
@@ -7233,6 +7322,110 @@
       "ordinal": 0,
       "reason": "Writes command output to an explicit tool-selected path under the active sandbox/workspace.",
       "sourceFile": "lib/exec-command/runner.ts",
+      "storeId": null
+    },
+    {
+      "exemptionId": "package-file-worker-parent-directory",
+      "kind": "mkdir",
+      "ordinal": 0,
+      "reason": "ensureDirectory creates the caller-supplied extract/copy/move destination or its parents. This shared primitive has no independent LUC_HOME identity; no production caller is integrated yet.",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "storeId": null
+    },
+    {
+      "exemptionId": "package-file-worker-copy-directories",
+      "kind": "mkdir",
+      "ordinal": 0,
+      "reason": "copyDirectory creates its same-parent .install-UUID temporary directory and copies child directories into it; ownership follows the caller-supplied destination.",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "storeId": null
+    },
+    {
+      "exemptionId": "package-file-worker-copy-directories",
+      "kind": "mkdir",
+      "ordinal": 0,
+      "reason": "copyDirectory creates its same-parent .install-UUID temporary directory and copies child directories into it; ownership follows the caller-supplied destination.",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "storeId": null
+    },
+    {
+      "exemptionId": "package-file-worker-copy-promotion",
+      "kind": "remove-path",
+      "ordinal": 0,
+      "reason": "copyDirectory renames the existing destination to a sibling .backup-UUID, promotes .install-UUID, attempts restoration on failed promotion, and removes only its own backup or temporary tree. No production store caller is integrated.",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "storeId": null
+    },
+    {
+      "exemptionId": "package-file-worker-remove",
+      "kind": "remove-path",
+      "ordinal": 0,
+      "reason": "removeTarget deletes the caller-supplied absolute target or the move source after EXDEV copy. The worker does not authorize roots; integration must constrain and register caller-owned targets.",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "storeId": null
+    },
+    {
+      "exemptionId": "package-file-worker-copy-promotion",
+      "kind": "remove-path",
+      "ordinal": 0,
+      "reason": "copyDirectory renames the existing destination to a sibling .backup-UUID, promotes .install-UUID, attempts restoration on failed promotion, and removes only its own backup or temporary tree. No production store caller is integrated.",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "storeId": null
+    },
+    {
+      "exemptionId": "package-file-worker-copy-promotion",
+      "kind": "rename",
+      "ordinal": 0,
+      "reason": "copyDirectory renames the existing destination to a sibling .backup-UUID, promotes .install-UUID, attempts restoration on failed promotion, and removes only its own backup or temporary tree. No production store caller is integrated.",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "storeId": null
+    },
+    {
+      "exemptionId": "package-file-worker-copy-promotion",
+      "kind": "rename",
+      "ordinal": 0,
+      "reason": "copyDirectory renames the existing destination to a sibling .backup-UUID, promotes .install-UUID, attempts restoration on failed promotion, and removes only its own backup or temporary tree. No production store caller is integrated.",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "storeId": null
+    },
+    {
+      "exemptionId": "package-file-worker-move",
+      "kind": "rename",
+      "ordinal": 0,
+      "reason": "moveDirectory renames caller-supplied absolute source and destination after inspecting source links; EXDEV falls back to the separately inventoried copy/remove primitives. Destination ownership must be established by future callers.",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "storeId": null
+    },
+    {
+      "exemptionId": "package-file-worker-copy-promotion",
+      "kind": "rename",
+      "ordinal": 0,
+      "reason": "copyDirectory renames the existing destination to a sibling .backup-UUID, promotes .install-UUID, attempts restoration on failed promotion, and removes only its own backup or temporary tree. No production store caller is integrated.",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "storeId": null
+    },
+    {
+      "exemptionId": "package-file-worker-copy-file",
+      "kind": "write-file",
+      "ordinal": 0,
+      "reason": "copyFile exclusively creates bytes inside copyDirectory's temporary tree; it neither chooses a store root nor establishes a persistence contract.",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "storeId": null
+    },
+    {
+      "exemptionId": "package-file-worker-extract-file",
+      "kind": "write-file",
+      "ordinal": 0,
+      "reason": "extractZip writes validated ZIP entry bytes with exclusive creation inside the caller-owned extraction root. Future callers must register their actual staging destination.",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
+      "storeId": null
+    },
+    {
+      "exemptionId": "package-file-worker-stderr",
+      "kind": "write-file",
+      "ordinal": 0,
+      "reason": "Writes a bounded abnormal-exit diagnostic to inherited file descriptor 2 (stderr), not a filesystem store.",
+      "sourceFile": "lib/extension-platform/package-file-worker.mjs",
       "storeId": null
     },
     {
