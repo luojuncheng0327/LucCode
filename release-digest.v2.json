@@ -3,6 +3,80 @@
   "entries": [
     {
       "schemaVersion": 1,
+      "tag": "v1.0.1",
+      "version": "1.0.1",
+      "previousTag": "v1.0.0-beta",
+      "generatedAt": "2026-10-21T11:58:46.101Z",
+      "noUserFacingChanges": false,
+      "summary": {
+        "zh": "LucCode 1.0.1 完善本地数据持久化、迁移恢复与 Windows 构建校验，交付 M1.4 阶段成果。",
+        "en": "LucCode 1.0.1 completes the M1.4 persistence milestone with improved local storage, migration recovery, and Windows build validation."
+      },
+      "counts": {
+        "feature": 0,
+        "fix": 1,
+        "improvement": 0,
+        "migration": 1
+      },
+      "source": {
+        "owner": "luojuncheng0327",
+        "repo": "LucCode",
+        "commitRange": "v1.0.0-beta..v1.0.1",
+        "releaseUrl": "https://github.com/luojuncheng0327/LucCode/releases/tag/v1.0.1",
+        "releaseNotes": "## LucCode 1.0.1\n\nWindows x64 安装包，包含截至 M1.4 的本地持久化与构建修复。\n\n- 用量记录迁移到 SQLite，保留既有记录，并支持迁移失败后的恢复。\n- 补齐会话元数据、文件状态及本地资源目录的存储结构；当前审计范围累计 16 张普通表、13 个显式索引。\n- 修复 Windows seed 校验入口及依赖追踪边界，完善资源目录连接的关闭与初始化回滚。\n- 发布和更新摘要指向本项目的 GitHub 仓库。\n\n本次是 M1.4 阶段交付。M2 业务接口与 UI 集成仍在进行；定向测试不代表整个产品已完成验证。\n\n安装包未做 Windows 代码签名。`SHA256SUMS.txt` 提供安装包校验值。\n"
+      },
+      "items": [
+        {
+          "id": "sqlite-persistence",
+          "kind": "migration",
+          "importance": "high",
+          "title": {
+            "zh": "完善本地数据存储",
+            "en": "Improved local data storage"
+          },
+          "summary": {
+            "zh": "用量记录改为 SQLite 存储，并完善会话、文件状态及本地资源目录的存储结构与迁移恢复。",
+            "en": "Usage records now use SQLite, with improved session, file-state, and local-resource storage schemas and migration recovery."
+          },
+          "details": [
+            {
+              "zh": "资源管理等后续业务接口和 UI 集成仍在进行。",
+              "en": "Further resource-management APIs and UI integration remain in progress."
+            }
+          ],
+          "sources": [
+            {
+              "type": "release-notes",
+              "ref": "v1.0.1",
+              "title": "LucCode 1.0.1"
+            }
+          ]
+        },
+        {
+          "id": "windows-build-validation",
+          "kind": "fix",
+          "importance": "medium",
+          "title": {
+            "zh": "修复 Windows 构建校验",
+            "en": "Fixed Windows build validation"
+          },
+          "summary": {
+            "zh": "修复安装包内置资源的校验入口与依赖追踪边界，更新来源指向 LucCode 项目仓库。",
+            "en": "Fixed bundled-resource verification and dependency tracing boundaries, and directed update sources to the LucCode project repository."
+          },
+          "details": [],
+          "sources": [
+            {
+              "type": "release-notes",
+              "ref": "v1.0.1",
+              "title": "LucCode 1.0.1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
       "tag": "v1.0.0-beta",
       "version": "1.0.0-beta",
       "previousTag": "v0.0.0",
@@ -19,10 +93,10 @@
         "migration": 0
       },
       "source": {
-        "owner": "LuoJunCheng",
-        "repo": "luccode",
+        "owner": "luojuncheng0327",
+        "repo": "LucCode",
         "commitRange": "v1.0.0-beta",
-        "releaseUrl": "https://github.com/LuoJunCheng/luccode/releases/tag/v1.0.0-beta",
+        "releaseUrl": "https://github.com/luojuncheng0327/LucCode/releases/tag/v1.0.0-beta",
         "releaseNotes": ""
       },
       "items": [

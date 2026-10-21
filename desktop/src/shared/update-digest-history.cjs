@@ -6,8 +6,8 @@
  * releases published after they were built.
  */
 
-const DEFAULT_RELEASES_API = "https://api.github.com/repos/LuoJunCheng/luccode/releases?per_page=20&page=1";
-const DEFAULT_RELEASE_ASSET_BASE = "https://github.com/LuoJunCheng/luccode/releases/download";
+const DEFAULT_RELEASES_API = "https://api.github.com/repos/luojuncheng0327/LucCode/releases?per_page=20&page=1";
+const DEFAULT_RELEASE_ASSET_BASE = "https://github.com/luojuncheng0327/LucCode/releases/download";
 const DIGEST_ASSET_NAME = "release-digest.v1.json";
 const HISTORY_LIMIT = 5;
 const RELEASE_SCAN_LIMIT = 10;
