@@ -978,12 +978,14 @@
       "schemaContract": {
         "kind": "runtime-source",
         "source": "lib/file-history/history-store.ts",
-        "compatibility": "The named runtime reader is canonical; this inventory does not imply stricter validation than runtime currently performs."
+        "compatibility": "Nullable stat signatures preserve existing snapshots and the version 1 reader contract."
       },
       "openEntry": [
         "new FileHistoryStore"
       ],
-      "migrationEntry": [],
+      "migrationEntry": [
+        "FileHistoryStore compatible nullable stat signature columns"
+      ],
       "protocolModules": [],
       "firstPossibleOpenPhase": "engine_construct",
       "firstPossibleWritePhase": "engine_construct",
@@ -994,6 +996,46 @@
       "bootstrapSafety": null,
       "preCoordinatorReadProjection": null,
       "identityContract": "workspaceHash derives from the resolved workspace root path; one database per workspace; rel_path inside is workspace-relative posix.",
+      "exemption": null
+    },
+    {
+      "id": "host-resource-catalog-sqlite",
+      "ownerModule": "core/resource-catalog-store.ts",
+      "pathPattern": "workspace-state/resources.sqlite",
+      "pathPatterns": [
+        "workspace-state/resources.sqlite",
+        "workspace-state/resources.sqlite-wal",
+        "workspace-state/resources.sqlite-shm"
+      ],
+      "pathExclusions": [],
+      "pathKind": "file",
+      "format": "sqlite",
+      "schemaSource": {
+        "kind": "sqlite-runtime",
+        "module": "core/resource-catalog-store.ts",
+        "contract": "ResourceCatalogStore schema v1 DDL and store-local PRAGMA user_version; resource adoption and relocation are not implemented yet"
+      },
+      "schemaContract": {
+        "kind": "runtime-source",
+        "source": "core/resource-catalog-store.ts",
+        "compatibility": "An additive empty catalog at schema version 1. It does not import or rewrite existing user data; only schema and connection lifecycle are implemented in M1.4."
+      },
+      "openEntry": [
+        "createResourceCatalogStore"
+      ],
+      "migrationEntry": [
+        "ResourceCatalogStore schema initialization and compatible v1 index repair"
+      ],
+      "protocolModules": [],
+      "firstPossibleOpenPhase": "identity_seed",
+      "firstPossibleWritePhase": "identity_seed",
+      "epochPolicy": "epoch-managed",
+      "checkpointPolicy": "Use SQLite online backup; WAL and SHM are database companions, not separate restore units.",
+      "restorePolicy": "Quarantine current database and sidecars, restore the checkpoint database, then reopen through ResourceCatalogStore.",
+      "affectedByEpochMigration": true,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "identityContract": "resource_id is the database identity and locator_key is unique. Adoption, relocation and filesystem identity rules remain M2 work.",
       "exemption": null
     },
     {
@@ -1951,7 +1993,7 @@
       "schemaContract": {
         "kind": "runtime-source",
         "source": "core/session-manifest/store.ts",
-        "compatibility": "The named runtime reader is canonical; this inventory does not imply stricter validation than runtime currently performs."
+        "compatibility": "Store-local v5 to v11 adds nullable fields, a defaulted flag, and env_events without replacing existing rows. Business consumers of the new fields remain separate work."
       },
       "openEntry": [
         "new SessionManifestStore"
@@ -4465,6 +4507,33 @@
       "excerpt": "writeSecretFileSync(cfgPath, yamlStr)",
       "reason": "Owns provider catalog, authentication, model compatibility, local provider plugin state, or the retention of their migration backups.",
       "storeId": "provider-state",
+      "exemptionId": null,
+      "ordinal": 0
+    },
+    {
+      "sourceFile": "core/resource-catalog-store.ts",
+      "kind": "database-open",
+      "excerpt": "new Database(path.resolve(dbPath))",
+      "reason": "Creates and opens the host-local resource catalog schema.",
+      "storeId": "host-resource-catalog-sqlite",
+      "exemptionId": null,
+      "ordinal": 0
+    },
+    {
+      "sourceFile": "core/resource-catalog-store.ts",
+      "kind": "mkdir",
+      "excerpt": "fs.mkdirSync(path.dirname(path.resolve(dbPath)), { recursive: true })",
+      "reason": "Creates and opens the host-local resource catalog schema.",
+      "storeId": "host-resource-catalog-sqlite",
+      "exemptionId": null,
+      "ordinal": 0
+    },
+    {
+      "sourceFile": "core/resource-catalog-store.ts",
+      "kind": "persistent-store-constructor",
+      "excerpt": "new ResourceCatalogStore({ dbPath: path.join(lucHome, \"workspace-state\", \"resources.sqlite\") })",
+      "reason": "Creates and opens the host-local resource catalog schema.",
+      "storeId": "host-resource-catalog-sqlite",
       "exemptionId": null,
       "ordinal": 0
     },

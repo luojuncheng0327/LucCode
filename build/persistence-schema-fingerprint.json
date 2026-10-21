@@ -757,7 +757,7 @@
     ],
     "version": 3
   },
-  "payloadFingerprint": "sha256:249821fbcedcba0a3ceb001ef9ead73a6acb6b7ee487f6f1e4127a482de9f39c",
+  "payloadFingerprint": "sha256:37fd6164bd8403ad50fbd9cabc388fb4a7b7aecf2a5cf7262305c61d473e0d7e",
   "registry": [
     {
       "affectedByEpochMigration": true,
@@ -1682,7 +1682,9 @@
       "format": "sqlite",
       "id": "file-history-sqlite",
       "identityContract": "workspaceHash derives from the resolved workspace root path; one database per workspace; rel_path inside is workspace-relative posix.",
-      "migrationEntry": [],
+      "migrationEntry": [
+        "FileHistoryStore compatible nullable stat signature columns"
+      ],
       "openEntry": [
         "new FileHistoryStore"
       ],
@@ -1699,7 +1701,7 @@
       "protocolModules": [],
       "restorePolicy": "Restore only through the owning module after reader compatibility is established.",
       "schemaContract": {
-        "compatibility": "The named runtime reader is canonical; this inventory does not imply stricter validation than runtime currently performs.",
+        "compatibility": "Nullable stat signatures preserve existing snapshots and the version 1 reader contract.",
         "kind": "runtime-source",
         "source": "lib/file-history/history-store.ts"
       },
@@ -1707,6 +1709,46 @@
         "contract": "FileHistoryStore runtime DDL and meta.schema_version",
         "kind": "sqlite-runtime",
         "module": "lib/file-history/history-store.ts"
+      }
+    },
+    {
+      "affectedByEpochMigration": true,
+      "bootstrapSafety": null,
+      "checkpointPolicy": "Use SQLite online backup; WAL and SHM are database companions, not separate restore units.",
+      "epochPolicy": "epoch-managed",
+      "exemption": null,
+      "firstPossibleOpenPhase": "identity_seed",
+      "firstPossibleWritePhase": "identity_seed",
+      "format": "sqlite",
+      "id": "host-resource-catalog-sqlite",
+      "identityContract": "resource_id is the database identity and locator_key is unique. Adoption, relocation and filesystem identity rules remain M2 work.",
+      "migrationEntry": [
+        "ResourceCatalogStore schema initialization and compatible v1 index repair"
+      ],
+      "openEntry": [
+        "createResourceCatalogStore"
+      ],
+      "ownerModule": "core/resource-catalog-store.ts",
+      "pathExclusions": [],
+      "pathKind": "file",
+      "pathPattern": "workspace-state/resources.sqlite",
+      "pathPatterns": [
+        "workspace-state/resources.sqlite",
+        "workspace-state/resources.sqlite-wal",
+        "workspace-state/resources.sqlite-shm"
+      ],
+      "preCoordinatorReadProjection": null,
+      "protocolModules": [],
+      "restorePolicy": "Quarantine current database and sidecars, restore the checkpoint database, then reopen through ResourceCatalogStore.",
+      "schemaContract": {
+        "compatibility": "An additive empty catalog at schema version 1. It does not import or rewrite existing user data; only schema and connection lifecycle are implemented in M1.4.",
+        "kind": "runtime-source",
+        "source": "core/resource-catalog-store.ts"
+      },
+      "schemaSource": {
+        "contract": "ResourceCatalogStore schema v1 DDL and store-local PRAGMA user_version; resource adoption and relocation are not implemented yet",
+        "kind": "sqlite-runtime",
+        "module": "core/resource-catalog-store.ts"
       }
     },
     {
@@ -2674,7 +2716,7 @@
       "protocolModules": [],
       "restorePolicy": "Restore only through the owning module after reader compatibility is established.",
       "schemaContract": {
-        "compatibility": "The named runtime reader is canonical; this inventory does not imply stricter validation than runtime currently performs.",
+        "compatibility": "Store-local v5 to v11 adds nullable fields, a defaulted flag, and env_events without replacing existing rows. Business consumers of the new fields remain separate work.",
         "kind": "runtime-source",
         "source": "core/session-manifest/store.ts"
       },
@@ -3220,8 +3262,8 @@
   ],
   "review": {
     "classification": "compatible",
-    "compatibilityReason": "M1.4 adds nullable session and file-history columns plus env_events; schema v1 file-history readers remain supported, existing rows are preserved and epoch remains 2.",
-    "payloadFingerprint": "sha256:249821fbcedcba0a3ceb001ef9ead73a6acb6b7ee487f6f1e4127a482de9f39c"
+    "compatibilityReason": "M1.4 adds nullable session/file stat fields, defaulted tool selection and env_events; resource catalog v1 is additive and initially empty. Existing stores and epoch 2 remain compatible; business consumers are pending M2.",
+    "payloadFingerprint": "sha256:37fd6164bd8403ad50fbd9cabc388fb4a7b7aecf2a5cf7262305c61d473e0d7e"
   },
   "schemas": [
     {
@@ -3476,6 +3518,48 @@
       },
       "sourceHash": "sha256:c5b854f9eb084cfe858726e2fcf00a8544692be3f18f26a9f295dfc23625a385",
       "storeId": "file-history-sqlite"
+    },
+    {
+      "contract": "ResourceCatalogStore schema v1 DDL and store-local PRAGMA user_version; resource adoption and relocation are not implemented yet",
+      "kind": "sqlite-runtime",
+      "module": "core/resource-catalog-store.ts",
+      "runtimeSchema": {
+        "objects": [
+          {
+            "name": "idx_local_resources_fingerprint",
+            "sql": "CREATE INDEX idx_local_resources_fingerprint ON local_resources(fingerprint_key) WHERE fingerprint_key IS NOT NULL",
+            "tableName": "local_resources",
+            "type": "index"
+          },
+          {
+            "name": "idx_local_resources_normalized_path",
+            "sql": "CREATE INDEX idx_local_resources_normalized_path ON local_resources(normalized_path)",
+            "tableName": "local_resources",
+            "type": "index"
+          },
+          {
+            "name": "idx_local_resources_real_path",
+            "sql": "CREATE INDEX idx_local_resources_real_path ON local_resources(real_path)",
+            "tableName": "local_resources",
+            "type": "index"
+          },
+          {
+            "name": "idx_local_resources_status",
+            "sql": "CREATE INDEX idx_local_resources_status ON local_resources(status, updated_at)",
+            "tableName": "local_resources",
+            "type": "index"
+          },
+          {
+            "name": "local_resources",
+            "sql": "CREATE TABLE local_resources ( resource_id TEXT PRIMARY KEY, normalized_path TEXT NOT NULL, real_path TEXT NOT NULL, locator_key TEXT NOT NULL UNIQUE, file_kind TEXT NOT NULL CHECK(file_kind IN ('file', 'directory')), status TEXT NOT NULL CHECK(status IN ('available', 'missing')), size INTEGER, mtime_ms REAL, fingerprint_dev TEXT, fingerprint_ino TEXT, fingerprint_birthtime_ms REAL, fingerprint_key TEXT, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, missing_at INTEGER )",
+            "tableName": "local_resources",
+            "type": "table"
+          }
+        ],
+        "userVersion": 1
+      },
+      "sourceHash": "sha256:8005a3837021da71faf692adfc51125663fb531e472ecbc8918f647de44dc970",
+      "storeId": "host-resource-catalog-sqlite"
     },
     {
       "contract": "installed manifest, install receipt, backup, and source-package directory protocols",
@@ -5619,6 +5703,30 @@
       "reason": "Owns provider catalog, authentication, model compatibility, local provider plugin state, or the retention of their migration backups.",
       "sourceFile": "core/provider-registry.ts",
       "storeId": "provider-state"
+    },
+    {
+      "exemptionId": null,
+      "kind": "database-open",
+      "ordinal": 0,
+      "reason": "Creates and opens the host-local resource catalog schema.",
+      "sourceFile": "core/resource-catalog-store.ts",
+      "storeId": "host-resource-catalog-sqlite"
+    },
+    {
+      "exemptionId": null,
+      "kind": "mkdir",
+      "ordinal": 0,
+      "reason": "Creates and opens the host-local resource catalog schema.",
+      "sourceFile": "core/resource-catalog-store.ts",
+      "storeId": "host-resource-catalog-sqlite"
+    },
+    {
+      "exemptionId": null,
+      "kind": "persistent-store-constructor",
+      "ordinal": 0,
+      "reason": "Creates and opens the host-local resource catalog schema.",
+      "sourceFile": "core/resource-catalog-store.ts",
+      "storeId": "host-resource-catalog-sqlite"
     },
     {
       "exemptionId": null,

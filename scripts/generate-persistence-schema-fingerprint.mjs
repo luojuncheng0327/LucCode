@@ -333,6 +333,14 @@ async function usageLedgerSchema(rootDir) {
 }
 
 async function introspectSqliteStore(rootDir, storeId) {
+  if (storeId === "host-resource-catalog-sqlite") {
+    const runtime = await import(pathToFileURL(path.join(rootDir, "core/resource-catalog-store.ts")).href);
+    return withTemporaryDatabase(
+      "luc-resource-catalog-schema-",
+      (tempDir) => runtime.createResourceCatalogStore({ lucHome: tempDir }),
+      (store) => readSqliteRuntimeSchema(store.db),
+    );
+  }
   if (storeId === "usage-ledger") return usageLedgerSchema(rootDir);
   if (storeId === "session-manifest-sqlite") return sessionManifestSchema(rootDir);
   if (storeId === "agent-facts-sqlite") return factStoreSchema(rootDir);

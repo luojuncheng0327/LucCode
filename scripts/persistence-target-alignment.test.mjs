@@ -30,10 +30,14 @@ test("alignment exposes scaffolds, old contracts, and actual write-site evidence
   const { generateTargetAlignment } = await import(moduleUrl);
   const result = generateTargetAlignment();
   assert.equal(result.summary.targetStores, 116);
-  assert.equal(result.summary.runtimeStores, 61);
-  assert.equal(result.summary.targetOnlyStores, 58);
+  assert.equal(result.summary.runtimeStores, 62);
+  assert.equal(result.summary.targetOnlyStores, 57);
   assert.equal(result.summary.compatibilityOnlyStores, 3);
-  assert.equal(result.summary.scaffoldOwners, 50);
+  assert.equal(result.summary.scaffoldOwners, 49);
+  const resources = result.stores.find(store => store.id === "host-resource-catalog-sqlite");
+  assert.equal(resources.current.format, "sqlite");
+  assert.deepEqual(resources.differences, []);
+  assert.equal(resources.runtimeVerified, false, "schema registration alone does not prove resource IO parity");
   const usage = result.stores.find((store) => store.id === "usage-ledger");
   assert.equal(usage.current.format, "sqlite");
   assert.equal(usage.target.format, "sqlite");

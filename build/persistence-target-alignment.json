@@ -15,12 +15,12 @@
   ],
   "summary": {
     "targetStores": 116,
-    "runtimeStores": 61,
-    "targetOnlyStores": 58,
+    "runtimeStores": 62,
+    "targetOnlyStores": 57,
     "compatibilityOnlyStores": 3,
     "contractDifferences": 15,
-    "staticDescriptorMatches": 43,
-    "scaffoldOwners": 50
+    "staticDescriptorMatches": 44,
+    "scaffoldOwners": 49
   },
   "stores": [
     {
@@ -3052,7 +3052,9 @@
         "openEntry": [
           "new FileHistoryStore"
         ],
-        "migrationEntry": []
+        "migrationEntry": [
+          "FileHistoryStore compatible nullable stat signature columns"
+        ]
       },
       "ownerStatus": "source-present-unverified",
       "status": "contract-difference",
@@ -3119,15 +3121,52 @@
         ],
         "has_compat": true
       },
-      "current": null,
-      "ownerStatus": "scaffold",
-      "status": "target-only",
-      "differences": [
-        "runtime-registration"
-      ],
+      "current": {
+        "owner": "core/resource-catalog-store.ts",
+        "format": "sqlite",
+        "paths": [
+          "workspace-state/resources.sqlite",
+          "workspace-state/resources.sqlite-wal",
+          "workspace-state/resources.sqlite-shm"
+        ],
+        "pathKind": "file",
+        "schemaSource": {
+          "kind": "sqlite-runtime",
+          "module": "core/resource-catalog-store.ts",
+          "contract": "ResourceCatalogStore schema v1 DDL and store-local PRAGMA user_version; resource adoption and relocation are not implemented yet"
+        },
+        "openEntry": [
+          "createResourceCatalogStore"
+        ],
+        "migrationEntry": [
+          "ResourceCatalogStore schema initialization and compatible v1 index repair"
+        ]
+      },
+      "ownerStatus": "source-present-unverified",
+      "status": "static-descriptor-match",
+      "differences": [],
       "runtimeVerified": false,
-      "writeSites": [],
-      "nextAction": "Implement and validate the owner before runtime registration."
+      "writeSites": [
+        {
+          "sourceFile": "core/resource-catalog-store.ts",
+          "kind": "database-open",
+          "excerpt": "new Database(path.resolve(dbPath))",
+          "ordinal": 0
+        },
+        {
+          "sourceFile": "core/resource-catalog-store.ts",
+          "kind": "mkdir",
+          "excerpt": "fs.mkdirSync(path.dirname(path.resolve(dbPath)), { recursive: true })",
+          "ordinal": 0
+        },
+        {
+          "sourceFile": "core/resource-catalog-store.ts",
+          "kind": "persistent-store-constructor",
+          "excerpt": "new ResourceCatalogStore({ dbPath: path.join(lucHome, \"workspace-state\", \"resources.sqlite\") })",
+          "ordinal": 0
+        }
+      ],
+      "nextAction": "Descriptor fields match; runtime parity is not established by this audit."
     },
     {
       "id": "image-thumbnail-cache",

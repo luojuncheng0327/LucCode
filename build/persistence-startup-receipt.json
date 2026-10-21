@@ -286,6 +286,16 @@
       "breakingMigrationRequiresAccessMove": false
     },
     {
+      "id": "host-resource-catalog-sqlite",
+      "firstPossibleOpenPhase": "identity_seed",
+      "firstPossibleWritePhase": "identity_seed",
+      "opensBeforeFutureCoordinator": false,
+      "writesBeforeFutureCoordinator": false,
+      "bootstrapSafety": null,
+      "preCoordinatorReadProjection": null,
+      "breakingMigrationRequiresAccessMove": false
+    },
+    {
       "id": "installed-plugins",
       "firstPossibleOpenPhase": "engine_construct",
       "firstPossibleWritePhase": "runtime_ready",

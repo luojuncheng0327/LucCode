@@ -94,6 +94,7 @@ const PERSISTENT_CONSTRUCTORS = new Set([
   "InputDraftsStore",
   "LoopStore",
   "PreferencesManager",
+  "ResourceCatalogStore",
   "SessionManifestStore",
   "SessionProjectCatalogStore",
   "SkillBundleStore",
