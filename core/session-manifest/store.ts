@@ -252,14 +252,21 @@ export class SessionManifestStore {
       this._now = opts.now || (() => new Date().toISOString());
       this._idGenerator = opts.idGenerator || (() => generateSessionId());
 
+      const version = this.db.pragma("user_version", { simple: true });
+      if (version > SESSION_MANIFEST_DB_USER_VERSION) {
+        throw new SessionManifestError("session_manifest_newer_schema",
+          "session manifest schema " + version + " is newer than supported " + SESSION_MANIFEST_DB_USER_VERSION);
+      }
       this.db.pragma("journal_mode = WAL");
       this.db.pragma("synchronous = NORMAL");
       this.db.pragma("cache_size = -16000");
       this.db.pragma("temp_store = MEMORY");
       this.db.pragma("mmap_size = 30000000");
-      this._initSchema();
-      this._migrate();
-      this._prepareStatements();
+      this.db.transaction(() => {
+        this._initSchema();
+        this._migrate();
+        this._prepareStatements();
+      })();
     } catch (error) {
       try {
         this.db?.close?.();
@@ -370,7 +377,6 @@ export class SessionManifestStore {
         updated_at TEXT NOT NULL,
         FOREIGN KEY(session_id) REFERENCES session_manifests(session_id) ON DELETE CASCADE
       );
-
     `);
   }
 
@@ -407,7 +413,7 @@ export class SessionManifestStore {
             this._addColumnIfMissing(
               "session_capability_snapshots",
               "tool_selection_explicit",
-              "INTEGER NOT NULL DEFAULT 0"
+              "INTEGER NOT NULL DEFAULT 0",
             );
             break;
           case 7:

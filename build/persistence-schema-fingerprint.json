@@ -757,7 +757,7 @@
     ],
     "version": 3
   },
-  "payloadFingerprint": "sha256:37fd6164bd8403ad50fbd9cabc388fb4a7b7aecf2a5cf7262305c61d473e0d7e",
+  "payloadFingerprint": "sha256:53f848191ef0f34fe1952d6eefc9bd50d4d686fe167a642cc74eacdb6d30495c",
   "registry": [
     {
       "affectedByEpochMigration": true,
@@ -3262,8 +3262,8 @@
   ],
   "review": {
     "classification": "compatible",
-    "compatibilityReason": "M1.4 adds nullable session/file stat fields, defaulted tool selection and env_events; resource catalog v1 is additive and initially empty. Existing stores and epoch 2 remain compatible; business consumers are pending M2.",
-    "payloadFingerprint": "sha256:37fd6164bd8403ad50fbd9cabc388fb4a7b7aecf2a5cf7262305c61d473e0d7e"
+    "compatibilityReason": "M1.4 adds nullable session/file stat columns, a defaulted tool-selection flag, env_events and an empty resource catalog v1. Existing rows and v1 file-history readers stay compatible. Session DDL upgrades atomically; the catalog opens after the epoch gate and closes with Engine. DATA_EPOCH remains 2; resource and session business features are separate M2 work.",
+    "payloadFingerprint": "sha256:53f848191ef0f34fe1952d6eefc9bd50d4d686fe167a642cc74eacdb6d30495c"
   },
   "schemas": [
     {
@@ -3704,7 +3704,7 @@
       "contract": "server-info writer and desktop bootstrap reader",
       "kind": "runtime-contract",
       "module": "server/index.ts",
-      "sourceHash": "sha256:4d5f810908bdfc533a1adb3be696026b368b97ead72a9dcf70405910b23eec87",
+      "sourceHash": "sha256:ce21d125bedd56e002a34f5e3232720c6563c193b024f9da5135365b55dfebd9",
       "storeId": "server-runtime-info"
     },
     {
@@ -3829,7 +3829,7 @@
         ],
         "userVersion": 11
       },
-      "sourceHash": "sha256:5d05feaf71f1bb714940fc89f6a5e56a439ee1547353d8698697442eb9e1eda5",
+      "sourceHash": "sha256:a145683ac415b626b6505d78a8f6bedc50f0506e1407622f3040a9e08c29272b",
       "storeId": "session-manifest-sqlite"
     },
     {
