@@ -607,7 +607,7 @@ export class Win32LegacySandboxCleanupQueue {
   declare draining: any;
   declare env: any;
   declare existsSync: any;
-  declare lucHome: any;
+  declare luccodeHome: any;
   declare helperPath: any;
   declare homedir: any;
   declare log: any;

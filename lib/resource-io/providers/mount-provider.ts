@@ -31,7 +31,7 @@ type Options = {
 export class MountProvider {
   readonly id = "mount" as const;
 
-  declare lucHome: string;
+  declare luccodeHome: string;
   declare studioId: string;
   declare localFsProviderFactory: LocalFsProviderFactory;
 

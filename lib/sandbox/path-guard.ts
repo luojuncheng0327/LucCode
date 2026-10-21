@@ -38,7 +38,7 @@ const OP_REQUIREMENTS = {
 
 export class PathGuard {
   declare _fullAccess: boolean;
-  declare lucHome: string;
+  declare luccodeHome: string;
   declare agentDir: string;
   declare workspaceRoots: string[];
   declare policyWritablePaths: string[];

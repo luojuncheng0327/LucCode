@@ -64,7 +64,7 @@ declare _now: any;
 
 declare _terminals: any;
 
-declare lucHome: any;
+declare luccodeHome: any;
 
 declare root: any;
   constructor({

@@ -41,7 +41,7 @@ export class ResourceAccessPolicy {
   declare agentDir: string;
   declare workspace: string | null;
   declare workspaceFolders: string[];
-  declare lucHome: string;
+  declare luccodeHome: string;
   declare getAuthorizedFolders: () => string[];
   declare getSandboxEnabled: () => boolean;
   declare getExternalReadPaths?: () => string[];

@@ -331,7 +331,7 @@ export class LucEngine {
   declare agentsDir: any;
   declare appVersion: any;
   declare channelsDir: any;
-  declare lucHome: any;
+  declare luccodeHome: any;
   declare _inputDrafts: any;
   declare productDir: any;
   declare userDir: any;
