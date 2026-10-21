@@ -1,0 +1,90 @@
+{
+  "source": "HanaAgent 1.1.35-beta server bundle/index.js (extracted release artifact)",
+  "sourceSha256": "e6980f977ab1241aafe75418db78b73081e5dfea3fb8aecf872210984c3bbd5a",
+  "extraction": "literal CREATE TABLE/INDEX plus the two literal file-history ALTER statements; no release JavaScript executed",
+  "evidenceScope": "16 ordinary tables and 13 explicit indexes; excludes FTS virtual/shadow tables and SQLite internals",
+  "stores": [
+    {
+      "id": "session-manifest-sqlite",
+      "tables": [
+        "session_manifests",
+        "session_locator_history",
+        "session_manifest_state",
+        "session_capability_snapshots",
+        "session_executor_metadata",
+        "session_branch_heads",
+        "env_events"
+      ],
+      "ddl": [
+        "CREATE TABLE IF NOT EXISTS session_manifests (\n        session_id TEXT PRIMARY KEY,\n        schema_version INTEGER NOT NULL,\n        owner_agent_id TEXT,\n        domain TEXT NOT NULL,\n        kind TEXT NOT NULL,\n        lifecycle TEXT NOT NULL,\n        health TEXT NOT NULL,\n        current_locator_type TEXT NOT NULL,\n        current_locator_path TEXT NOT NULL,\n        current_locator_key TEXT NOT NULL UNIQUE,\n        current_locator_reason TEXT,\n        locator_updated_at TEXT NOT NULL,\n        memory_policy_json TEXT NOT NULL,\n        permission_mode_snapshot_json TEXT NOT NULL,\n        thinking_level TEXT,\n        pinned_at TEXT,\n        pin_order INTEGER,\n        coordinator_granted_at TEXT,\n        project_id TEXT,\n        service_tier TEXT,\n        experience_enabled INTEGER,\n        provider_cache_affinity_key TEXT,\n        memory_reflection_snapshot_json TEXT,\n        experiments_json TEXT,\n        forked_from_json TEXT,\n        memory_fork_baseline_json TEXT,\n        reminder_state_json TEXT,\n        preview_ui_state_json TEXT,\n        workspace_scope_json TEXT NOT NULL,\n        plugin_json TEXT NOT NULL,\n        provenance_json TEXT NOT NULL,\n        migration_json TEXT NOT NULL,\n        created_at TEXT NOT NULL,\n        updated_at TEXT NOT NULL,\n        deleted_at TEXT\n      );",
+        "CREATE TABLE IF NOT EXISTS session_locator_history (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        session_id TEXT NOT NULL,\n        locator_type TEXT NOT NULL,\n        locator_path TEXT NOT NULL,\n        locator_key TEXT NOT NULL,\n        reason TEXT,\n        created_at TEXT NOT NULL,\n        UNIQUE(locator_key),\n        FOREIGN KEY(session_id) REFERENCES session_manifests(session_id) ON DELETE CASCADE\n      );",
+        "CREATE TABLE IF NOT EXISTS session_manifest_state (\n        key TEXT PRIMARY KEY,\n        value_json TEXT NOT NULL,\n        updated_at TEXT NOT NULL\n      );",
+        "CREATE TABLE IF NOT EXISTS session_capability_snapshots (\n        session_id TEXT PRIMARY KEY,\n        tool_names_json TEXT,\n        tool_selection_explicit INTEGER NOT NULL DEFAULT 0,\n        prompt_snapshot_json TEXT,\n        capability_drift_dismissed_fingerprint TEXT,\n        source TEXT NOT NULL,\n        updated_at TEXT NOT NULL,\n        FOREIGN KEY(session_id) REFERENCES session_manifests(session_id) ON DELETE CASCADE\n      );",
+        "CREATE TABLE IF NOT EXISTS session_executor_metadata (\n        session_id TEXT PRIMARY KEY,\n        executor_agent_id TEXT,\n        executor_agent_name_snapshot TEXT,\n        executor_meta_version INTEGER NOT NULL,\n        source TEXT NOT NULL,\n        updated_at TEXT NOT NULL,\n        FOREIGN KEY(session_id) REFERENCES session_manifests(session_id) ON DELETE CASCADE\n      );",
+        "CREATE TABLE IF NOT EXISTS session_branch_heads (\n        session_id TEXT PRIMARY KEY,\n        leaf_id TEXT,\n        observed_tail_leaf_id TEXT,\n        observed_message_count INTEGER,\n        revision INTEGER NOT NULL,\n        reason TEXT NOT NULL,\n        updated_at TEXT NOT NULL,\n        FOREIGN KEY(session_id) REFERENCES session_manifests(session_id) ON DELETE CASCADE\n      );",
+        "CREATE TABLE IF NOT EXISTS env_events (\n        seq INTEGER PRIMARY KEY AUTOINCREMENT,\n        type TEXT NOT NULL,\n        scope_kind TEXT NOT NULL,\n        scope_agent_id TEXT NOT NULL,\n        payload_json TEXT NOT NULL,\n        at TEXT NOT NULL\n      );",
+        "CREATE INDEX IF NOT EXISTS idx_session_manifests_domain\n        ON session_manifests(domain, lifecycle, updated_at);",
+        "CREATE INDEX IF NOT EXISTS idx_session_manifests_pinned\n        ON session_manifests(pinned_at);",
+        "CREATE INDEX IF NOT EXISTS idx_session_manifests_owner\n        ON session_manifests(owner_agent_id);",
+        "CREATE INDEX IF NOT EXISTS idx_session_locator_history_session\n        ON session_locator_history(session_id, created_at);",
+        "CREATE INDEX IF NOT EXISTS idx_env_events_scope\n        ON env_events(scope_kind, scope_agent_id, seq);"
+      ]
+    },
+    {
+      "id": "file-history-sqlite",
+      "tables": [
+        "meta",
+        "files",
+        "snapshots"
+      ],
+      "ddl": [
+        "CREATE TABLE IF NOT EXISTS meta(key TEXT PRIMARY KEY, value TEXT NOT NULL);",
+        "CREATE TABLE IF NOT EXISTS files(\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        rel_path TEXT NOT NULL UNIQUE,\n        deleted_at INTEGER\n      );",
+        "CREATE TABLE IF NOT EXISTS snapshots(\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        file_id INTEGER NOT NULL REFERENCES files(id) ON DELETE CASCADE,\n        content_hash TEXT NOT NULL,\n        content BLOB NOT NULL,\n        raw_size INTEGER NOT NULL,\n        stored_size INTEGER NOT NULL,\n        captured_at INTEGER NOT NULL,\n        origin TEXT NOT NULL,\n        op_context TEXT\n      );",
+        "ALTER TABLE files ADD COLUMN stat_size INTEGER;",
+        "ALTER TABLE files ADD COLUMN stat_mtime_ms REAL;",
+        "CREATE INDEX IF NOT EXISTS idx_snapshots_file_time ON snapshots(file_id, captured_at DESC);",
+        "CREATE INDEX IF NOT EXISTS idx_snapshots_time ON snapshots(captured_at);"
+      ]
+    },
+    {
+      "id": "host-resource-catalog-sqlite",
+      "tables": [
+        "local_resources"
+      ],
+      "ddl": [
+        "CREATE TABLE local_resources (\n            resource_id TEXT PRIMARY KEY,\n            normalized_path TEXT NOT NULL,\n            real_path TEXT NOT NULL,\n            locator_key TEXT NOT NULL UNIQUE,\n            file_kind TEXT NOT NULL CHECK(file_kind IN ('file', 'directory')),\n            status TEXT NOT NULL CHECK(status IN ('available', 'missing')),\n            size INTEGER,\n            mtime_ms REAL,\n            fingerprint_dev TEXT,\n            fingerprint_ino TEXT,\n            fingerprint_birthtime_ms REAL,\n            fingerprint_key TEXT,\n            created_at INTEGER NOT NULL,\n            updated_at INTEGER NOT NULL,\n            missing_at INTEGER\n          );",
+        "CREATE INDEX idx_local_resources_fingerprint\n            ON local_resources(fingerprint_key)\n            WHERE fingerprint_key IS NOT NULL;",
+        "CREATE INDEX idx_local_resources_normalized_path\n            ON local_resources(normalized_path);",
+        "CREATE INDEX idx_local_resources_real_path\n            ON local_resources(real_path);",
+        "CREATE INDEX idx_local_resources_status\n            ON local_resources(status, updated_at);"
+      ]
+    },
+    {
+      "id": "usage-ledger",
+      "tables": [
+        "usage_meta",
+        "usage_entries",
+        "usage_seen_requests",
+        "usage_daily_rollups"
+      ],
+      "ddl": [
+        "CREATE TABLE IF NOT EXISTS usage_meta(key TEXT PRIMARY KEY, value TEXT NOT NULL);",
+        "CREATE TABLE IF NOT EXISTS usage_entries(entry_order INTEGER PRIMARY KEY AUTOINCREMENT, request_id TEXT NOT NULL UNIQUE, started_at TEXT NOT NULL, ended_at TEXT NOT NULL, status TEXT NOT NULL, provider TEXT NOT NULL, model_id TEXT NOT NULL, entry_json TEXT NOT NULL);",
+        "CREATE TABLE IF NOT EXISTS usage_seen_requests(request_id TEXT PRIMARY KEY);",
+        "CREATE TABLE IF NOT EXISTS usage_daily_rollups(\n      stat_day TEXT NOT NULL, provider TEXT NOT NULL, model_id TEXT NOT NULL,\n      request_count INTEGER NOT NULL DEFAULT 0, ok_count INTEGER NOT NULL DEFAULT 0, error_count INTEGER NOT NULL DEFAULT 0, aborted_count INTEGER NOT NULL DEFAULT 0, usage_missing_count INTEGER NOT NULL DEFAULT 0,\n      input_tokens REAL NOT NULL DEFAULT 0, output_tokens REAL NOT NULL DEFAULT 0, total_tokens REAL NOT NULL DEFAULT 0, cache_read_tokens REAL NOT NULL DEFAULT 0, cache_write_tokens REAL NOT NULL DEFAULT 0,\n      input_missing_count INTEGER NOT NULL DEFAULT 0, output_missing_count INTEGER NOT NULL DEFAULT 0, total_missing_count INTEGER NOT NULL DEFAULT 0, cache_read_missing_count INTEGER NOT NULL DEFAULT 0, cache_write_missing_count INTEGER NOT NULL DEFAULT 0,\n      PRIMARY KEY(stat_day, provider, model_id)\n    );"
+      ]
+    },
+    {
+      "id": "agent-facts-sqlite",
+      "tables": [
+        "facts"
+      ],
+      "ddl": [
+        "CREATE TABLE IF NOT EXISTS facts (\n        id         INTEGER PRIMARY KEY AUTOINCREMENT,\n        fact       TEXT NOT NULL,\n        search_text TEXT NOT NULL DEFAULT '',\n        tags       TEXT NOT NULL DEFAULT '[]',\n        time       TEXT,\n        session_id TEXT,\n        created_at TEXT NOT NULL\n      );",
+        "CREATE INDEX IF NOT EXISTS idx_facts_time ON facts(time);",
+        "CREATE INDEX IF NOT EXISTS idx_facts_session ON facts(session_id);"
+      ]
+    }
+  ]
+}

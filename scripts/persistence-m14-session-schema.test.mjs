@@ -117,9 +117,57 @@ test("M1.4 upgrades the existing v5 session database without losing rows", (t) =
       store.db.prepare("SELECT observed_message_count FROM session_branch_heads").get().observed_message_count,
       null,
     );
+    store.db.prepare("INSERT INTO env_events(type, scope_kind, scope_agent_id, payload_json, at) VALUES(?, ?, ?, ?, ?)")
+      .run("facts-changed", "agent", "fixture-agent", '{"keep":true}', "2026-01-01T00:00:00.000Z");
+    store.close();
+    store = new SessionManifestStore({ dbPath });
+    assert.equal(store.db.prepare("SELECT count(*) AS n FROM env_events").get().n, 1);
+    assertM14Schema(store.db);
   } finally {
     store?.close();
   }
+});
+
+test("session migration failure rolls back schema and rows and can be retried", (t) => {
+  const dbPath = tempDatabase(t);
+  createVersionFiveDatabase(dbPath);
+  const initial = new Database(dbPath);
+  const before = initial.prepare("SELECT type,name,sql FROM sqlite_master ORDER BY name").all();
+  initial.close();
+  const original = Database.prototype.exec;
+  let failedDb;
+  const injected = t.mock.method(Database.prototype, "exec", function(sql) {
+    if (sql.includes("ADD COLUMN preview_ui_state_json")) {
+      failedDb = this;
+      throw new Error("injected final session migration failure");
+    }
+    return original.call(this, sql);
+  });
+  assert.throws(() => new SessionManifestStore({ dbPath }), /injected final session migration failure/);
+  injected.mock.restore();
+  assert.equal(failedDb.open, false);
+  const probe = new Database(dbPath);
+  try {
+    assert.equal(probe.pragma("user_version", { simple: true }), 5);
+    assert.deepEqual(probe.prepare("SELECT type,name,sql FROM sqlite_master ORDER BY name").all(), before);
+    assert.equal(probe.prepare("SELECT session_id FROM session_manifests").get().session_id, "legacy-session");
+  } finally { probe.close(); }
+  const store = new SessionManifestStore({ dbPath });
+  try { assertM14Schema(store.db); } finally { store.close(); }
+});
+
+test("session owner rejects future schemas before creating or altering any table", (t) => {
+  const dbPath = tempDatabase(t);
+  const db = new Database(dbPath);
+  db.exec("CREATE TABLE sentinel(value TEXT); INSERT INTO sentinel VALUES('keep')");
+  db.pragma("user_version = 999");
+  db.close();
+  assert.throws(() => new SessionManifestStore({ dbPath }), /newer than supported/);
+  const probe = new Database(dbPath);
+  try {
+    assert.deepEqual(probe.prepare("SELECT name FROM sqlite_master WHERE type='table'").all(), [{ name: "sentinel" }]);
+    assert.equal(probe.prepare("SELECT value FROM sentinel").get().value, "keep");
+  } finally { probe.close(); }
 });
 
 test("M1.4 creates the same session schema for a new database", (t) => {
