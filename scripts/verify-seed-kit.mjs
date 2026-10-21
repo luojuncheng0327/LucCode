@@ -28,7 +28,7 @@
 import fs from "fs";
 import path from "path";
 import { createRequire } from "module";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 
 import { resolveBuildKeyset, seedManifestFileName } from "./build-server-artifact.mjs";
 
@@ -166,7 +166,7 @@ async function main() {
 // CLI entry — only runs main() when invoked directly (`node scripts/verify-seed-kit.mjs`),
 // not when imported by tests as a library (matches the module's dual role: exported
 // `verifySeedKit` is the tested unit, `main` is the package.json script-chain wrapper).
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
   main().catch((err) => {
     console.error(`[verify-seed-kit] unexpected error: ${err.stack || err.message}`);
     process.exit(1);
