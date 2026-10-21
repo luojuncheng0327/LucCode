@@ -1360,7 +1360,97 @@ function exemption(
   });
 }
 
+// Exact, fail-closed primitive receipts: a changed or additional write must be
+// reviewed again instead of inheriting a file-wide exemption.
+function exactSitePattern(...excerpts: string[]): string {
+  return `^(?:${excerpts.map((text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})$`;
+}
+
 export const PERSISTENCE_EXEMPTIONS: readonly PersistenceExemption[] = Object.freeze([
+  // The prepositioned worker has no production caller yet. It owns generic
+  // operations, not an extension-staging store. The caller audit test must be
+  // revised alongside registration of real destinations when integration lands.
+  exemption(
+    "package-file-worker-stderr",
+    "lib/extension-platform/package-file-worker.mjs",
+    "lib/extension-platform/package-file-worker.mjs",
+    "Writes a bounded abnormal-exit diagnostic to inherited file descriptor 2 (stderr), not a filesystem store.",
+    "2026-10-31",
+    ["write-file"],
+    exactSitePattern('fs.writeSync(2, `Package file worker exited abnormally${suffix}.\\n`.slice(0, MAX_ABNORMAL_STDERR_BYTES))'),
+  ),
+  exemption(
+    "package-file-worker-parent-directory",
+    "lib/extension-platform/package-file-worker.mjs",
+    "lib/extension-platform/package-file-worker.mjs",
+    "ensureDirectory creates the caller-supplied extract/copy/move destination or its parents. This shared primitive has no independent LUC_HOME identity; no production caller is integrated yet.",
+    "2026-10-31",
+    ["mkdir"],
+    exactSitePattern('fsp.mkdir(directory, { recursive: true, mode })'),
+  ),
+  exemption(
+    "package-file-worker-extract-file",
+    "lib/extension-platform/package-file-worker.mjs",
+    "lib/extension-platform/package-file-worker.mjs",
+    "extractZip writes validated ZIP entry bytes with exclusive creation inside the caller-owned extraction root. Future callers must register their actual staging destination.",
+    "2026-10-31",
+    ["write-file"],
+    exactSitePattern('fs.createWriteStream(target, { flags: "wx", mode: entryMode(entry, false) })'),
+  ),
+  exemption(
+    "package-file-worker-copy-directories",
+    "lib/extension-platform/package-file-worker.mjs",
+    "lib/extension-platform/package-file-worker.mjs",
+    "copyDirectory creates its same-parent .install-UUID temporary directory and copies child directories into it; ownership follows the caller-supplied destination.",
+    "2026-10-31",
+    ["mkdir"],
+    exactSitePattern(
+      'fsp.mkdir(target, { recursive: false, mode: stat.mode & 0o777 })',
+      'fsp.mkdir(temporary, { recursive: false, mode: sourceStat.mode & 0o777 })',
+    ),
+  ),
+  exemption(
+    "package-file-worker-copy-file",
+    "lib/extension-platform/package-file-worker.mjs",
+    "lib/extension-platform/package-file-worker.mjs",
+    "copyFile exclusively creates bytes inside copyDirectory's temporary tree; it neither chooses a store root nor establishes a persistence contract.",
+    "2026-10-31",
+    ["write-file"],
+    exactSitePattern('fs.createWriteStream(destination, { flags: "wx", mode })'),
+  ),
+  exemption(
+    "package-file-worker-copy-promotion",
+    "lib/extension-platform/package-file-worker.mjs",
+    "lib/extension-platform/package-file-worker.mjs",
+    "copyDirectory renames the existing destination to a sibling .backup-UUID, promotes .install-UUID, attempts restoration on failed promotion, and removes only its own backup or temporary tree. No production store caller is integrated.",
+    "2026-10-31",
+    ["rename", "remove-path"],
+    exactSitePattern(
+      'fsp.rename(destination, backup)',
+      'fsp.rename(temporary, destination)',
+      'fsp.rename(backup, destination)',
+      'fsp.rm(backup, { recursive: true, force: true })',
+      'fsp.rm(temporary, { recursive: true, force: true })',
+    ),
+  ),
+  exemption(
+    "package-file-worker-move",
+    "lib/extension-platform/package-file-worker.mjs",
+    "lib/extension-platform/package-file-worker.mjs",
+    "moveDirectory renames caller-supplied absolute source and destination after inspecting source links; EXDEV falls back to the separately inventoried copy/remove primitives. Destination ownership must be established by future callers.",
+    "2026-10-31",
+    ["rename"],
+    exactSitePattern('fsp.rename(source, destination)'),
+  ),
+  exemption(
+    "package-file-worker-remove",
+    "lib/extension-platform/package-file-worker.mjs",
+    "lib/extension-platform/package-file-worker.mjs",
+    "removeTarget deletes the caller-supplied absolute target or the move source after EXDEV copy. The worker does not authorize roots; integration must constrain and register caller-owned targets.",
+    "2026-10-31",
+    ["remove-path"],
+    exactSitePattern('fsp.rm(target, { recursive: true, force: true, maxRetries: 2 })'),
+  ),
   exemption(
     "data-epoch-durable-json-primitive",
     "shared/data-epoch.cjs",

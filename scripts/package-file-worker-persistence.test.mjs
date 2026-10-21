@@ -35,7 +35,9 @@ test("worker primitive attribution is reviewed when a production caller is added
   for (const root of PRODUCTION_ROOTS) {
     for (const relative of fs.readdirSync(path.join(REPOSITORY_ROOT, root), { recursive: true })) {
       const file = `${root}/${relative.replaceAll("\\", "/")}`;
-      if (file === workerPath || !/\.[cm]?[jt]sx?$/.test(file) || SOURCE_EXCLUSIONS.some((rule) => rule.pattern.test(file))) continue;
+      // The registry contains attribution metadata, not a worker invocation.
+      if (file === workerPath || file === "shared/persistence/store-registry.ts"
+        || !/\.[cm]?[jt]sx?$/.test(file) || SOURCE_EXCLUSIONS.some((rule) => rule.pattern.test(file))) continue;
       if (/package-file-worker/.test(fs.readFileSync(path.join(REPOSITORY_ROOT, file), "utf8"))) callers.push(file);
     }
   }
