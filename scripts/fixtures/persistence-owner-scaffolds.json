@@ -1,0 +1,308 @@
+{
+  "source": "HanaAgent 1.1.35-beta published store catalog; store_alignment.json reviewed 2026-10-21",
+  "scope": "Missing owner scaffolds only; not runtime capability",
+  "owners": [
+    {
+      "owner": "core/annotation-sidecar-store.ts",
+      "storeIds": [
+        "annotation-sidecar"
+      ]
+    },
+    {
+      "owner": "lib/cards/app-card-activity-store.ts",
+      "storeIds": [
+        "app-card-activity"
+      ]
+    },
+    {
+      "owner": "server/app-host/paths.ts",
+      "storeIds": [
+        "app-data"
+      ]
+    },
+    {
+      "owner": "lib/apps/app-skill-customizations.ts",
+      "storeIds": [
+        "app-skill-customizations"
+      ]
+    },
+    {
+      "owner": "lib/app-tool-legacy-ownership.ts",
+      "storeIds": [
+        "app-tool-legacy-ownership"
+      ]
+    },
+    {
+      "owner": "core/app-static-ui-access.ts",
+      "storeIds": [
+        "app-ui-snapshot-cache"
+      ]
+    },
+    {
+      "owner": "server/composition/plugins/approval-audit.ts",
+      "storeIds": [
+        "approval-audit"
+      ]
+    },
+    {
+      "owner": "server/composition/plugins/approval-rules.ts",
+      "storeIds": [
+        "approval-rules"
+      ]
+    },
+    {
+      "owner": "desktop/src/main/browser-close-intents.cjs",
+      "storeIds": [
+        "browser-close-intents"
+      ]
+    },
+    {
+      "owner": "scripts/builtin-apps.mjs",
+      "storeIds": [
+        "builtin-app-dev-cache"
+      ]
+    },
+    {
+      "owner": "lib/extension-platform/adapters/bundle.ts",
+      "storeIds": [
+        "bundle-state"
+      ]
+    },
+    {
+      "owner": "lib/cards/card-activity-store.ts",
+      "storeIds": [
+        "card-activity"
+      ]
+    },
+    {
+      "owner": "lib/cards/card-data-store.ts",
+      "storeIds": [
+        "card-data"
+      ]
+    },
+    {
+      "owner": "lib/recipes/card-guide-materializer.ts",
+      "storeIds": [
+        "card-guide"
+      ]
+    },
+    {
+      "owner": "core/card-host-grant-store.ts",
+      "storeIds": [
+        "card-host-grants"
+      ]
+    },
+    {
+      "owner": "core/card-library.ts",
+      "storeIds": [
+        "card-library-output"
+      ]
+    },
+    {
+      "owner": "core/card-face-store.ts",
+      "storeIds": [
+        "chalkboard-card-faces"
+      ]
+    },
+    {
+      "owner": "core/card-instance-source-store.ts",
+      "storeIds": [
+        "chalkboard-card-instance-sources"
+      ]
+    },
+    {
+      "owner": "core/client-layout-profile-store.ts",
+      "storeIds": [
+        "chalkboard-client-layout-profiles"
+      ]
+    },
+    {
+      "owner": "core/pinned-card-document-store.ts",
+      "storeIds": [
+        "chalkboard-pinned-card-documents"
+      ]
+    },
+    {
+      "owner": "core/pinned-card-registry-store.ts",
+      "storeIds": [
+        "chalkboard-pinned-card-registry"
+      ]
+    },
+    {
+      "owner": "core/plugin-stream-card-registry-store.ts",
+      "storeIds": [
+        "chalkboard-plugin-stream-card-registry"
+      ]
+    },
+    {
+      "owner": "core/web-card-registry-store.ts",
+      "storeIds": [
+        "chalkboard-web-card-registry"
+      ]
+    },
+    {
+      "owner": "lib/cards/chat-card-state-store.ts",
+      "storeIds": [
+        "chat-card-state"
+      ]
+    },
+    {
+      "owner": "server/app-instances/owned-homes.ts",
+      "storeIds": [
+        "developer-spaces"
+      ]
+    },
+    {
+      "owner": "lib/extension-platform/install-receipts.ts",
+      "storeIds": [
+        "extension-install-receipts"
+      ]
+    },
+    {
+      "owner": "lib/extension-platform/install-records.ts",
+      "storeIds": [
+        "extension-installs"
+      ]
+    },
+    {
+      "owner": "lib/extension-platform/market-source.ts",
+      "storeIds": [
+        "extension-market-downloads"
+      ]
+    },
+    {
+      "owner": "lib/extension-market/index-channel.ts",
+      "storeIds": [
+        "extension-market-index-cache"
+      ]
+    },
+    {
+      "owner": "lib/extension-market/sources.ts",
+      "storeIds": [
+        "extension-market-sources"
+      ]
+    },
+    {
+      "owner": "lib/extension-platform/registry.ts",
+      "storeIds": [
+        "extension-staging"
+      ]
+    },
+    {
+      "owner": "core/font-library-service.ts",
+      "storeIds": [
+        "font-library"
+      ]
+    },
+    {
+      "owner": "core/resource-catalog-store.ts",
+      "storeIds": [
+        "host-resource-catalog-sqlite"
+      ]
+    },
+    {
+      "owner": "core/image-thumbnail-cache.ts",
+      "storeIds": [
+        "image-thumbnail-cache"
+      ]
+    },
+    {
+      "owner": "lib/model-catalog/bootstrap.ts",
+      "storeIds": [
+        "model-catalog-active-file"
+      ]
+    },
+    {
+      "owner": "lib/remote-data/refresh-channel.ts",
+      "storeIds": [
+        "model-catalog-refresh-staging",
+        "model-catalog-refresh-state"
+      ]
+    },
+    {
+      "owner": "core/node-identity-registry.ts",
+      "storeIds": [
+        "node-identities"
+      ]
+    },
+    {
+      "owner": "core/node-key.ts",
+      "storeIds": [
+        "node-key"
+      ]
+    },
+    {
+      "owner": "lib/opened-documents/opened-documents-registry.ts",
+      "storeIds": [
+        "opened-documents"
+      ]
+    },
+    {
+      "owner": "server/composition/plugins/permission-ledger.ts",
+      "storeIds": [
+        "permission-ledger"
+      ]
+    },
+    {
+      "owner": "core/plugin-storage-store.ts",
+      "storeIds": [
+        "plugin-kv-storage"
+      ]
+    },
+    {
+      "owner": "lib/recipes/recipe-manager.ts",
+      "storeIds": [
+        "recipe-state"
+      ]
+    },
+    {
+      "owner": "core/render/render-bus-handlers.ts",
+      "storeIds": [
+        "render-html-to-pdf-staging"
+      ]
+    },
+    {
+      "owner": "core/resource-audit-log.ts",
+      "storeIds": [
+        "resource-audit-log"
+      ]
+    },
+    {
+      "owner": "lib/extension-platform/adapters/role.ts",
+      "storeIds": [
+        "role-state"
+      ]
+    },
+    {
+      "owner": "lib/task-runtime/task-store.ts",
+      "storeIds": [
+        "task-runtime-sqlite"
+      ]
+    },
+    {
+      "owner": "core/tls-material-service.ts",
+      "storeIds": [
+        "tls-ca-material",
+        "tls-server-leaf-material"
+      ]
+    },
+    {
+      "owner": "core/custom-theme-store.ts",
+      "storeIds": [
+        "user-custom-themes"
+      ]
+    },
+    {
+      "owner": "core/sticker-library.ts",
+      "storeIds": [
+        "user-sticker-library"
+      ]
+    },
+    {
+      "owner": "lib/wait/wait-registration-store.ts",
+      "storeIds": [
+        "wait-registration-state"
+      ]
+    }
+  ]
+}
