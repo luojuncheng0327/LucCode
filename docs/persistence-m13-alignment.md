@@ -1,4 +1,4 @@
-# M1.2–M1.3 persistence alignment — 2026-10-21
+# M1.2–M1.4 persistence alignment — 2026-10-21
 
 ## Scope and evidence levels
 
@@ -9,17 +9,21 @@ Unicode escapes, nullable pathKind, and compatibility-presence flag are retained
 No compatibility text or runtime behavior is invented from those fields.
 
 `scripts/generate-persistence-target-alignment.mjs` derives the current comparison
-from source and registry rules. The current result has 61 runtime stores, 58
-target-only stores, 3 live legacy contracts, 15 descriptor differences, and 43
-static descriptor matches. Fifty owner modules remain explicit side-effect-free
+from source and registry rules. The current result has 62 runtime stores, 57
+target-only stores, 3 live legacy contracts, 15 descriptor differences, and 44
+static descriptor matches.
+Forty-nine owner modules remain explicit side-effect-free
 scaffolds. Source existence and static matches do not prove feature parity.
 
 The retained legacy stores have 9 development-state, 2 update-channel, and 2
 download-cache write sites. `usage-ledger` now has a real SQLite owner with a
 read-only, byte-preserving JSON import path. `DATA_EPOCH` is 2 only because the
 1→2 usage-ledger edge is registered, checkpointed, validated, and recoverable.
-The remaining M1.4 schema work (`env_events`, `local_resources`, four existing
-table additions, and the remaining indexes) is still pending.
+M1.4 now adds `env_events`, `local_resources`, the four existing
+table additions and the five indexes. The resource owner implements schema and
+connection lifecycle; resource adoption/relocation and session feature consumers
+remain M2 work. See `docs/persistence-m14-alignment.tdd.md` for the schema-only
+completion boundary and validation evidence.
 
 ## M1.2 usage-ledger migration evidence
 
@@ -38,9 +42,10 @@ are quarantined on restore. Restore now hashes same-size files before accepting 
 already-restored shortcut.
 
 The RED/GREEN evidence is in `D:\openhanako\hana135\validation-m12-green-20261021`.
-The final targeted migration/ledger/normalization set is 17/17 green, the full
-existing-plus-new targeted set is 52/52 green after the final fingerprint repin, and
-the generator reports 4 real SQLite introspections. This does not claim Electron
+At the M1.2 checkpoint the final targeted migration/ledger/normalization set was
+17/17 green, the existing-plus-new targeted set was 52/52 green after the final
+fingerprint repin, and the generator reported 4 real SQLite introspections.
+M1.4 adds a fifth real introspector for ResourceCatalogStore. This does not claim Electron
 launch or whole-product Hana parity.
 
 ## Package worker attribution
@@ -92,9 +97,9 @@ was changed. A rebuild exit 0 with scripts blocked was not treated as success.
 - Worker attribution RED `43a4b3b`, GREEN `3ffb615`: 5 tests, including isolated
   runtime IPC operations and fail-closed census rules.
 - Generated baseline RED `16de6ce`: the invalid inherited receipt was rejected.
-  GREEN verifies generated inventory/startup/target audit byte-equivalent content
+GREEN verified generated inventory/startup/target audit byte-equivalent content
   and checks a fingerprint after exactly 3 runtime SQLite introspections.
-- Combined eight-file targeted regression command passes 34/34. There is no
+- The historical combined eight-file targeted regression command passed 34/34. There is no
   `npm test` script; this is not a full-repository test claim.
 
 Generators:

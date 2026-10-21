@@ -102,17 +102,17 @@ test("file-history migration rolls back both added columns, closes and retries a
   const dbPath = tempDatabase(t);
   createVersionOneDatabase(dbPath);
   const original = Database.prototype.exec;
-  let failedDatabase;
+  const failed = { database: null };
   const injected = t.mock.method(Database.prototype, "exec", function(sql) {
     if (sql.includes("ALTER TABLE files ADD COLUMN stat_mtime_ms")) {
-      failedDatabase = this;
+      failed.database = this;
       throw new Error("injected stat migration failure");
     }
     return original.call(this, sql);
   });
   assert.throws(() => new FileHistoryStore({ dbPath }), /injected stat migration failure/);
   injected.mock.restore();
-  assert.equal(failedDatabase.open, false, "failed constructor closes its database");
+  assert.equal(failed.database.open, false, "failed constructor closes its database");
   const probe = new Database(dbPath);
   try {
     assert.equal(fileColumns(probe).has("stat_size"), false, "first ALTER must roll back");

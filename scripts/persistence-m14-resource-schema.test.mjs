@@ -99,18 +99,18 @@ test("resource schema rejects future or damaged databases without inventing repl
 
 test("resource initialization rolls back on index failure and releases the failed connection", (t) => {
   const location = dbPath(t);
-  let failedDb;
+  const failed = { database: null };
   const original = Database.prototype.exec;
   const injected = t.mock.method(Database.prototype, "exec", function(sql) {
     if (sql.includes("CREATE INDEX") && sql.includes("idx_local_resources_fingerprint")) {
-      failedDb = this;
+      failed.database = this;
       throw new Error("injected catalog index failure");
     }
     return original.call(this, sql);
   });
   assert.throws(() => open(location), /injected catalog index failure/);
   injected.mock.restore();
-  assert.equal(failedDb.open, false);
+  assert.equal(failed.database.open, false);
   const probe = new Database(location);
   try {
     assert.equal(probe.pragma("user_version", { simple: true }), 0);

@@ -16,12 +16,19 @@ release bundle and the existing LucCode API; the Hana source was not available.
 | Runtime schema fingerprint opens the real owner in an isolated database | `node --test scripts/persistence-generated-baseline.test.mjs` | PASS; 4 SQLite introspections |
 | Existing persistence/build/seed regressions remain green | final 52-test command in `validation-m12-green-20261021/targeted-regressions-final.log` | PASS |
 
-The scoped usage coverage run reported 97.87% lines for `usage-ledger.ts`,
-75.43% branches, and 96.30% functions. This is not a whole-repository coverage
+The final M1.2 scoped coverage log (`usage-final-coverage.log`) reported
+99.36% lines for `usage-ledger.ts`, 93.15% branches, and 98.15% functions.
+The earlier 97.87% / 75.43% / 96.30% figures were superseded. This is not a whole-repository coverage
 claim. `build:server`, `verify:seed-kit`, and typecheck also passed with the
 local validation keyset; no release was published and no installed application
 was overwritten.
 
-M1.4 remains open for `env_events`, `local_resources`, the session-manifest
-columns, the remaining indexes, and their migrations. Electron launch and
-whole-product Hana parity remain unverified.
+The original build logs predated the final `server/index.ts` adjustment.
+All four baseline checks were rerun on `3ff8b113a89c36ed63f5fe231cfd010e74afcb43`:
+52/52 targeted tests, typecheck, build:server and verify:seed-kit, all exit 0.
+The authoritative refreshed logs/results are `current-head-*-20261021.*` in
+the same evidence directory.
+
+M1.4 schema additions and their verification are now tracked separately in
+`docs/persistence-m14-alignment.tdd.md`. M1.2 does not itself prove M1.4
+completion. Electron launch and whole-product Hana parity remain unverified.

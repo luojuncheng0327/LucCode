@@ -135,17 +135,17 @@ test("session migration failure rolls back schema and rows and can be retried", 
   const before = initial.prepare("SELECT type,name,sql FROM sqlite_master ORDER BY name").all();
   initial.close();
   const original = Database.prototype.exec;
-  let failedDb;
+  const failed = { database: null };
   const injected = t.mock.method(Database.prototype, "exec", function(sql) {
     if (sql.includes("ADD COLUMN preview_ui_state_json")) {
-      failedDb = this;
+      failed.database = this;
       throw new Error("injected final session migration failure");
     }
     return original.call(this, sql);
   });
   assert.throws(() => new SessionManifestStore({ dbPath }), /injected final session migration failure/);
   injected.mock.restore();
-  assert.equal(failedDb.open, false);
+  assert.equal(failed.database.open, false);
   const probe = new Database(dbPath);
   try {
     assert.equal(probe.pragma("user_version", { simple: true }), 5);
