@@ -66,7 +66,6 @@ function assertM14Schema(db) {
     "coordinator_granted_at",
     "project_id",
     "service_tier",
-    "experience_enabled",
     "provider_cache_affinity_key",
     "memory_reflection_snapshot_json",
     "experiments_json",

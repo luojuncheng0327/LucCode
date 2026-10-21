@@ -9,7 +9,7 @@ import {
 } from "../session-permission-mode.ts";
 
 export const SESSION_MANIFEST_SCHEMA_VERSION = 1;
-export const SESSION_MANIFEST_DB_USER_VERSION = 5;
+export const SESSION_MANIFEST_DB_USER_VERSION = 11;
 
 const require = createRequire(import.meta.url);
 let BetterSqliteDatabase = null;
@@ -291,6 +291,17 @@ export class SessionManifestStore {
         thinking_level TEXT,
         pinned_at TEXT,
         pin_order INTEGER,
+        coordinator_granted_at TEXT,
+        project_id TEXT,
+        service_tier TEXT,
+        experience_enabled INTEGER,
+        provider_cache_affinity_key TEXT,
+        memory_reflection_snapshot_json TEXT,
+        experiments_json TEXT,
+        forked_from_json TEXT,
+        memory_fork_baseline_json TEXT,
+        reminder_state_json TEXT,
+        preview_ui_state_json TEXT,
         workspace_scope_json TEXT NOT NULL,
         plugin_json TEXT NOT NULL,
         provenance_json TEXT NOT NULL,
@@ -331,6 +342,7 @@ export class SessionManifestStore {
       CREATE TABLE IF NOT EXISTS session_capability_snapshots (
         session_id TEXT PRIMARY KEY,
         tool_names_json TEXT,
+        tool_selection_explicit INTEGER NOT NULL DEFAULT 0,
         prompt_snapshot_json TEXT,
         capability_drift_dismissed_fingerprint TEXT,
         source TEXT NOT NULL,
@@ -352,11 +364,13 @@ export class SessionManifestStore {
         session_id TEXT PRIMARY KEY,
         leaf_id TEXT,
         observed_tail_leaf_id TEXT,
+        observed_message_count INTEGER,
         revision INTEGER NOT NULL,
         reason TEXT NOT NULL,
         updated_at TEXT NOT NULL,
         FOREIGN KEY(session_id) REFERENCES session_manifests(session_id) ON DELETE CASCADE
       );
+
     `);
   }
 
@@ -385,6 +399,44 @@ export class SessionManifestStore {
             break;
           case 4:
             this._addColumnIfMissing("session_manifests", "pin_order", "INTEGER");
+            break;
+          case 5:
+            this._addColumnIfMissing("session_manifests", "coordinator_granted_at", "TEXT");
+            break;
+          case 6:
+            this._addColumnIfMissing(
+              "session_capability_snapshots",
+              "tool_selection_explicit",
+              "INTEGER NOT NULL DEFAULT 0"
+            );
+            break;
+          case 7:
+            this._addColumnIfMissing("session_manifests", "project_id", "TEXT");
+            this._addColumnIfMissing("session_manifests", "service_tier", "TEXT");
+            this._addColumnIfMissing("session_manifests", "experience_enabled", "INTEGER");
+            this._addColumnIfMissing("session_manifests", "provider_cache_affinity_key", "TEXT");
+            this._addColumnIfMissing("session_manifests", "memory_reflection_snapshot_json", "TEXT");
+            this._addColumnIfMissing("session_manifests", "experiments_json", "TEXT");
+            this._addColumnIfMissing("session_manifests", "forked_from_json", "TEXT");
+            this._addColumnIfMissing("session_manifests", "memory_fork_baseline_json", "TEXT");
+            break;
+          case 8:
+            this._addColumnIfMissing("session_manifests", "reminder_state_json", "TEXT");
+            this._addColumnIfMissing("session_branch_heads", "observed_message_count", "INTEGER");
+            this.db.exec("CREATE TABLE IF NOT EXISTS env_events (\n"
+              + "  seq INTEGER PRIMARY KEY AUTOINCREMENT,\n"
+              + "  type TEXT NOT NULL,\n"
+              + "  scope_kind TEXT NOT NULL,\n"
+              + "  scope_agent_id TEXT NOT NULL,\n"
+              + "  payload_json TEXT NOT NULL,\n"
+              + "  at TEXT NOT NULL\n"
+              + ");\n"
+              + "CREATE INDEX IF NOT EXISTS idx_env_events_scope\n"
+              + "  ON env_events(scope_kind, scope_agent_id, seq);");
+            break;
+          // 9 is reserved to keep compatibility with the aligned release schema.
+          case 10:
+            this._addColumnIfMissing("session_manifests", "preview_ui_state_json", "TEXT");
             break;
         }
         version++;
