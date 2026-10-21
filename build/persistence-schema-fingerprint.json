@@ -757,7 +757,7 @@
     ],
     "version": 3
   },
-  "payloadFingerprint": "sha256:6afa7e6bb6db55af1927346029547f4b860c3ed66479fba8352a84e2b2381c6a",
+  "payloadFingerprint": "sha256:650031d4d668d72cd69ed54f13e5ea8e55bcf3fdfab2d317e987d67f987308b5",
   "registry": [
     {
       "affectedByEpochMigration": true,
@@ -988,22 +988,23 @@
       "exemption": null,
       "firstPossibleOpenPhase": "engine_construct",
       "firstPossibleWritePhase": "runtime_ready",
-      "format": "yaml",
+      "format": "markdown",
       "id": "channels",
-      "identityContract": "channelId is durable; YAML filename is its canonical locator.",
+      "identityContract": "channelId is durable; Markdown filename is its canonical locator.",
       "migrationEntry": [
         "core/migrations.ts channel migrations"
       ],
       "openEntry": [
         "ChannelManager",
-        "ChannelStore"
+        "createChannel",
+        "parseChannel"
       ],
       "ownerModule": "lib/channels/channel-store.ts",
       "pathExclusions": [],
       "pathKind": "file",
-      "pathPattern": "channels/{channelId}.yaml",
+      "pathPattern": "channels/{channelId}.md",
       "pathPatterns": [
-        "channels/{channelId}.yaml"
+        "channels/{channelId}.md"
       ],
       "preCoordinatorReadProjection": null,
       "protocolModules": [],
@@ -1014,7 +1015,7 @@
         "source": "lib/channels/channel-store.ts"
       },
       "schemaSource": {
-        "contract": "channel YAML parser, serializer, and generation contract",
+        "contract": "Markdown frontmatter and message stream parser, serializer, and generation contract",
         "kind": "runtime-contract",
         "module": "lib/channels/channel-store.ts"
       }
@@ -3211,8 +3212,8 @@
   ],
   "review": {
     "classification": "compatible",
-    "compatibilityReason": "M1.3 compatible registration audit, DATA_EPOCH remains 1. Retains 61 runtime descriptors including JSON usage-ledger and 3 live legacy stores. Adds 8 exact, expiring primitive exemptions for 13 dormant package-worker sites; no production caller or store ownership is claimed. The initial-commit fingerprint is internally invalid and has 41 stale sourceHash fields across 38 modules (36 unchanged since 042810c; the other 2 only rename erased declare properties, with identical transpiled JavaScript). Real SQLite introspection and all non-sourceHash schema fields match the archived baseline. The invalid original and structural/history audits are preserved in validation-m13-resume-20261021. This is an explicit reviewed regeneration of a malformed initial receipt, not a migration or runtime parity claim.",
-    "payloadFingerprint": "sha256:6afa7e6bb6db55af1927346029547f4b860c3ed66479fba8352a84e2b2381c6a"
+    "compatibilityReason": "Correct stale channels inventory from YAML to the Markdown files already read and written by ChannelManager/createChannel/parseChannel. Isolated runtime checkpoint regression proves actual ch_fixture.md is captured. No persisted bytes or reader/writer implementation changed; DATA_EPOCH remains 1.",
+    "payloadFingerprint": "sha256:650031d4d668d72cd69ed54f13e5ea8e55bcf3fdfab2d317e987d67f987308b5"
   },
   "schemas": [
     {
@@ -3298,7 +3299,7 @@
       "storeId": "agent-profile"
     },
     {
-      "contract": "channel YAML parser, serializer, and generation contract",
+      "contract": "Markdown frontmatter and message stream parser, serializer, and generation contract",
       "kind": "runtime-contract",
       "module": "lib/channels/channel-store.ts",
       "sourceHash": "sha256:edd33e4fc4b4f72fd59d7ce738fa0e4c502dc662c6ce9577a4f3a26bf784d9a7",

@@ -18,8 +18,8 @@
     "runtimeStores": 61,
     "targetOnlyStores": 58,
     "compatibilityOnlyStores": 3,
-    "contractDifferences": 17,
-    "staticDescriptorMatches": 41,
+    "contractDifferences": 16,
+    "staticDescriptorMatches": 42,
     "scaffoldOwners": 50
   },
   "stores": [
@@ -1543,30 +1543,28 @@
       },
       "current": {
         "owner": "lib/channels/channel-store.ts",
-        "format": "yaml",
+        "format": "markdown",
         "paths": [
-          "channels/{channelId}.yaml"
+          "channels/{channelId}.md"
         ],
         "pathKind": "file",
         "schemaSource": {
           "kind": "runtime-contract",
           "module": "lib/channels/channel-store.ts",
-          "contract": "channel YAML parser, serializer, and generation contract"
+          "contract": "Markdown frontmatter and message stream parser, serializer, and generation contract"
         },
         "openEntry": [
           "ChannelManager",
-          "ChannelStore"
+          "createChannel",
+          "parseChannel"
         ],
         "migrationEntry": [
           "core/migrations.ts channel migrations"
         ]
       },
       "ownerStatus": "source-present-unverified",
-      "status": "contract-difference",
-      "differences": [
-        "format",
-        "paths"
-      ],
+      "status": "static-descriptor-match",
+      "differences": [],
       "runtimeVerified": false,
       "writeSites": [
         {
@@ -1636,7 +1634,7 @@
           "ordinal": 0
         }
       ],
-      "nextAction": "Keep the current contract until its replacement and migration are verified."
+      "nextAction": "Descriptor fields match; runtime parity is not established by this audit."
     },
     {
       "id": "character-card-staging",

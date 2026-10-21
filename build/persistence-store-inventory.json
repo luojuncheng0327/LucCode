@@ -270,17 +270,17 @@
     {
       "id": "channels",
       "ownerModule": "lib/channels/channel-store.ts",
-      "pathPattern": "channels/{channelId}.yaml",
+      "pathPattern": "channels/{channelId}.md",
       "pathPatterns": [
-        "channels/{channelId}.yaml"
+        "channels/{channelId}.md"
       ],
       "pathExclusions": [],
       "pathKind": "file",
-      "format": "yaml",
+      "format": "markdown",
       "schemaSource": {
         "kind": "runtime-contract",
         "module": "lib/channels/channel-store.ts",
-        "contract": "channel YAML parser, serializer, and generation contract"
+        "contract": "Markdown frontmatter and message stream parser, serializer, and generation contract"
       },
       "schemaContract": {
         "kind": "runtime-source",
@@ -289,7 +289,8 @@
       },
       "openEntry": [
         "ChannelManager",
-        "ChannelStore"
+        "createChannel",
+        "parseChannel"
       ],
       "migrationEntry": [
         "core/migrations.ts channel migrations"
@@ -303,7 +304,7 @@
       "affectedByEpochMigration": true,
       "bootstrapSafety": null,
       "preCoordinatorReadProjection": null,
-      "identityContract": "channelId is durable; YAML filename is its canonical locator.",
+      "identityContract": "channelId is durable; Markdown filename is its canonical locator.",
       "exemption": null
     },
     {

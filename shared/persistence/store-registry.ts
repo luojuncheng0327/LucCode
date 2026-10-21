@@ -670,12 +670,12 @@ export const PERSISTENT_STORES: readonly StoreDescriptor[] = Object.freeze([
   defineStore({
     id: "channels",
     ownerModule: "lib/channels/channel-store.ts",
-    pathPatterns: ["channels/{channelId}.yaml"],
-    format: "yaml",
-    schemaSource: runtimeSource("lib/channels/channel-store.ts", "channel YAML parser, serializer, and generation contract"),
-    openEntry: ["ChannelManager", "ChannelStore"],
+    pathPatterns: ["channels/{channelId}.md"],
+    format: "markdown",
+    schemaSource: runtimeSource("lib/channels/channel-store.ts", "Markdown frontmatter and message stream parser, serializer, and generation contract"),
+    openEntry: ["ChannelManager", "createChannel", "parseChannel"],
     migrationEntry: ["core/migrations.ts channel migrations"],
-    identityContract: "channelId is durable; YAML filename is its canonical locator.",
+    identityContract: "channelId is durable; Markdown filename is its canonical locator.",
     siteRules: [
       ...rules(["core/channel-manager.ts", "lib/channels/channel-store.ts"], "Creates the channel root or writes channel generations."),
       ...rules(["core/engine.ts"], "Creates the channel root.", ["mkdir"], "channelsDir"),
