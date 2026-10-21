@@ -528,6 +528,11 @@ export async function pruneServerNodeModulesViaNft({
       nftRoots.map((root) => path.join(outDir, root)),
       {
         base: outDir,
+        // On Windows path.relative(D:, C:) is absolute, not ../. nft's
+        // default parent-path guard misses it and can glob the user's home.
+        ignore: (relativePath) => path.isAbsolute(relativePath)
+          || relativePath === ".."
+          || relativePath.startsWith(`..${path.sep}`),
         conditions: ["node", "import"],
         // Bundled plugins remain as TypeScript source and are loaded through
         // the plugin runtime. nft resolves .ts paths but its parser only
