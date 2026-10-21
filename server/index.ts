@@ -18,6 +18,7 @@ import { WebSocketServer } from "ws";
 import { AppError } from "../shared/errors.ts";
 import { errorBus } from "../shared/error-bus.ts";
 import { LucEngine } from "../core/engine.ts";
+import { createResourceCatalogStore } from "../core/resource-catalog-store.ts";
 import { ensureFirstRun } from "../core/first-run.ts";
 import { initDebugLog, createModuleLogger } from "../lib/debug-log.ts";
 import { redactLogLabel, redactLogText } from "../lib/log-redactor.ts";
@@ -404,14 +405,32 @@ export async function startServer(root: CompositionRoot = {}): Promise<void> {
 
   // ── 初始化引擎 ──
   log.log("② 创建 LucEngine...");
-  const engine: any = new LucEngine({
-    lucHome,
-    productDir,
-    appVersion,
-    builtinMediaAdapters: root.builtinMediaAdapters,
-  } as any);
+  // The catalog starts empty, behind the epoch gate, and is owned by the engine
+  // after construction. Resource IO consumers are a separate M2 integration.
+  const resourceCatalog = createResourceCatalogStore({ lucHome });
+  let engine: any;
+  try {
+    engine = new LucEngine({
+      lucHome,
+      productDir,
+      appVersion,
+      builtinMediaAdapters: root.builtinMediaAdapters,
+      resourceCatalog,
+    } as any);
+  } catch (error) {
+    resourceCatalog.close();
+    throw error;
+  }
   log.log("② LucEngine 构造完成，开始 init...");
-  await engine.init((msg: any) => log.log(msg));
+  try {
+    await engine.init((msg: any) => log.log(msg));
+  } catch (error) {
+    // Construction transferred ownership, but normal shutdown is not wired yet.
+    try { await engine.dispose(); } catch (cleanupError) {
+      log.warn("Engine startup cleanup failed", cleanupError);
+    }
+    throw error;
+  }
   log.log("② engine.init 完成");
   dlog.log("server", "engine initialized");
 

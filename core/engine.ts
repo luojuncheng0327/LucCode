@@ -300,6 +300,7 @@ export class LucEngine {
   declare _pluginManager: any;
   declare _prefs: any;
   declare _resourceAccess: any;
+  declare _resourceCatalog: any;
   declare _resourceEventBus: any;
   declare _resourceLoader: any;
   declare _resourceIO: any;
@@ -346,12 +347,13 @@ export class LucEngine {
    *   root. Absent/empty means an open composition: the media runtime
    *   constructs with zero built-in adapters, never an implicit import.
    */
-  constructor({ lucHome, productDir, agentId, appVersion, builtinMediaAdapters }) {
+  constructor({ lucHome, productDir, agentId, appVersion, builtinMediaAdapters, resourceCatalog = null }) {
     this.luccodeHome = lucHome;
     this.productDir = productDir;
     this.appVersion = appVersion || "0.0.0";
     this._runtimeContext = null;
     this._resources = null;
+    this._resourceCatalog = resourceCatalog;
     this._resourceAccess = null;
     this._resourceIO = null;
     this._resourceEventBus = null;
@@ -2722,7 +2724,11 @@ export class LucEngine {
         try {
           this._usageLedger?.close?.();
         } finally {
-          this._sessionManifestStore?.close?.();
+          try {
+            this._resourceCatalog?.close();
+          } finally {
+            this._sessionManifestStore?.close?.();
+          }
         }
       }
     }
