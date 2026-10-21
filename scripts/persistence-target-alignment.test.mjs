@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import crypto from "node:crypto";
 import { test } from "node:test";
 import { PERSISTENT_STORES } from "../shared/persistence/store-registry.ts";
 
@@ -54,4 +57,25 @@ test("alignment rejects duplicate targets and flags absent owners without promot
   missing.stores[0].owner = "core/not-implemented-target-owner.ts";
   const result = generateTargetAlignment({ catalog: missing });
   assert.equal(result.stores.find((store) => store.id === missing.stores[0].id).ownerStatus, "missing");
+  const invalid = structuredClone(catalog);
+  invalid.stores[0].owner = "../outside.ts";
+  assert.throws(() => generateTargetAlignment({ catalog: invalid, discoveredSites: [] }), /inside repository/);
+  invalid.stores[0].owner = "core/owner.ts";
+  invalid.stores[0].paths = [];
+  assert.throws(() => generateTargetAlignment({ catalog: invalid, discoveredSites: [] }), /incomplete/);
+});
+
+test("release import preserves extracted facts and verifies their source digest", async (t) => {
+  const { importTargetCatalog } = await import("./generate-persistence-target-alignment.mjs");
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "luc-target-import-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  fs.mkdirSync(path.join(root, "shared/persistence"), { recursive: true });
+  const catalog = JSON.parse(fs.readFileSync(catalogUrl, "utf8"));
+  const source = JSON.stringify({ hana: Object.fromEntries(catalog.stores.map((store) => [store.id, store])) });
+  const sourcePath = path.join(root, "store_alignment.json");
+  fs.writeFileSync(sourcePath, source);
+  const imported = importTargetCatalog(sourcePath, root);
+  assert.deepEqual(imported.stores, catalog.stores);
+  assert.equal(imported.source.sha256, crypto.createHash("sha256").update(source).digest("hex"));
+  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root, "shared/persistence/hana135-target-catalog.json"), "utf8")), imported);
 });

@@ -1,0 +1,1312 @@
+{
+  "version": 1,
+  "release": "HanaAgent 1.1.35-beta",
+  "evidenceLevel": "release-artifact-extraction",
+  "runtimeRegistration": false,
+  "source": {
+    "file": "store_alignment.json",
+    "section": "hana",
+    "sha256": "fffa98b052e8fd8d1ed2cb64fb3bf3821ec29aa9b5c95d67ccda116ac6b4cf69"
+  },
+  "limitations": [
+    "Extracted owner/path/format facts are targets, not implemented LucCode contracts.",
+    "Null pathKind and escaped Unicode strings are preserved as extracted; no missing contract is inferred.",
+    "The compatibility flag records presence of release metadata, not the unextracted compatibility text."
+  ],
+  "stores": [
+    {
+      "id": "agent-authored-records",
+      "owner": "lib/tools/experience.ts",
+      "format": "markdown",
+      "pathKind": null,
+      "paths": [
+        "user/user.md",
+        "agents/{agentId}/dm/{peerId}.md",
+        "agents/{agentId}/experience.md",
+        "agents/{agentId}/experience/{category}.md",
+        "agents/{agentId}/diary/{date}.md"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "agent-facts-sqlite",
+      "owner": "lib/memory/fact-store.ts",
+      "format": "sqlite",
+      "pathKind": null,
+      "paths": [
+        "agents/{agentId}/memory/facts.db"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "agent-memory",
+      "owner": "lib/memory/compile.ts",
+      "format": "mixed-directory",
+      "pathKind": null,
+      "paths": [
+        "agents/{agentId}/memory/memory.md",
+        "agents/{agentId}/memory/facts.md",
+        "agents/{agentId}/memory/today.md",
+        "agents/{agentId}/memory/week.md",
+        "agents/{agentId}/memory/longterm.md",
+        "agents/{agentId}/memory/editable-facts-state.json",
+        "agents/{agentId}/memory/today-state.json",
+        "agents/{agentId}/memory/daily-state.json",
+        "agents/{agentId}/memory/pinned-memory.json",
+        "agents/{agentId}/memory/summaries/{sessionId}.json",
+        "agents/{agentId}/memory/daily/{date}.md",
+        "agents/{agentId}/memory/dream/state.json",
+        "agents/{agentId}/memory/dream/pending-apply.json",
+        "agents/{agentId}/memory/dream/revisions/{revisionId}.json",
+        "agents/{agentId}/memory/memories.db",
+        "agents/{agentId}/memory/.v2-migrated"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "agent-phone",
+      "owner": "lib/conversations/agent-phone-projection.ts",
+      "format": "mixed-directory",
+      "pathKind": null,
+      "paths": [
+        "agents/{agentId}/phone/conversations/{conversationId}.md",
+        "agents/{agentId}/phone/session-runtime/{conversationId}.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "agent-profile",
+      "owner": "core/agent-manager.ts",
+      "format": "mixed-directory",
+      "pathKind": "file",
+      "paths": [
+        "agents/{agentId}/config.yaml",
+        "agents/{agentId}/identity.md",
+        "agents/{agentId}/AGENTS.md",
+        "agents/{agentId}/AGENTS.public.md",
+        "agents/{agentId}/appearance-summary.json",
+        "agents/{agentId}/avatars/{fileName}",
+        "agents/{agentId}/header.html",
+        "agents/{agentId}/pinned.md",
+        "agents/{agentId}/channels.md",
+        "user/avatars/{fileName}"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "annotation-sidecar",
+      "owner": "core/annotation-sidecar-store.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "annotations.v1.json",
+        "annotations.v1.json.corrupt-{timestamp}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "app-card-activity",
+      "owner": "lib/cards/app-card-activity-store.ts",
+      "format": "jsonl",
+      "pathKind": null,
+      "paths": [
+        "app-card-activity/{cardHash}.jsonl"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "app-data",
+      "owner": "server/app-host/paths.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        "app-data/{appId}",
+        "app-data/{appId}/storage/{scopeFile}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "app-skill-customizations",
+      "owner": "lib/apps/app-skill-customizations.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        "app-customizations/{appId}/skills/{sourceHash}"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "app-tool-legacy-ownership",
+      "owner": "lib/app-tool-legacy-ownership.ts",
+      "format": "json",
+      "pathKind": "file",
+      "paths": [
+        "extensions/app-tool-legacy-ownership.json"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "app-ui-snapshot-cache",
+      "owner": "core/app-static-ui-access.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        ".cache/app-ui-snapshots"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "approval-audit",
+      "owner": "server/composition/plugins/approval-audit.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "security/approval-audit.json"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "approval-rules",
+      "owner": "server/composition/plugins/approval-rules.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "security/approval-rules.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "browser-close-intents",
+      "owner": "desktop/src/main/browser-close-intents.cjs",
+      "format": "json",
+      "pathKind": "file",
+      "paths": [
+        "user/browser-close-intents.json"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "builtin-app-dev-cache",
+      "owner": "scripts/builtin-apps.mjs",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        ".cache/builtin-apps/{appId}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "bundle-state",
+      "owner": "lib/extension-platform/adapters/bundle.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        "bundles/{bundleId}",
+        "bundles/.order.json",
+        "skill-bundles.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "card-activity",
+      "owner": "lib/cards/card-activity-store.ts",
+      "format": "jsonl",
+      "pathKind": null,
+      "paths": [
+        "card-activity/{cardHash}.jsonl"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "card-data",
+      "owner": "lib/cards/card-data-store.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "card-data/{cardHash}.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "card-guide",
+      "owner": "lib/recipes/card-guide-materializer.ts",
+      "format": "markdown",
+      "pathKind": null,
+      "paths": [
+        "card-guide/guide.md"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "card-host-grants",
+      "owner": "core/card-host-grant-store.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "security/card-host-grants.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "card-library-output",
+      "owner": "core/card-library.ts",
+      "format": "binary-cache",
+      "pathKind": "tree",
+      "paths": [
+        "\\u9B54\\u672F\\u5361/{filename}",
+        "Magic Cards/{filename}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "card-package-share-staging",
+      "owner": "server/routes/cards.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        ".ephemeral/card-exports/{token}",
+        ".ephemeral/card-imports/{token}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "chalkboard-card-faces",
+      "owner": "core/card-face-store.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "chalkboard/card-faces.json",
+        "chalkboard/card-faces.json.bak-{timestamp}",
+        "chalkboard/card-face-assets/{fileName}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "chalkboard-card-instance-sources",
+      "owner": "core/card-instance-source-store.ts",
+      "format": "directory-tree",
+      "pathKind": "tree",
+      "paths": [
+        "chalkboard/card-instances/{instanceHash}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "chalkboard-client-layout-profiles",
+      "owner": "core/client-layout-profile-store.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "chalkboard/client-layout-profiles.json",
+        "chalkboard/client-layout-profiles.json.bak-v{version}",
+        "chalkboard/client-layout-profiles.json.bak-corrupt-{contentHash}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "chalkboard-pinned-card-documents",
+      "owner": "core/pinned-card-document-store.ts",
+      "format": "directory-tree",
+      "pathKind": "tree",
+      "paths": [
+        "chalkboard/cards/{cardDocumentId}.card.html"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "chalkboard-pinned-card-registry",
+      "owner": "core/pinned-card-registry-store.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "chalkboard/pinned-cards.json",
+        "chalkboard/pinned-cards.json.bak-{timestamp}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "chalkboard-plugin-stream-card-registry",
+      "owner": "core/plugin-stream-card-registry-store.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "chalkboard/plugin-stream-cards.json",
+        "chalkboard/plugin-stream-cards.json.bak-{timestamp}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "chalkboard-web-card-registry",
+      "owner": "core/web-card-registry-store.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "chalkboard/web-cards.json",
+        "chalkboard/web-cards.json.bak-{timestamp}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "channels",
+      "owner": "lib/channels/channel-store.ts",
+      "format": "markdown",
+      "pathKind": null,
+      "paths": [
+        "channels/{channelId}.md"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "character-card-staging",
+      "owner": "lib/character-cards/service.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        ".ephemeral/character-card-uploads/{fileName}",
+        ".ephemeral/character-card-imports/{token}",
+        ".ephemeral/character-card-exports/{token}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "chat-attachment-uploads",
+      "owner": "hub/index.ts",
+      "format": "binary-cache",
+      "pathKind": null,
+      "paths": [
+        "attachments/{fileName}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "chat-card-state",
+      "owner": "lib/cards/chat-card-state-store.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "chat-card-state/{cardHash}.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "cron-automation",
+      "owner": "lib/desk/cron-store.ts",
+      "format": "mixed-directory",
+      "pathKind": null,
+      "paths": [
+        "agents/{agentId}/desk/cron-jobs.json",
+        "agents/{agentId}/desk/cron-jobs.json.corrupt-{recoveryId}.bak",
+        "agents/{agentId}/desk/cron-runs/{runId}.json",
+        "studios/{studioId}/desk/cron-jobs.json",
+        "studios/{studioId}/desk/cron-jobs.json.corrupt-{recoveryId}.bak",
+        "studios/{studioId}/desk/cron-runs/{runId}.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "data-epoch-checkpoints",
+      "owner": "core/data-epoch-checkpoint-provider.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        "data-epoch-checkpoints/{transitionId}/**"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "data-epoch-restore-quarantine",
+      "owner": "core/data-epoch-restore.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        "data-epoch-restore-quarantine/{restoreId}/**",
+        "data-epoch-restores.log"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "data-epoch-stamp",
+      "owner": "shared/data-epoch.cjs",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "data-epoch.json"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "data-epoch-transition-journal",
+      "owner": "core/data-epoch-coordinator.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "data-epoch-transition.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "deferred-result-state",
+      "owner": "lib/deferred-result-store.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        ".ephemeral/deferred-tasks.json"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "desk-activity",
+      "owner": "lib/desk/activity-store.ts",
+      "format": "mixed-directory",
+      "pathKind": null,
+      "paths": [
+        "agents/{agentId}/desk/activities.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "desk-cover-upload-staging",
+      "owner": "server/routes/desk.ts",
+      "format": "directory-tree",
+      "pathKind": "tree",
+      "paths": [
+        "tmp/markdown-cover-uploads/{token}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "desktop-diagnostics",
+      "owner": "desktop/src/shared/desktop-launch-diagnostics.cjs",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        "diagnostics/desktop-launch",
+        "crash.log",
+        "browser-cmd.log"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "desktop-gpu-startup-state",
+      "owner": "desktop/src/shared/gpu-startup-policy.cjs",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "user/gpu-startup.json"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "desktop-win32-install-acl-heal-state",
+      "owner": "desktop/src/shared/win32-install-acl-heal.cjs",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "user/win32-install-acl-heal.json"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "desktop-window-version-state",
+      "owner": "desktop/main.cjs",
+      "format": "mixed-directory",
+      "pathKind": null,
+      "paths": [
+        "user/window-state.json",
+        "user/quick-chat-window-state.json",
+        "user/studio-window-state.json",
+        "user/last-seen-version.json",
+        "last-update-version"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "developer-spaces",
+      "owner": "server/app-instances/owned-homes.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        "developer-spaces/**"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "device-access-registries",
+      "owner": "core/device-registry.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "devices.json",
+        "device-credentials.json",
+        "pairing-sessions.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "execution-leases",
+      "owner": "core/execution-lease-registry.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "security/execution-leases.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "extension-install-receipts",
+      "owner": "lib/extension-platform/install-receipts.ts",
+      "format": "json",
+      "pathKind": "tree",
+      "paths": [
+        "extensions/receipts/{stagedId}.json"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "extension-installs",
+      "owner": "lib/extension-platform/install-records.ts",
+      "format": "json",
+      "pathKind": "file",
+      "paths": [
+        "extensions/installs.json"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "extension-market-downloads",
+      "owner": "lib/extension-platform/market-source.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        ".cache/extension-market-downloads/{sourceId}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "extension-market-index-cache",
+      "owner": "lib/extension-market/index-channel.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        ".cache/extension-market/{sourceId}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "extension-market-sources",
+      "owner": "lib/extension-market/sources.ts",
+      "format": "json",
+      "pathKind": "file",
+      "paths": [
+        "extensions/market-sources.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "extension-staging",
+      "owner": "lib/extension-platform/registry.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        "extensions/staging/{stagedId}",
+        "extensions/snapshots/connector/{connectorId}",
+        ".ephemeral/extension-exports/{token}"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "file-history-sqlite",
+      "owner": "lib/file-history/history-store.ts",
+      "format": "sqlite",
+      "pathKind": null,
+      "paths": [
+        "file-history/{workspaceHash}/history.sqlite",
+        "file-history/{workspaceHash}/history.sqlite-wal",
+        "file-history/{workspaceHash}/history.sqlite-shm",
+        "file-history/external/history.sqlite",
+        "file-history/external/history.sqlite-wal",
+        "file-history/external/history.sqlite-shm"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "font-library",
+      "owner": "core/font-library-service.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        "font-library/registry.json",
+        "font-library/files/{filename}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "host-resource-catalog-sqlite",
+      "owner": "core/resource-catalog-store.ts",
+      "format": "sqlite",
+      "pathKind": null,
+      "paths": [
+        "workspace-state/resources.sqlite",
+        "workspace-state/resources.sqlite-wal",
+        "workspace-state/resources.sqlite-shm"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "image-thumbnail-cache",
+      "owner": "core/image-thumbnail-cache.ts",
+      "format": "binary-cache",
+      "pathKind": "tree",
+      "paths": [
+        "cache/image-thumbnails"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "installed-plugins",
+      "owner": "core/plugin-manager.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        "plugins/{pluginId}",
+        "plugin-installs.json",
+        "plugin-backups/{pluginId}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "legacy-pi-search-cache",
+      "owner": "lib/pi-sdk/search-tools.ts",
+      "format": "binary-cache",
+      "pathKind": "file",
+      "paths": [
+        ".pi/agent/bin/{toolName}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "legacy-upload-cache",
+      "owner": "server/routes/upload.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        "uploads/{uploadName}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "local-user-auth",
+      "owner": "core/local-user-account.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "local-user-auth.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "loop-state",
+      "owner": "lib/loop/loop-store.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        ".ephemeral/loop-state.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "managed-runtime-caches",
+      "owner": "lib/pi-sdk/search-tools.ts",
+      "format": "binary-cache",
+      "pathKind": "tree",
+      "paths": [
+        "runtime/pi-sdk/bin/{toolName}",
+        ".ephemeral/win32-sandbox-runtime/{fingerprint}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "mcp-config",
+      "owner": "core/mcp/manager.ts",
+      "format": "json",
+      "pathKind": "tree",
+      "paths": [
+        "plugin-data/mcp"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "media-generation-library-output",
+      "owner": "core/media/poller.ts",
+      "format": "binary-cache",
+      "pathKind": "tree",
+      "paths": [
+        "OH-\\u5A92\\u4F53\\u5E93/{filename}",
+        "OH-\\u5A92\\u9AD4\\u5EAB/{filename}",
+        "OH-\\u30E1\\u30C7\\u30A3\\u30A2\\u30E9\\u30A4\\u30D6\\u30E9\\u30EA/{filename}",
+        "OH-\\uBBF8\\uB514\\uC5B4 \\uB77C\\uC774\\uBE0C\\uB7EC\\uB9AC/{filename}",
+        "OH-Media Library/{filename}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "migration-backups",
+      "owner": "core/migration-backups.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        "migration-backups/{backupId}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "model-catalog-active-file",
+      "owner": "lib/model-catalog/bootstrap.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "model-catalog/current.json",
+        "model-catalog/previous.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "model-catalog-refresh-staging",
+      "owner": "lib/remote-data/refresh-channel.ts",
+      "format": "json",
+      "pathKind": "tree",
+      "paths": [
+        "model-catalog/staging"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "model-catalog-refresh-state",
+      "owner": "lib/remote-data/refresh-channel.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "model-catalog/state.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "node-identities",
+      "owner": "core/node-identity-registry.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "node-identities.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "node-key",
+      "owner": "core/node-key.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "node-key.json",
+        "node-key.{timestamp}.bak"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "office-render-jobs",
+      "owner": "core/render/html-to-pdf.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        "plugin-data/office/generated"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "opened-documents",
+      "owner": "lib/opened-documents/opened-documents-registry.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "opened-documents.json",
+        "opened-documents.json.corrupt-{timestamp}"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "operational-checkpoints",
+      "owner": "core/session-manifest/checkpoint.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        "checkpoints/session-manifest/{checkpointId}",
+        "checkpoints/{legacyCheckpointFile}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "permission-ledger",
+      "owner": "server/composition/plugins/permission-ledger.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "security/permission-ledger.json"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "plugin-kv-storage",
+      "owner": "core/plugin-storage-store.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "plugin-data/{pluginId}/storage.json",
+        "plugin-data/{pluginId}/storage.json.bak-{timestamp}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "plugin-runtime-data",
+      "owner": "core/plugin-config.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        "plugin-data/{pluginId}"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "plugin-task-registry",
+      "owner": "lib/task-registry.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        ".ephemeral/plugin-tasks.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "provider-models-cache",
+      "owner": "server/routes/providers.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "models-cache.json",
+        "models-cache.json.tmp.{pid}"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "provider-state",
+      "owner": "core/provider-catalog.ts",
+      "format": "mixed-directory",
+      "pathKind": null,
+      "paths": [
+        "provider-catalog.json",
+        "added-models.yaml",
+        "models.json",
+        "auth.json",
+        "auth.json.lock",
+        "provider-plugins/{storageId}/manifest.json",
+        "provider-plugins/{storageId}/providers/{storageId}.json"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "recipe-state",
+      "owner": "lib/recipes/recipe-manager.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        "recipes/{recipeName}",
+        "recipes/.template-validation.v1.json",
+        "recipes/.template-validation.v1.json.bak-{timestamp}"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "render-html-to-pdf-staging",
+      "owner": "core/render/render-bus-handlers.ts",
+      "format": "directory-tree",
+      "pathKind": "tree",
+      "paths": [
+        "tmp/render-html-to-pdf/{jobId}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "resource-audit-log",
+      "owner": "core/resource-audit-log.ts",
+      "format": "append-only-log",
+      "pathKind": null,
+      "paths": [
+        "logs/resource-audit.jsonl"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "role-state",
+      "owner": "lib/extension-platform/adapters/role.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        "roles/{roleId}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "runtime-diagnostics",
+      "owner": "lib/debug-log.ts",
+      "format": "mixed-directory",
+      "pathKind": null,
+      "paths": [
+        "logs/{timestamp}.log",
+        "browser-ws.log",
+        "switch-error.log",
+        "user/browser-sessions.json",
+        "bridge/wechat/sync-{accountHash}.json",
+        "bridge/wechat/context-{accountHash}.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "security-audit-log",
+      "owner": "core/security-audit-log.ts",
+      "format": "append-only-log",
+      "pathKind": null,
+      "paths": [
+        "logs/security-audit.jsonl"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "security-grants",
+      "owner": "core/grant-registry.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "security/grants.json",
+        "security/grants.json.corrupt-{timestamp}",
+        "security/grants.json.corrupt-{timestamp}.reason.txt"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "security-key-material",
+      "owner": "core/resource-ticket-service.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        "security/resource-ticket-key",
+        "security/plugin-asset-session-key",
+        "security/plugin-iframe-ticket-key",
+        "security/app-iframe-ticket-key",
+        "security/plugin-surface-session-key",
+        "security/app-surface-session-key",
+        "security/card-document-ticket-key",
+        "security/credential-master-key.enc"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "server-network-config",
+      "owner": "core/server-network-config.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "server-network.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "server-node-identity",
+      "owner": "core/server-identity.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "server-node.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "server-runtime-info",
+      "owner": "server/index.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "server-info.json"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "session-drafts-and-projects",
+      "owner": "core/input-drafts-store.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "input-drafts.v1.json",
+        "input-drafts.v2/{owner}.json",
+        "input-drafts-recovery/{file}",
+        "user/session-projects.json"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "session-files",
+      "owner": "lib/session-files/session-file-registry.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        "session-files/{sessionHash}"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "session-jsonl",
+      "owner": "core/session-coordinator.ts",
+      "format": "jsonl",
+      "pathKind": null,
+      "paths": [
+        "agents/{agentId}/sessions/{sessionId}.jsonl",
+        "agents/{agentId}/sessions/archived/{sessionId}.jsonl",
+        "agents/{agentId}/activity/{sessionId}.jsonl",
+        "agents/{agentId}/subagent-sessions/{sessionId}.jsonl",
+        "agents/{agentId}/.ephemeral/{sessionId}.jsonl",
+        "agents/{agentId}/sessions/bridge/owner/{sessionId}.jsonl"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "session-manifest-sqlite",
+      "owner": "core/session-manifest/store.ts",
+      "format": "sqlite",
+      "pathKind": null,
+      "paths": [
+        "session-manifest.db",
+        "session-manifest.db-wal",
+        "session-manifest.db-shm"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "session-sidecars",
+      "owner": "core/bridge-session-manager.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "agents/{agentId}/sessions/session-titles.json",
+        "agents/{agentId}/sessions/bridge/bridge-sessions.json",
+        "agents/{agentId}/sessions/session-vision-notes.json",
+        "agents/{agentId}/sessions/session-meta-graveyard/{backupFileName}",
+        "agents/{agentId}/subagent-sessions/session-meta-graveyard/{backupFileName}"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "signed-artifacts",
+      "owner": "shared/artifact-core/pointer-store.cjs",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        "artifacts"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "skill-state",
+      "owner": "lib/skill-bundles/store.ts",
+      "format": "mixed-directory",
+      "pathKind": "tree",
+      "paths": [
+        "skills/{skillName}",
+        "skills/.seed-receipt.v1.json"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "skill-translation-cache",
+      "owner": "lib/skills/skill-name-translation-cache.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        ".ephemeral/skill-name-translations.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "skill-upload-staging",
+      "owner": "server/utils/uploaded-skill-package.ts",
+      "format": "directory-tree",
+      "pathKind": "tree",
+      "paths": [
+        "tmp/skill-install-uploads/{token}"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "studio-mount-registry",
+      "owner": "core/studio-mounts.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "studio-mounts.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "subagent-state",
+      "owner": "lib/subagent-run-store.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "subagent-runs.json",
+        "subagent-threads.json"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "task-runtime-sqlite",
+      "owner": "lib/task-runtime/task-store.ts",
+      "format": "sqlite",
+      "pathKind": null,
+      "paths": [
+        "task-runtime.sqlite",
+        "task-runtime.sqlite-wal",
+        "task-runtime.sqlite-shm"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "terminal-session-state",
+      "owner": "lib/terminal/terminal-session-manager.ts",
+      "format": "mixed-directory",
+      "pathKind": null,
+      "paths": [
+        ".ephemeral/terminal-sessions/{terminalId}.json",
+        ".ephemeral/terminal-sessions/{terminalId}.jsonl",
+        ".ephemeral/terminal-sessions/{terminalId}.{segment}.jsonl"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "tls-ca-material",
+      "owner": "core/tls-material-service.ts",
+      "format": "mixed-directory",
+      "pathKind": null,
+      "paths": [
+        "security/tls/ca.pem",
+        "security/tls/ca.key"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "tls-server-leaf-material",
+      "owner": "core/tls-material-service.ts",
+      "format": "mixed-directory",
+      "pathKind": null,
+      "paths": [
+        "security/tls/server.pem",
+        "security/tls/server.key",
+        "security/tls/server.meta.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "usage-ledger",
+      "owner": "lib/llm/usage-ledger.ts",
+      "format": "sqlite",
+      "pathKind": null,
+      "paths": [
+        "usage-ledger.sqlite",
+        "usage-ledger.json"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "user-custom-themes",
+      "owner": "core/custom-theme-store.ts",
+      "format": "json",
+      "pathKind": "file",
+      "paths": [
+        "user/custom-themes.json"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "user-preferences",
+      "owner": "core/preferences-manager.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "user/preferences.json",
+        "user/preferences.json.corrupt-{timestamp}"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "user-sticker-library",
+      "owner": "core/sticker-library.ts",
+      "format": "json",
+      "pathKind": "file",
+      "paths": [
+        "user/stickers/{sha256}.json",
+        "user/stickers/_migration.json"
+      ],
+      "has_compat": true
+    },
+    {
+      "id": "user-studio-registries",
+      "owner": "core/server-identity.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "users.json",
+        "studios.json",
+        "spaces.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "wait-registration-state",
+      "owner": "lib/wait/wait-registration-store.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        ".ephemeral/wait-registrations.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "web-session-registry",
+      "owner": "core/web-session-store.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "web-sessions.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "windows-sandbox-migration-state",
+      "owner": "lib/sandbox/win32-legacy-migration.ts",
+      "format": "json",
+      "pathKind": null,
+      "paths": [
+        "user/win32-sandbox-migration-v3.json",
+        "user/win32-sandbox-cleanup-v4.json"
+      ],
+      "has_compat": false
+    },
+    {
+      "id": "workflow-state",
+      "owner": "lib/workflow/journal.ts",
+      "format": "mixed-directory",
+      "pathKind": "file",
+      "paths": [
+        "agents/{agentId}/workflow-journals/{runId}.jsonl",
+        "agents/{agentId}/workflow-sessions/{runId}",
+        "workflow-activity.json"
+      ],
+      "has_compat": false
+    }
+  ]
+}
